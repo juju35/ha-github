@@ -119,3 +119,14 @@ test("the button opens the GitHub integration page", () => {
   card._action("integration");
   assert.deepEqual([...pushed], ["/config/integrations/integration/github", "location-changed"]);
 });
+
+test("embed (the panel's rows): only the counters and the latest activity, no frame, header or account", () => {
+  const { html } = render(lib.GitHubCard, { embed: true, repositories: ["juju35/ha-parcel"] }, hass());
+  assert.match(html, /class="content embed"/);
+  assert.match(html, /Latest release/);
+  assert.match(html, /v1\.4\.0/);
+  assert.doesNotMatch(html, /<ha-card/);
+  assert.doesNotMatch(html, /class="repo-head/);
+  assert.doesNotMatch(html, /Account ·/);
+  assert.doesNotMatch(render(lib.GitHubCard, { embed: true, repositories: ["juju35/ha-parcel"], show_latest: false }, hass()).html, /Latest release/);
+});

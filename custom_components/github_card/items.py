@@ -72,13 +72,21 @@ def _newest(item: dict[str, Any]) -> str:
     return item["updated"] or ""
 
 
-def parse(data: dict[str, Any]) -> tuple[list[dict], list[dict], dict[str, dict[str, int]]]:
+def parse(
+    data: dict[str, Any], seen: set[str] | None = None
+) -> tuple[list[dict], list[dict], dict[str, dict[str, int]]]:
     """Issues and pull requests of a GraphQL answer, and the open totals per repository."""
+    seen = set() if seen is None else seen
     issues, pulls, totals = [], [], {}
     for repo_data in (data or {}).values():
         if not repo_data:
             continue  # a repository that no longer exists or is not readable: its alias is null
         repo = repo_data["nameWithOwner"]
+        # A repository followed under two names (its former name redirects to the new one) comes back twice:
+        # counted once. `seen` carries the repositories already read from the previous queries.
+        if repo.casefold() in seen:
+            continue
+        seen.add(repo.casefold())
         issues += [_item(repo, n, False) for n in repo_data["issues"]["nodes"]]
         pulls += [_item(repo, n, True) for n in repo_data["pullRequests"]["nodes"]]
         totals[repo] = {"issues": repo_data["issues"]["totalCount"], "pulls": repo_data["pullRequests"]["totalCount"]}
@@ -121,6 +129,7 @@ async def async_items(hass: HomeAssistant, refresh: bool = False) -> Items:
         return Items(error="no_token")
     session = async_get_clientsession(hass)
     issues, pulls, totals = [], [], {}
+    seen: set[str] = set()
     try:
         for start in range(0, len(repos), CHUNK):
             async with session.post(
@@ -133,7 +142,7 @@ async def async_items(hass: HomeAssistant, refresh: bool = False) -> Items:
                     return Items(error=f"http_{resp.status}")
                 resp.raise_for_status()
                 body = await resp.json()
-            i, p, t = parse(body.get("data") or {})
+            i, p, t = parse(body.get("data") or {}, seen)
             issues += i
             pulls += p
             totals.update(t)

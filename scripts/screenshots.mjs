@@ -60,6 +60,17 @@ const panelMock = {
     followed: ["home-assistant/core", "juju35/ha-parcel", "juju35/ha-weather-card"],
     offered: ["juju35/ha-alarm-card", "juju35/ha-calendar-card", "juju35/ha-energy-card", "juju35/ha-iptv", "juju35/ha-mower-card"],
     offered_error: false,
+    // The row sensors of the followed repositories: the mock states' entity ids (sensor.<owner>_<repo>_<key>)
+    sensors: Object.fromEntries(
+      ["home-assistant/core", "juju35/ha-parcel", "juju35/ha-weather-card"].map((repo) => [
+        repo,
+        Object.fromEntries(
+          ["stargazers_count", "forks_count", "issues_count", "pulls_count", "latest_release"]
+            .map((key) => [key, `sensor.${repo.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_${key}`])
+            .filter(([, id]) => states[id]),
+        ),
+      ]),
+    ),
   },
   "github_card/items": {
     issues: [
@@ -99,12 +110,13 @@ async function openCard(s) {
   await page.addScriptTag({ content: cardJs });
   if (s.panel) await page.addScriptTag({ content: panelJs });
   await page.evaluate(
-    ({ type, config, states, entities, devices, open, zoom, panel, mock }) => {
+    ({ type, config, states, entities, devices, open, zoom, panel, mock, expand }) => {
       if (panel) {
         // The sidebar panel, its WebSocket commands answered with the mock repositories and settings.
         const el = document.createElement("github-panel");
         el.panel = { url_path: "github-config", config: { version: "test" } };
         el.route = { path: `/${panel}` };
+        el._expanded = expand || null;
         el.hass = {
           states, entities, devices, language: "en", locale: { language: "en" },
           connection: { subscribeMessage: () => Promise.resolve(() => {}) },
@@ -124,7 +136,7 @@ async function openCard(s) {
         el._update();
       }
     },
-    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, panel: s.panel, mock: panelMock }
+    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, panel: s.panel, mock: panelMock, expand: s.expand }
   );
   await page.waitForTimeout(800);
   return page;

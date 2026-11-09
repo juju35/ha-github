@@ -24,7 +24,7 @@ It works on top of the core [GitHub integration](https://www.home-assistant.io/i
 
 ### Sidebar panel (administrators only)
 
-- **Repositories**: every repository of your GitHub account (and your starred ones, if you choose), followed or not by the GitHub integration. **Follow** or **Stop following** one, or **Follow all** at once: the whole change reloads the GitHub integration a single time
+- **Repositories**: every repository of your GitHub account (and your starred ones, if you choose), followed or not by the GitHub integration. Each followed one shows its stars, open issues, open pull requests and latest release on its row, and unfolds the same details as the GitHub Card (counters, latest release, commit, pull request, issue…). **Follow** or **Stop following** one, or **Follow all** at once: the whole change reloads the GitHub integration a single time
 - **Issues** and **Pull requests**: the open ones of all the followed repositories, most recently updated first, with their repository, number, author, age, comments and labels, and the review state of pull requests (approved, changes requested, review required, draft); filter by repository; each opens on GitHub
 - **Activity**: the GitHub Card with every followed repository, busiest first
 - **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories), and a Home Assistant notification for each new issue or pull request
@@ -106,6 +106,8 @@ The **GitHub** entry of the sidebar, for administrators only.
 
 The list comes from the GitHub integration's own **Add repository** form: your repositories and your starred ones, read with its token. By default only the repositories of your account are offered; **Settings** can add your starred ones and keep only names matching patterns (`juju35/ha-*, home-assistant/*`). Followed repositories are always listed.
 
+Each followed repository shows its live counters on its row (stars, open issues, open pull requests, latest release); a click on its name unfolds the GitHub Card's details of that repository under the row, one repository at a time.
+
 **Follow** adds the repository to the GitHub integration exactly as its **Add repository** form does (a "repository" entry). The GitHub integration reloads whenever its repositories change, so the panel makes the whole change at once: **Follow all** with 40 repositories reloads it once, not 40 times. Its sensors are unavailable for a few seconds meanwhile. **Stop following** asks first: the repository's sensors and their history are removed from Home Assistant.
 
 ### Issues and pull requests
@@ -170,6 +172,7 @@ language: fr
 | `show_account` | all | `true` | Account section (full card) and followers (mini card), when the account sensors are enabled |
 | `max_repos` | mini | `5` | Repositories listed in the compact view, then "+N" |
 | `zoom` | mini | `true` | Zoom button at the top right: shows the full card, and back to the compact view |
+| `embed` | full | `false` | Only the counters and the latest activity of the repositories, without frame, header or account (used by the panel's rows) |
 | `language` | all | Auto | Force language: `en`, `fr`, `de`, `es`, `sr`, `sr-Latn`, `it`, `nl`, `pt`, `pl`, `ro`, `da`, `sv`, `bg`, `ru`, `uk`, `hu`, `sk`, `cs`, `sl`, `lv` or `el` (auto-detects from HA settings) |
 
 ## Screenshots
