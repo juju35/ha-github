@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.3 - 2026-11-09
+
+### Improvements
+- Panel: a failed load shows a **Retry** button next to its error (it is tried again on its own meanwhile), without *No repository matches* under it.
+
 ## 2.4.2 - 2026-11-09
 
 ### Fixes

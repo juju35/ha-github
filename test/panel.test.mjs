@@ -204,3 +204,12 @@ test("a failed load is tried again after 2 s, 5 s, 15 s then every 30 s, its err
   panel._watchConnection(false);
   assert.equal(listeners.size, 0);
 });
+
+test("Retry loads again at once", async () => {
+  const panel = Object.create(lib.GitHubPanel.prototype);
+  let reloads = 0;
+  panel._reload = async () => { reloads++; };
+  await panel._repoAction("retry");
+  assert.equal(reloads, 1);
+  assert.equal(lib.GITHUB_PANEL_STRINGS.fr.retry, "Réessayer");
+});
