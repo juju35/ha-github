@@ -2,20 +2,22 @@
  * GitHub panel for Home Assistant (administrators only)
  * https://github.com/juju35/ha-github
  *
- * Five tabs under the toolbar, as in Smart Comfort and IPTV (text tabs, the active one underlined, the tab in the
+ * Four tabs under the toolbar, as in Smart Comfort and IPTV (text tabs, the active one underlined, the tab in the
  * address, Settings last):
  * - Repositories: the repositories of your GitHub account (and your starred ones, if chosen), followed or not by the
  *   core GitHub integration; follow or stop following one, or follow all of them at once (one reload of the GitHub
- *   integration for the whole change), through the github_card/* WebSocket commands;
+ *   integration for the whole change), through the github_card/* WebSocket commands. Each followed repository shows
+ *   its live counters and unfolds the GitHub Card's details; the head gives the totals (stars, open issues and pull
+ *   requests), the GitHub account (followers…) closes the list;
  * - Issues and Pull requests: the open ones of the followed repositories, most recently updated first, from the
  *   GitHub API (github_card/items, cached 5 minutes by the integration; Refresh asks GitHub again);
- * - Activity: the bundled github-card, all the followed repositories, busiest first;
  * - Settings: which repositories are offered (name patterns, starred ones) and the new issue / pull request
  *   notifications.
  */
 
-const GITHUB_PANEL_VERSION = "2.2.0";
-const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "activity", "settings"];
+const GITHUB_PANEL_VERSION = "2.3.0";
+// No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
+const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "settings"];
 // Orders of the Repositories tab (see GitHubPanel._rows)
 const GITHUB_PANEL_SORTS = ["followed", "name", "stars", "issues", "pulls"];
 
@@ -542,6 +544,11 @@ class GitHubPanel extends HTMLElement {
     .fold:focus-visible { outline:2px solid var(--gh-accent); outline-offset:2px; }
     .fold > .i { color:var(--secondary-text-color); transition:transform .15s; }
     .row.open .fold > .i { transform:rotate(90deg); }
+    .totals { display:flex; align-items:center; gap:12px; margin-top:2px; }
+    .totals:empty { display:none; }
+    .totals > span { display:inline-flex; align-items:center; gap:3px; }
+    .totals .i { width:14px; height:14px; color:#e3a008; }
+    .account-slot.on { border-top:1px solid var(--divider-color, rgba(127,127,127,.15)); padding-top:8px; }
     .info { display:inline-flex; align-items:center; gap:10px; font-size:12px; color:var(--secondary-text-color); flex:none; }
     .info > span { display:inline-flex; align-items:center; gap:3px; }
     .info .i { width:14px; height:14px; }
@@ -630,7 +637,6 @@ class GitHubPanel extends HTMLElement {
     const first = !this._hass;
     const before = this._lang();
     this._hass = hass;
-    if (this._card) this._card.hass = hass;
     if (this._menu) this._menu.hass = hass;
     if (!first) this._updateInfo();
     if (first) this._start();
@@ -670,7 +676,6 @@ class GitHubPanel extends HTMLElement {
     } catch (err) {
       console.error("GitHub panel: could not load the card", err);
     }
-    this._mountCard();
     this._subscribe();
     await Promise.all([this._loadSettings(), this._load(), this._needsItems() ? this._loadItems() : null]);
   }
@@ -755,7 +760,6 @@ class GitHubPanel extends HTMLElement {
         <section id="tab-repos" role="tabpanel" aria-labelledby="tabbtn-repos"><div id="repos"></div></section>
         <section id="tab-issues" role="tabpanel" aria-labelledby="tabbtn-issues"><div id="issues"></div></section>
         <section id="tab-pulls" role="tabpanel" aria-labelledby="tabbtn-pulls"><div id="pulls"></div></section>
-        <section id="tab-activity" role="tabpanel" aria-labelledby="tabbtn-activity"><div id="card"></div></section>
         <section id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings"><div id="settings"></div></section>
       </main>`;
     this._menu = root.querySelector("ha-menu-button");
@@ -775,20 +779,10 @@ class GitHubPanel extends HTMLElement {
       });
     }
     this._showTab(this._tab);
-    if (this._card) root.getElementById("card").appendChild(this._card);
     this._renderRepos();
     this._renderItems("issues");
     this._renderItems("pulls");
     this._renderSettings();
-  }
-
-  _mountCard() {
-    if (!customElements.get("github-card")) return;
-    this._card = document.createElement("github-card");
-    // No `language`: the card follows hass.language, so it switches language with the panel
-    this._card.setConfig({ sort: "open" });
-    this._card.hass = this._hass;
-    this.shadowRoot.getElementById("card")?.appendChild(this._card);
   }
 
   // ── Repositories tab ──
@@ -865,7 +859,7 @@ class GitHubPanel extends HTMLElement {
     });
     host.innerHTML = `<div class="box">
         <div class="head">
-          <span class="sum">${esc(this._t("summary", { followed: o.followed.length, offered: o.offered.length }))}</span>
+          <span class="sum">${esc(this._t("summary", { followed: o.followed.length, offered: o.offered.length }))}<span class="totals">${this._totalsHtml()}</span></span>
           <select class="pick" data-sort aria-label="${esc(this._t("sort_label"))}" title="${esc(this._t("sort_label"))}">${GITHUB_PANEL_SORTS.map(
             (v) => `<option value="${v}"${v === this._sort ? " selected" : ""}>${esc(this._t(`sort_${v}`))}</option>`,
           ).join("")}</select>
@@ -874,9 +868,11 @@ class GitHubPanel extends HTMLElement {
         </div>
         ${notes.join("")}
         <div class="list">${list.length ? list.join("") : `<div class="note">${esc(this._t("empty"))}</div>`}</div>
+        <div class="account-slot"></div>
       </div>`;
     this._bindRepos(host);
     this._mountDetail(host);
+    this._mountAccount(host);
   }
 
   /** Live counters of a followed repository, from its GitHub sensors: stars, open issues, open pull requests, release. */
@@ -913,15 +909,61 @@ class GitHubPanel extends HTMLElement {
     const repo = slot.dataset.repo;
     if (this._detail?.repo !== repo) {
       const card = document.createElement("github-card");
-      card.setConfig({ embed: true, repositories: [repo] });
+      card.setConfig({ embed: true, repositories: [repo], show_account: false });
       this._detail = { repo, card };
     }
     this._detail.card.hass = this._hass;
     slot.appendChild(this._detail.card);
   }
 
+  /** The GitHub account (followers, following, public repositories and gists) under the list: the card's section. */
+  _mountAccount(host) {
+    const slot = host.querySelector(".account-slot");
+    if (!slot || !customElements.get("github-card")) return;
+    if (!this._account) {
+      this._account = document.createElement("github-card");
+      this._account.setConfig({ embed: true });
+    }
+    this._account.hass = this._hass;
+    slot.appendChild(this._account);
+    // The separator only when the card shows the account (its sensors are disabled by default)
+    slot.classList.toggle("on", !!this._account.shadowRoot?.innerHTML);
+  }
+
+  /** Totals of the followed repositories for the head: stars, and open issues and pull requests. */
+  _totalsHtml() {
+    const sum = (key) => {
+      const values = (this._overview?.followed || []).map((r) => this._number(r, key)).filter((v) => v !== null);
+      return values.length ? values.reduce((a, b) => a + b, 0) : null;
+    };
+    const fmt = (n) => {
+      try {
+        return new Intl.NumberFormat(this._lang(), { notation: "compact", maximumFractionDigits: 1 }).format(n);
+      } catch (_err) {
+        return String(n);
+      }
+    };
+    const stars = sum("stargazers_count");
+    const issues = sum("issues_count");
+    const pulls = sum("pulls_count");
+    const parts = [];
+    if (stars !== null) parts.push(`<span title="${githubPanelEsc(`${this._t("stars")}: ${stars}`)}">${githubPanelIcon("star")}${fmt(stars)}</span>`);
+    if (issues !== null || pulls !== null)
+      parts.push(`<span>${githubPanelEsc(this._t("open_n", { n: fmt((issues || 0) + (pulls || 0)) }))}</span>`);
+    return parts.join("");
+  }
+
   /** Counters of the rows follow the sensors without rebuilding the list (the search field keeps its focus). */
   _updateInfo() {
+    const totals = this.shadowRoot.querySelector?.("#repos .totals");
+    if (totals) {
+      const html = this._totalsHtml();
+      if (totals.innerHTML !== html) totals.innerHTML = html;
+    }
+    if (this._account) {
+      this._account.hass = this._hass;
+      this.shadowRoot.querySelector?.("#repos .account-slot")?.classList.toggle("on", !!this._account.shadowRoot?.innerHTML);
+    }
     for (const span of this.shadowRoot.querySelectorAll?.("#repos .info") || []) {
       const html = this._infoHtml(span.dataset.repo);
       if (span.innerHTML !== html) span.innerHTML = html;

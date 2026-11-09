@@ -8,7 +8,7 @@
  * entity registry (platform "github", translation key, device), whatever the language.
  */
 
-const VERSION = "2.2.0";
+const VERSION = "2.3.0";
 
 // Material Design Icons paths.
 const ICONS = {
@@ -860,10 +860,15 @@ class GitHubCard extends GitHubBase {
 
   _render() {
     const repos = this._repos();
-    // `embed` (the GitHub panel's repository rows): only the counters and the latest activity of the repositories,
-    // without the card's frame, header, foldable sections or account, the panel's row giving the name and the counts.
-    if (this._config.embed)
-      return `<style>${BASE_STYLE}${FULL_STYLE}</style><div class="content embed">${repos.map((r) => `${this._tiles(REPO_STATS, r)}${this._config.show_latest === false ? "" : this._latest(r)}`).join("")}</div>`;
+    // `embed` (the GitHub panel's Repositories tab): only the counters and the latest activity of the repositories,
+    // and the account section, without the card's frame, header or foldable sections.
+    if (this._config.embed) {
+      // The repositories listed in `repositories` (none without it), then the account unless `show_account: false`.
+      const shown = (this._config.repositories || []).length ? repos : [];
+      const body = shown.map((r) => `${this._tiles(REPO_STATS, r)}${this._config.show_latest === false ? "" : this._latest(r)}`);
+      body.push(...this._users().map((u) => this._accountSection(u)));
+      return body.some(Boolean) ? `<style>${BASE_STYLE}${FULL_STYLE}</style><div class="content embed">${body.join("")}</div>` : "";
+    }
     const users = this._users();
     if (!repos.length && !users.length) return this._noGh();
     // A single repository is always unfolded; otherwise one at a time, folded on a click elsewhere.

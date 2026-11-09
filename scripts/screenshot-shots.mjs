@@ -7,7 +7,6 @@ const pairs = [
   { light: "panel-repos", dark: "panel-repos-dark", width: 820, panel: "repos", expand: "juju35/ha-parcel" },
   { light: "panel-issues", dark: "panel-issues-dark", width: 820, panel: "issues" },
   { light: "panel-pulls", dark: "panel-pulls-dark", width: 820, panel: "pulls" },
-  { light: "panel-activity", dark: "panel-activity-dark", width: 820, panel: "activity" },
   { light: "panel-settings", dark: "panel-settings-dark", width: 820, panel: "settings" },
   { light: "mini-card", dark: "mini-card-dark", type: "github-mini-card", width: 380, config: {} },
   { light: "mini-card-zoom", dark: "mini-card-zoom-dark", type: "github-mini-card", width: 460, config: {}, zoom: "dev_parcel" },
