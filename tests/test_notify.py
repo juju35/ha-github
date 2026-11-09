@@ -94,3 +94,13 @@ def test_messages_every_language():
     assert message_language("de-CH") == "de"
     assert message_language("sr-Latn") == "sr-Latn"
     assert message_language("ja") == "en"
+
+
+async def test_filter_lets_only_watched_sensors_through(hass):
+    _registry(hass)
+    options = {"notify_issues": False}
+    notifier = NewItemNotifier(hass, lambda: options)
+    assert not notifier._is_watched({"entity_id": ISSUE})  # notification off
+    options["notify_issues"] = True
+    assert notifier._is_watched({"entity_id": ISSUE})
+    assert not notifier._is_watched({"entity_id": "light.kitchen"})
