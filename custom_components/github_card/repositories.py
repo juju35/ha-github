@@ -22,6 +22,7 @@ from homeassistant.config_entries import SOURCE_USER, ConfigEntry, ConfigEntrySt
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 
 from .const import CONF_FILTER, CONF_INCLUDE_STARRED, CONF_REPOSITORY, DEFAULTS, GITHUB_DOMAIN, SUBENTRY_TYPE
 
@@ -41,6 +42,24 @@ def followed(entry: ConfigEntry) -> dict[str, str]:
         for sub in entry.subentries.values()
         if sub.subentry_type == SUBENTRY_TYPE and sub.data.get(CONF_REPOSITORY)
     }
+
+
+# Sensors of a followed repository shown on its row in the panel (the panel reads their live states)
+ROW_KEYS = ("stargazers_count", "forks_count", "issues_count", "pulls_count", "latest_release")
+
+
+def sensors(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, dict[str, str]]:
+    """Entity ids of the row sensors of each followed repository: full name → translation key → entity id.
+
+    The GitHub integration makes one device per repository, named after its full name.
+    """
+    devices = {d.id: d.name for d in dr.async_entries_for_config_entry(dr.async_get(hass), entry.entry_id) if d.name}
+    out: dict[str, dict[str, str]] = {}
+    for e in er.async_entries_for_config_entry(er.async_get(hass), entry.entry_id):
+        repo = devices.get(e.device_id)
+        if repo and "/" in repo and e.translation_key in ROW_KEYS and not e.disabled_by:
+            out.setdefault(repo, {})[e.translation_key] = e.entity_id
+    return out
 
 
 def login(hass: HomeAssistant, entry: ConfigEntry) -> str | None:
@@ -92,6 +111,8 @@ class Overview:
     offered: list[str] = field(default_factory=list)
     # The integration could not list the repositories it offers (not loaded, API error)
     offered_error: bool = False
+    # Row sensors of the followed repositories: full name → translation key → entity id
+    sensors: dict[str, dict[str, str]] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -101,6 +122,7 @@ class Overview:
             "followed": self.followed,
             "offered": self.offered,
             "offered_error": self.offered_error,
+            "sensors": self.sensors,
         }
 
 
@@ -126,6 +148,7 @@ async def async_overview(hass: HomeAssistant, options: dict[str, Any]) -> Overvi
         followed=sorted(followed(entry), key=str.casefold),
         offered=sorted(names, key=str.casefold),
         offered_error=offered is None,
+        sensors=sensors(hass, entry),
     )
 
 

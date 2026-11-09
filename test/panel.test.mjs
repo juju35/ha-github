@@ -95,3 +95,25 @@ test("the language falls back to the base, then English", () => {
   p._hass = { language: "ja" };
   assert.equal(p._t("summary", { followed: 1, offered: 2 }), "Followed: 1 · Not followed: 2");
 });
+
+test("followed rows: live counters from the GitHub sensors, one row unfolded at a time", async () => {
+  const p = panel();
+  p._overview.sensors = { "juju35/ha-parcel": { stargazers_count: "sensor.s", issues_count: "sensor.i", latest_release: "sensor.r", pulls_count: "sensor.gone" } };
+  p._hass.states = {
+    "sensor.s": { state: "1840" },
+    "sensor.i": { state: "3" },
+    "sensor.r": { state: "v1.4.0" },
+  };
+  const html = p._infoHtml("juju35/ha-parcel");
+  assert.match(html, /Étoiles : 1840|Étoiles: 1840/);
+  assert.match(html, /1,8\s?k/);
+  assert.match(html, />3</);
+  assert.match(html, /v1\.4\.0/);
+  // A missing sensor shows nothing rather than a dash
+  assert.doesNotMatch(html, /Pull requests/);
+  assert.equal(p._infoHtml("juju35/ha-iptv"), "");
+  await p._repoAction("expand", "juju35/ha-parcel");
+  assert.equal(p._expanded, "juju35/ha-parcel");
+  await p._repoAction("expand", "juju35/ha-parcel");
+  assert.equal(p._expanded, null);
+});

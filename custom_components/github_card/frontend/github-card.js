@@ -8,7 +8,7 @@
  * entity registry (platform "github", translation key, device), whatever the language.
  */
 
-const VERSION = "2.0.0";
+const VERSION = "2.1.0";
 
 // Material Design Icons paths.
 const ICONS = {
@@ -587,6 +587,7 @@ const FULL_STYLE = `
                    letter-spacing: .04em; color: var(--secondary-text-color); margin: 4px 0 2px; }
   .section-title .icon { width: 16px; height: 16px; }
   .section-title .label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: none; letter-spacing: 0; }
+  .content.embed { padding: 0; }
   .repo { border-radius: 12px; border: 1px solid var(--divider-color, rgba(127,127,127,.2)); overflow: hidden; }
   .repo-head { display: flex; align-items: center; gap: 8px; padding: 8px 6px 8px 10px; min-height: 24px; }
   .repo-head.toggle { cursor: pointer; user-select: none; }
@@ -859,6 +860,10 @@ class GitHubCard extends GitHubBase {
 
   _render() {
     const repos = this._repos();
+    // `embed` (the GitHub panel's repository rows): only the counters and the latest activity of the repositories,
+    // without the card's frame, header, foldable sections or account, the panel's row giving the name and the counts.
+    if (this._config.embed)
+      return `<style>${BASE_STYLE}${FULL_STYLE}</style><div class="content embed">${repos.map((r) => `${this._tiles(REPO_STATS, r)}${this._config.show_latest === false ? "" : this._latest(r)}`).join("")}</div>`;
     const users = this._users();
     if (!repos.length && !users.length) return this._noGh();
     // A single repository is always unfolded; otherwise one at a time, folded on a click elsewhere.

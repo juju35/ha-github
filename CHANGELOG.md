@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.0 - 2026-11-09
+
+### Features
+- **Panel, Repositories tab**: each followed repository shows its stars, open issues, open pull requests and latest release on its row, kept live from the GitHub integration's sensors (without rebuilding the list, so the search field keeps its focus). A click on its name unfolds, under the row, the same details as the GitHub Card: counters (stars, forks, watchers, issues, pull requests, merged pull requests, discussions, downloads) and latest release, tag, commit, pull request, issue and discussion with their links; one repository unfolded at a time, chevron to the right when folded, down when unfolded.
+- Card: `embed` option, used by the panel's rows: only the counters and the latest activity of the repositories, without the card's frame, header, foldable sections or account.
+
+### Maintenance
+- `github_card/repositories` gives the entity ids of each followed repository's row sensors.
+- Tests: the row counters, the unfolding, the card's `embed` mode, the row sensors of the command. Screenshot of the Repositories tab with a repository unfolded.
+
 ## 2.0.0 - 2026-11-09
 
 ### Breaking changes

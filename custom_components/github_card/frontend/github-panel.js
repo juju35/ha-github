@@ -14,7 +14,7 @@
  *   notifications.
  */
 
-const GITHUB_PANEL_VERSION = "2.0.0";
+const GITHUB_PANEL_VERSION = "2.1.0";
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "activity", "settings"];
 
 // Translations: one list per language, in the order of KEYS (the tests check the parity).
@@ -28,6 +28,8 @@ const GITHUB_PANEL_KEYS = [
   // Issues and Pull requests tabs
   "issues", "pulls", "refresh", "no_issues", "no_pulls", "no_followed", "items_error",
   "draft", "approved", "changes_requested", "review_required", "by", "updated", "comments", "all_repos", "open_n",
+  // Rows of the followed repositories
+  "stars", "release", "details",
 ];
 
 const GITHUB_PANEL_TRANSLATIONS = {
@@ -47,6 +49,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "A Home Assistant notification for each new issue or pull request of the followed repositories.",
     "Save", "Saved.",
     "Issues", "Pull requests", "Refresh", "No open issue in the followed repositories.", "No open pull request in the followed repositories.", "Follow repositories in the Repositories tab to see their issues and pull requests here.", "GitHub could not be queried ({error}). Try again later.", "Draft", "Approved", "Changes requested", "Review required", "by {author}", "updated {when}", "Comments: {n}", "All repositories", "Open: {n}",
+    "Stars", "Latest release", "Show or hide the details",
   ],
   fr: [
     "GitHub", "Dépôts", "Activité", "Réglages", "Intégration GitHub", "Chargement…",
@@ -64,6 +67,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Une notification Home Assistant pour chaque nouvelle issue ou pull request des dépôts suivis.",
     "Enregistrer", "Enregistré.",
     "Issues", "Pull requests", "Actualiser", "Aucune issue ouverte dans les dépôts suivis.", "Aucune pull request ouverte dans les dépôts suivis.", "Suivez des dépôts dans l’onglet Dépôts pour voir ici leurs issues et pull requests.", "GitHub n’a pas pu être interrogé ({error}). Réessayez plus tard.", "Brouillon", "Approuvée", "Modifications demandées", "Revue requise", "par {author}", "mise à jour {when}", "Commentaires : {n}", "Tous les dépôts", "Ouvertes : {n}",
+    "Étoiles", "Dernière version", "Afficher ou masquer le détail",
   ],
   de: [
     "GitHub", "Repositorys", "Aktivität", "Einstellungen", "GitHub-Integration", "Wird geladen…",
@@ -81,6 +85,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Eine Home-Assistant-Benachrichtigung für jedes neue Issue oder jeden neuen Pull Request der verfolgten Repositorys.",
     "Speichern", "Gespeichert.",
     "Issues", "Pull Requests", "Aktualisieren", "Kein offenes Issue in den verfolgten Repositorys.", "Kein offener Pull Request in den verfolgten Repositorys.", "Verfolge Repositorys im Tab Repositorys, um hier ihre Issues und Pull Requests zu sehen.", "GitHub konnte nicht abgefragt werden ({error}). Versuche es später erneut.", "Entwurf", "Genehmigt", "Änderungen angefordert", "Review erforderlich", "von {author}", "aktualisiert {when}", "Kommentare: {n}", "Alle Repositorys", "Offen: {n}",
+    "Sterne", "Neuestes Release", "Details ein- oder ausblenden",
   ],
   es: [
     "GitHub", "Repositorios", "Actividad", "Ajustes", "Integración GitHub", "Cargando…",
@@ -98,6 +103,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Una notificación de Home Assistant por cada nueva issue o pull request de los repositorios seguidos.",
     "Guardar", "Guardado.",
     "Issues", "Pull requests", "Actualizar", "Ninguna issue abierta en los repositorios seguidos.", "Ninguna pull request abierta en los repositorios seguidos.", "Sigue repositorios en la pestaña Repositorios para ver aquí sus issues y pull requests.", "No se pudo consultar GitHub ({error}). Inténtalo más tarde.", "Borrador", "Aprobada", "Cambios solicitados", "Revisión requerida", "por {author}", "actualizada {when}", "Comentarios: {n}", "Todos los repositorios", "Abiertas: {n}",
+    "Estrellas", "Última versión", "Mostrar u ocultar el detalle",
   ],
   sr: [
     "GitHub", "Репозиторијуми", "Активност", "Подешавања", "Интеграција GitHub", "Учитавање…",
@@ -115,6 +121,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Обавештење у Home Assistant-у за сваки нови проблем или pull захтев праћених репозиторијума.",
     "Сачувај", "Сачувано.",
     "Проблеми", "Pull захтеви", "Освежи", "Нема отворених проблема у праћеним репозиторијумима.", "Нема отворених pull захтева у праћеним репозиторијумима.", "Пратите репозиторијуме на картици Репозиторијуми да бисте овде видели њихове проблеме и pull захтеве.", "GitHub није могао да се упита ({error}). Покушајте касније.", "Нацрт", "Одобрен", "Тражене измене", "Потребан преглед", "аутор {author}", "ажурирано {when}", "Коментари: {n}", "Сви репозиторијуми", "Отворено: {n}",
+    "Звездице", "Најновије издање", "Прикажи или сакриј детаље",
   ],
   "sr-Latn": [
     "GitHub", "Repozitorijumi", "Aktivnost", "Podešavanja", "Integracija GitHub", "Učitavanje…",
@@ -132,6 +139,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Obaveštenje u Home Assistant-u za svaki novi problem ili pull zahtev praćenih repozitorijuma.",
     "Sačuvaj", "Sačuvano.",
     "Problemi", "Pull zahtevi", "Osveži", "Nema otvorenih problema u praćenim repozitorijumima.", "Nema otvorenih pull zahteva u praćenim repozitorijumima.", "Pratite repozitorijume na kartici Repozitorijumi da biste ovde videli njihove probleme i pull zahteve.", "GitHub nije mogao da se upita ({error}). Pokušajte kasnije.", "Nacrt", "Odobren", "Tražene izmene", "Potreban pregled", "autor {author}", "ažurirano {when}", "Komentari: {n}", "Svi repozitorijumi", "Otvoreno: {n}",
+    "Zvezdice", "Najnovije izdanje", "Prikaži ili sakrij detalje",
   ],
   it: [
     "GitHub", "Repository", "Attività", "Impostazioni", "Integrazione GitHub", "Caricamento…",
@@ -149,6 +157,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Una notifica di Home Assistant per ogni nuova issue o pull request dei repository seguiti.",
     "Salva", "Salvato.",
     "Issue", "Pull request", "Aggiorna", "Nessuna issue aperta nei repository seguiti.", "Nessuna pull request aperta nei repository seguiti.", "Segui dei repository nella scheda Repository per vedere qui le loro issue e pull request.", "Impossibile interrogare GitHub ({error}). Riprova più tardi.", "Bozza", "Approvata", "Modifiche richieste", "Revisione richiesta", "di {author}", "aggiornata {when}", "Commenti: {n}", "Tutti i repository", "Aperte: {n}",
+    "Stelle", "Ultima release", "Mostra o nascondi i dettagli",
   ],
   nl: [
     "GitHub", "Repositories", "Activiteit", "Instellingen", "GitHub-integratie", "Laden…",
@@ -166,6 +175,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Een Home Assistant-melding voor elke nieuwe issue of pull request van de gevolgde repositories.",
     "Opslaan", "Opgeslagen.",
     "Issues", "Pull requests", "Vernieuwen", "Geen open issue in de gevolgde repositories.", "Geen open pull request in de gevolgde repositories.", "Volg repositories in het tabblad Repositories om hier hun issues en pull requests te zien.", "GitHub kon niet worden bevraagd ({error}). Probeer het later opnieuw.", "Concept", "Goedgekeurd", "Wijzigingen gevraagd", "Review vereist", "door {author}", "bijgewerkt {when}", "Reacties: {n}", "Alle repositories", "Open: {n}",
+    "Sterren", "Nieuwste release", "Details tonen of verbergen",
   ],
   pt: [
     "GitHub", "Repositórios", "Atividade", "Definições", "Integração GitHub", "A carregar…",
@@ -183,6 +193,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Uma notificação do Home Assistant para cada nova issue ou pull request dos repositórios seguidos.",
     "Guardar", "Guardado.",
     "Issues", "Pull requests", "Atualizar", "Nenhuma issue em aberto nos repositórios seguidos.", "Nenhum pull request em aberto nos repositórios seguidos.", "Siga repositórios no separador Repositórios para ver aqui as suas issues e pull requests.", "Não foi possível consultar o GitHub ({error}). Tente mais tarde.", "Rascunho", "Aprovado", "Alterações pedidas", "Revisão necessária", "por {author}", "atualizado {when}", "Comentários: {n}", "Todos os repositórios", "Em aberto: {n}",
+    "Estrelas", "Versão mais recente", "Mostrar ou ocultar o detalhe",
   ],
   pl: [
     "GitHub", "Repozytoria", "Aktywność", "Ustawienia", "Integracja GitHub", "Ładowanie…",
@@ -200,6 +211,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Powiadomienie Home Assistant o każdym nowym zgłoszeniu lub pull requeście śledzonych repozytoriów.",
     "Zapisz", "Zapisano.",
     "Zgłoszenia", "Pull requesty", "Odśwież", "Brak otwartych zgłoszeń w śledzonych repozytoriach.", "Brak otwartych pull requestów w śledzonych repozytoriach.", "Śledź repozytoria w zakładce Repozytoria, aby zobaczyć tu ich zgłoszenia i pull requesty.", "Nie udało się odpytać GitHub ({error}). Spróbuj później.", "Szkic", "Zatwierdzony", "Wymagane zmiany", "Wymagana recenzja", "autor: {author}", "zaktualizowano {when}", "Komentarze: {n}", "Wszystkie repozytoria", "Otwarte: {n}",
+    "Gwiazdki", "Najnowsze wydanie", "Pokaż lub ukryj szczegóły",
   ],
   ro: [
     "GitHub", "Depozite", "Activitate", "Setări", "Integrarea GitHub", "Se încarcă…",
@@ -217,6 +229,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "O notificare Home Assistant pentru fiecare issue sau pull request nou al depozitelor urmărite.",
     "Salvează", "Salvat.",
     "Issue-uri", "Pull request-uri", "Reîmprospătează", "Niciun issue deschis în depozitele urmărite.", "Niciun pull request deschis în depozitele urmărite.", "Urmărește depozite în fila Depozite pentru a vedea aici issue-urile și pull request-urile lor.", "GitHub nu a putut fi interogat ({error}). Încearcă mai târziu.", "Ciornă", "Aprobat", "Modificări solicitate", "Revizuire necesară", "de {author}", "actualizat {when}", "Comentarii: {n}", "Toate depozitele", "Deschise: {n}",
+    "Stele", "Cea mai recentă versiune", "Afișează sau ascunde detaliile",
   ],
   da: [
     "GitHub", "Repositories", "Aktivitet", "Indstillinger", "GitHub-integration", "Indlæser…",
@@ -234,6 +247,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "En Home Assistant-meddelelse for hver ny issue eller pull request i de fulgte repositories.",
     "Gem", "Gemt.",
     "Issues", "Pull requests", "Opdater", "Ingen åbne issues i de fulgte repositories.", "Ingen åbne pull requests i de fulgte repositories.", "Følg repositories under fanen Repositories for at se deres issues og pull requests her.", "GitHub kunne ikke forespørges ({error}). Prøv igen senere.", "Kladde", "Godkendt", "Ændringer ønsket", "Gennemgang påkrævet", "af {author}", "opdateret {when}", "Kommentarer: {n}", "Alle repositories", "Åbne: {n}",
+    "Stjerner", "Seneste udgivelse", "Vis eller skjul detaljer",
   ],
   sv: [
     "GitHub", "Repon", "Aktivitet", "Inställningar", "GitHub-integration", "Laddar…",
@@ -251,6 +265,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "En Home Assistant-avisering för varje nytt ärende eller ny pull request i de följda repona.",
     "Spara", "Sparat.",
     "Ärenden", "Pull requests", "Uppdatera", "Inga öppna ärenden i de följda repona.", "Inga öppna pull requests i de följda repona.", "Följ repon under fliken Repon för att se deras ärenden och pull requests här.", "GitHub kunde inte frågas ({error}). Försök igen senare.", "Utkast", "Godkänd", "Ändringar begärda", "Granskning krävs", "av {author}", "uppdaterad {when}", "Kommentarer: {n}", "Alla repon", "Öppna: {n}",
+    "Stjärnor", "Senaste release", "Visa eller dölj detaljer",
   ],
   bg: [
     "GitHub", "Хранилища", "Активност", "Настройки", "Интеграция GitHub", "Зареждане…",
@@ -268,6 +283,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Известие в Home Assistant за всеки нов проблем или pull заявка на следените хранилища.",
     "Запази", "Запазено.",
     "Проблеми", "Pull заявки", "Опресни", "Няма отворени проблеми в следените хранилища.", "Няма отворени pull заявки в следените хранилища.", "Следете хранилища в раздела Хранилища, за да виждате тук проблемите и pull заявките им.", "GitHub не можа да бъде запитан ({error}). Опитайте по-късно.", "Чернова", "Одобрена", "Поискани промени", "Нужен преглед", "от {author}", "обновено {when}", "Коментари: {n}", "Всички хранилища", "Отворени: {n}",
+    "Звезди", "Последна версия", "Покажи или скрий подробностите",
   ],
   ru: [
     "GitHub", "Репозитории", "Активность", "Настройки", "Интеграция GitHub", "Загрузка…",
@@ -285,6 +301,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Уведомление Home Assistant о каждой новой задаче или pull-запросе отслеживаемых репозиториев.",
     "Сохранить", "Сохранено.",
     "Задачи", "Pull-запросы", "Обновить", "Нет открытых задач в отслеживаемых репозиториях.", "Нет открытых pull-запросов в отслеживаемых репозиториях.", "Отслеживайте репозитории на вкладке «Репозитории», чтобы видеть здесь их задачи и pull-запросы.", "Не удалось запросить GitHub ({error}). Повторите позже.", "Черновик", "Одобрен", "Запрошены изменения", "Требуется ревью", "автор {author}", "обновлено {when}", "Комментарии: {n}", "Все репозитории", "Открыто: {n}",
+    "Звёзды", "Последний релиз", "Показать или скрыть подробности",
   ],
   uk: [
     "GitHub", "Репозиторії", "Активність", "Налаштування", "Інтеграція GitHub", "Завантаження…",
@@ -302,6 +319,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Сповіщення Home Assistant про кожну нову задачу або pull-запит відстежуваних репозиторіїв.",
     "Зберегти", "Збережено.",
     "Задачі", "Pull-запити", "Оновити", "Немає відкритих задач у відстежуваних репозиторіях.", "Немає відкритих pull-запитів у відстежуваних репозиторіях.", "Відстежуйте репозиторії на вкладці «Репозиторії», щоб бачити тут їхні задачі та pull-запити.", "Не вдалося запитати GitHub ({error}). Спробуйте пізніше.", "Чернетка", "Схвалено", "Запитано зміни", "Потрібне рев’ю", "автор {author}", "оновлено {when}", "Коментарі: {n}", "Усі репозиторії", "Відкрито: {n}",
+    "Зірки", "Останній реліз", "Показати або приховати подробиці",
   ],
   hu: [
     "GitHub", "Tárolók", "Tevékenység", "Beállítások", "GitHub integráció", "Betöltés…",
@@ -319,6 +337,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Home Assistant értesítés a követett tárolók minden új hibajegyéről vagy pull requestjéről.",
     "Mentés", "Mentve.",
     "Hibajegyek", "Pull requestek", "Frissítés", "Nincs nyitott hibajegy a követett tárolókban.", "Nincs nyitott pull request a követett tárolókban.", "Kövess tárolókat a Tárolók lapon, hogy itt lásd a hibajegyeiket és pull requestjeiket.", "A GitHub nem volt lekérdezhető ({error}). Próbáld újra később.", "Piszkozat", "Jóváhagyva", "Módosítás kérve", "Felülvizsgálat szükséges", "szerző: {author}", "frissítve {when}", "Hozzászólások: {n}", "Minden tároló", "Nyitott: {n}",
+    "Csillagok", "Legújabb kiadás", "Részletek megjelenítése vagy elrejtése",
   ],
   sk: [
     "GitHub", "Repozitáre", "Aktivita", "Nastavenia", "Integrácia GitHub", "Načítava sa…",
@@ -336,6 +355,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Upozornenie Home Assistant na každý nový problém alebo pull request sledovaných repozitárov.",
     "Uložiť", "Uložené.",
     "Problémy", "Pull requesty", "Obnoviť", "Žiadny otvorený problém v sledovaných repozitároch.", "Žiadny otvorený pull request v sledovaných repozitároch.", "Sledujte repozitáre na karte Repozitáre, aby ste tu videli ich problémy a pull requesty.", "GitHub sa nepodarilo opýtať ({error}). Skúste to neskôr.", "Koncept", "Schválené", "Požadované zmeny", "Vyžaduje sa kontrola", "autor {author}", "aktualizované {when}", "Komentáre: {n}", "Všetky repozitáre", "Otvorené: {n}",
+    "Hviezdičky", "Najnovšie vydanie", "Zobraziť alebo skryť podrobnosti",
   ],
   cs: [
     "GitHub", "Repozitáře", "Aktivita", "Nastavení", "Integrace GitHub", "Načítání…",
@@ -353,6 +373,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Oznámení Home Assistant pro každý nový problém nebo pull request sledovaných repozitářů.",
     "Uložit", "Uloženo.",
     "Problémy", "Pull requesty", "Obnovit", "Žádný otevřený problém ve sledovaných repozitářích.", "Žádný otevřený pull request ve sledovaných repozitářích.", "Sledujte repozitáře na kartě Repozitáře, abyste zde viděli jejich problémy a pull requesty.", "GitHub se nepodařilo dotázat ({error}). Zkuste to později.", "Koncept", "Schváleno", "Požadovány změny", "Vyžadována kontrola", "autor {author}", "aktualizováno {when}", "Komentáře: {n}", "Všechny repozitáře", "Otevřeno: {n}",
+    "Hvězdičky", "Nejnovější vydání", "Zobrazit nebo skrýt podrobnosti",
   ],
   sl: [
     "GitHub", "Repozitoriji", "Dejavnost", "Nastavitve", "Integracija GitHub", "Nalaganje…",
@@ -370,6 +391,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Obvestilo Home Assistant za vsako novo težavo ali pull request spremljanih repozitorijev.",
     "Shrani", "Shranjeno.",
     "Težave", "Pull requesti", "Osveži", "V spremljanih repozitorijih ni odprtih težav.", "V spremljanih repozitorijih ni odprtih pull requestov.", "Spremljajte repozitorije na zavihku Repozitoriji, da tukaj vidite njihove težave in pull requeste.", "GitHuba ni bilo mogoče poizvedeti ({error}). Poskusite pozneje.", "Osnutek", "Odobreno", "Zahtevane spremembe", "Potreben pregled", "avtor {author}", "posodobljeno {when}", "Komentarji: {n}", "Vsi repozitoriji", "Odprto: {n}",
+    "Zvezdice", "Najnovejša izdaja", "Prikaži ali skrij podrobnosti",
   ],
   lv: [
     "GitHub", "Krātuves", "Aktivitāte", "Iestatījumi", "GitHub integrācija", "Ielādē…",
@@ -387,6 +409,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Home Assistant paziņojums par katru jaunu sekoto krātuvju problēmu vai pull pieprasījumu.",
     "Saglabāt", "Saglabāts.",
     "Problēmas", "Pull pieprasījumi", "Atsvaidzināt", "Sekotajās krātuvēs nav atvērtu problēmu.", "Sekotajās krātuvēs nav atvērtu pull pieprasījumu.", "Sekojiet krātuvēm cilnē Krātuves, lai šeit redzētu to problēmas un pull pieprasījumus.", "GitHub nevarēja vaicāt ({error}). Mēģiniet vēlāk.", "Melnraksts", "Apstiprināts", "Pieprasītas izmaiņas", "Nepieciešama pārskatīšana", "autors {author}", "atjaunināts {when}", "Komentāri: {n}", "Visas krātuves", "Atvērti: {n}",
+    "Zvaigznes", "Jaunākais laidiens", "Rādīt vai paslēpt informāciju",
   ],
   el: [
     "GitHub", "Αποθετήρια", "Δραστηριότητα", "Ρυθμίσεις", "Ενσωμάτωση GitHub", "Φόρτωση…",
@@ -404,6 +427,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Μια ειδοποίηση Home Assistant για κάθε νέο ζήτημα ή pull request των παρακολουθούμενων αποθετηρίων.",
     "Αποθήκευση", "Αποθηκεύτηκε.",
     "Ζητήματα", "Pull requests", "Ανανέωση", "Κανένα ανοιχτό ζήτημα στα παρακολουθούμενα αποθετήρια.", "Κανένα ανοιχτό pull request στα παρακολουθούμενα αποθετήρια.", "Παρακολουθήστε αποθετήρια στην καρτέλα Αποθετήρια για να βλέπετε εδώ τα ζητήματα και τα pull requests τους.", "Δεν ήταν δυνατή η επικοινωνία με το GitHub ({error}). Δοκιμάστε αργότερα.", "Πρόχειρο", "Εγκρίθηκε", "Ζητήθηκαν αλλαγές", "Απαιτείται έλεγχος", "από {author}", "ενημερώθηκε {when}", "Σχόλια: {n}", "Όλα τα αποθετήρια", "Ανοιχτά: {n}",
+    "Αστέρια", "Τελευταία έκδοση", "Εμφάνιση ή απόκρυψη λεπτομερειών",
   ],
 };
 
@@ -423,6 +447,9 @@ const GITHUB_PANEL_ICONS = {
   check: "M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z",
   issue: "M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,9.5A2.5,2.5 0 0,0 9.5,12A2.5,2.5 0 0,0 12,14.5A2.5,2.5 0 0,0 14.5,12A2.5,2.5 0 0,0 12,9.5Z",
   pr: "M6,3A3,3 0 0,1 9,6C9,7.31 8.17,8.42 7,8.83V15.17C8.17,15.58 9,16.69 9,18A3,3 0 0,1 6,21A3,3 0 0,1 3,18C3,16.69 3.83,15.58 5,15.17V8.83C3.83,8.42 3,7.31 3,6A3,3 0 0,1 6,3M6,5A1,1 0 0,0 5,6A1,1 0 0,0 6,7A1,1 0 0,0 7,6A1,1 0 0,0 6,5M6,17A1,1 0 0,0 5,18A1,1 0 0,0 6,19A1,1 0 0,0 7,18A1,1 0 0,0 6,17M21,18A3,3 0 0,1 18,21A3,3 0 0,1 15,18C15,16.69 15.83,15.58 17,15.17V7H15V10.25L10.75,6L15,1.75V5H17A2,2 0 0,1 19,7V15.17C20.17,15.58 21,16.69 21,18M18,17A1,1 0 0,0 17,18A1,1 0 0,0 18,19A1,1 0 0,0 19,18A1,1 0 0,0 18,17Z",
+  chevron: "M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z",
+  star: "M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z",
+  tag: "M5.5,7A1.5,1.5 0 0,1 4,5.5A1.5,1.5 0 0,1 5.5,4A1.5,1.5 0 0,1 7,5.5A1.5,1.5 0 0,1 5.5,7M21.41,11.58L12.41,2.58C12.05,2.22 11.55,2 11,2H4C2.89,2 2,2.89 2,4V11C2,11.55 2.22,12.05 2.59,12.41L11.58,21.41C11.95,21.77 12.45,22 13,22C13.55,22 14.05,21.77 14.41,21.41L21.41,14.41C21.78,14.05 22,13.55 22,13C22,12.44 21.77,11.94 21.41,11.58Z",
   comment: "M9,22A1,1 0 0,1 8,21V18H4A2,2 0 0,1 2,16V4C2,2.89 2.9,2 4,2H20A2,2 0 0,1 22,4V16A2,2 0 0,1 20,18H13.9L10.2,21.71C10,21.9 9.75,22 9.5,22V22H9Z",
   refresh: "M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z",
 };
@@ -484,6 +511,17 @@ class GitHubPanel extends HTMLElement {
     .row .link { display:grid; place-items:center; width:28px; height:28px; border-radius:50%; color:var(--secondary-text-color); flex:none; }
     .row .link:hover { background:color-mix(in srgb, var(--secondary-text-color) 15%, transparent); }
     .row .link .i { width:16px; height:16px; }
+    /* A followed repository: its name folds and unfolds the card's details (chevron right folded, down unfolded) */
+    .fold { all:unset; flex:1; min-width:0; display:flex; align-items:center; gap:8px; cursor:pointer; border-radius:6px; }
+    .fold:focus-visible { outline:2px solid var(--gh-accent); outline-offset:2px; }
+    .fold > .i { color:var(--secondary-text-color); transition:transform .15s; }
+    .row.open .fold > .i { transform:rotate(90deg); }
+    .info { display:inline-flex; align-items:center; gap:10px; font-size:12px; color:var(--secondary-text-color); flex:none; }
+    .info > span { display:inline-flex; align-items:center; gap:3px; }
+    .info .i { width:14px; height:14px; }
+    .info .star .i { color:#e3a008; } .info .ok .i { color:var(--tone-good); } .info .tag .i { color:var(--gh-accent); }
+    .detail { padding:4px 0 12px 26px; }
+    @media (max-width: 600px) { .info .tag, .info .ok:nth-child(3) { display:none; } .detail { padding-left:0; } }
     /* Confirmation in place of the row, like the card popups (at the top of what they act on) */
     .confirm { flex-direction:column; align-items:stretch; gap:8px; padding:10px 12px; margin:4px 0; border-radius:10px;
                border:1px solid color-mix(in srgb, var(--tone-bad) 45%, transparent); background:color-mix(in srgb, var(--tone-bad) 8%, transparent); }
@@ -560,6 +598,7 @@ class GitHubPanel extends HTMLElement {
     this._hass = hass;
     if (this._card) this._card.hass = hass;
     if (this._menu) this._menu.hass = hass;
+    if (!first) this._updateInfo();
     if (first) this._start();
     else if (this._lang() !== before) this._render();
   }
@@ -760,8 +799,15 @@ class GitHubPanel extends HTMLElement {
       const action = r.followed
         ? `<button class="act quiet" data-action="unfollow" data-repo="${esc(r.name)}"${disabled}>${esc(this._t("unfollow"))}</button>`
         : `<button class="act" data-action="follow" data-repo="${esc(r.name)}"${disabled}>${githubPanelIcon("plus")}${esc(this._t("follow"))}</button>`;
-      return `<div class="row">${githubPanelIcon("code")}<span class="n" title="${esc(r.name)}">${esc(r.name)}</span>
-        ${r.followed ? `<span class="chip">${githubPanelIcon("check")}${esc(this._t("followed"))}</span>` : ""}${link}${action}</div>`;
+      if (!r.followed)
+        return `<div class="row">${githubPanelIcon("code")}<span class="n" title="${esc(r.name)}">${esc(r.name)}</span>${link}${action}</div>`;
+      // A followed repository: its name unfolds the GitHub Card's counters and latest activity under the row
+      const open = this._expanded === r.name;
+      return `<div class="row${open ? " open" : ""}">
+          <button class="fold" data-action="expand" data-repo="${esc(r.name)}" aria-expanded="${open}" title="${esc(this._t("details"))}">
+            ${githubPanelIcon("chevron")}<span class="n" title="${esc(r.name)}">${esc(r.name)}</span></button>
+          <span class="info" data-repo="${esc(r.name)}">${this._infoHtml(r.name)}</span>${link}${action}</div>
+        ${open ? `<div class="detail" data-repo="${esc(r.name)}"></div>` : ""}`;
     });
     host.innerHTML = `<div class="box">
         <div class="head">
@@ -773,6 +819,57 @@ class GitHubPanel extends HTMLElement {
         <div class="list">${list.length ? list.join("") : `<div class="note">${esc(this._t("empty"))}</div>`}</div>
       </div>`;
     this._bindRepos(host);
+    this._mountDetail(host);
+  }
+
+  /** Live counters of a followed repository, from its GitHub sensors: stars, open issues, open pull requests, release. */
+  _infoHtml(repo) {
+    const ids = this._overview?.sensors?.[repo] || {};
+    const value = (key) => {
+      const s = this._hass?.states?.[ids[key]];
+      return s && s.state !== "unavailable" && s.state !== "unknown" ? s.state : null;
+    };
+    const count = (key, icon, label, cls) => {
+      const v = value(key);
+      if (v === null) return "";
+      const n = Number(v);
+      let text = v;
+      try {
+        text = Number.isFinite(n) ? new Intl.NumberFormat(this._lang(), { notation: "compact", maximumFractionDigits: 1 }).format(n) : v;
+      } catch (_err) {
+        // unknown locale: the raw value
+      }
+      return `<span class="${cls}" title="${githubPanelEsc(`${this._t(label)}: ${v}`)}">${githubPanelIcon(icon)}${githubPanelEsc(text)}</span>`;
+    };
+    return [
+      count("stargazers_count", "star", "stars", "star"),
+      count("issues_count", "issue", "issues", "ok"),
+      count("pulls_count", "pr", "pulls", "ok"),
+      count("latest_release", "tag", "release", "tag"),
+    ].join("");
+  }
+
+  /** The embedded GitHub Card of the unfolded repository, kept across re-renders (and its hass kept current). */
+  _mountDetail(host) {
+    const slot = host.querySelector(".detail");
+    if (!slot || !customElements.get("github-card")) return;
+    const repo = slot.dataset.repo;
+    if (this._detail?.repo !== repo) {
+      const card = document.createElement("github-card");
+      card.setConfig({ embed: true, repositories: [repo] });
+      this._detail = { repo, card };
+    }
+    this._detail.card.hass = this._hass;
+    slot.appendChild(this._detail.card);
+  }
+
+  /** Counters of the rows follow the sensors without rebuilding the list (the search field keeps its focus). */
+  _updateInfo() {
+    for (const span of this.shadowRoot.querySelectorAll?.("#repos .info") || []) {
+      const html = this._infoHtml(span.dataset.repo);
+      if (span.innerHTML !== html) span.innerHTML = html;
+    }
+    if (this._detail) this._detail.card.hass = this._hass;
   }
 
   _bindRepos(host) {
@@ -801,6 +898,8 @@ class GitHubPanel extends HTMLElement {
       );
     if (action === "unfollow") this._confirm = repo;
     if (action === "cancel") this._confirm = null;
+    // One repository unfolded at a time; its name again folds it
+    if (action === "expand") this._expanded = this._expanded === repo ? null : repo;
     if (action === "unfollow-confirmed") {
       this._confirm = null;
       return this._follow([], [repo]);

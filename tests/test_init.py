@@ -217,3 +217,21 @@ async def test_commands_need_an_admin(hass, entry, hass_ws_client, hass_read_onl
     msg = await client.receive_json()
     assert not msg["success"]
     assert msg["error"]["code"] == "unauthorized"
+
+
+async def test_repositories_give_the_row_sensors(hass, entry, github, hass_ws_client):
+    from homeassistant.helpers import entity_registry as er
+
+    await _setup(hass, entry)
+    device = dr.async_get(hass).async_get_or_create(
+        config_entry_id=github.entry_id, identifiers={("github", "juju35/ha-parcel")}, name="juju35/ha-parcel"
+    )
+    reg = er.async_get(hass)
+    for key in ("stargazers_count", "issues_count", "latest_release", "latest_commit"):
+        reg.async_get_or_create(
+            "sensor", "github", f"1_{key}", config_entry=github, device_id=device.id, translation_key=key
+        )
+    msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/repositories"})
+    rows = msg["result"]["sensors"]
+    assert set(rows) == {"juju35/ha-parcel"}
+    assert set(rows["juju35/ha-parcel"]) == {"stargazers_count", "issues_count", "latest_release"}
