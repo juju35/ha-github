@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub Card",
+        "description": "Přidá panel GitHub do postranního panelu (pouze správci) ke sledování vašich repozitářů v integraci GitHub a karty GitHub na vaše ovládací panely."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "GitHub Card je již nastaven."
+    }
+  }
+}

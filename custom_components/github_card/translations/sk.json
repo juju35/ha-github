@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub Card",
+        "description": "Pridá panel GitHub do bočného panela (iba správcovia) na sledovanie vašich repozitárov v integrácii GitHub a karty GitHub na vaše ovládacie panely."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "GitHub Card je už nastavený."
+    }
+  }
+}

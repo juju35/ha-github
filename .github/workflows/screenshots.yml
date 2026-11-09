@@ -56,7 +56,6 @@ jobs:
           done
           [ -n "$ok" ] || { echo "::error::apt failed 3 times"; exit 1; }
           ffmpeg -version > /dev/null
-      - run: npm run build
       - name: Render screenshots
         run: |
           set -o pipefail

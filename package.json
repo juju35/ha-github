@@ -1,12 +1,11 @@
 {
-  "name": "ha-github-card",
-  "version": "1.0.1",
-  "description": "Lovelace cards for Home Assistant showing your GitHub repositories (GitHub integration).",
+  "name": "ha-github",
+  "version": "2.0.0",
+  "description": "Home Assistant integration with an admin sidebar panel to follow your GitHub repositories, and Lovelace cards.",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "check": "node scripts/build.mjs && node --check dist/github-card.js",
+    "check": "node --check custom_components/github_card/frontend/github-card.js && node --check custom_components/github_card/frontend/github-panel.js",
     "screenshots": "node scripts/screenshots.mjs",
     "test": "node --test test/*.test.mjs"
   },

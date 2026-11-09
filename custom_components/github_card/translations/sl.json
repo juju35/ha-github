@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub Card",
+        "description": "Doda ploščo GitHub v stransko vrstico (samo skrbniki) za spremljanje vaših repozitorijev v integraciji GitHub in kartice GitHub na vaše nadzorne plošče."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "GitHub Card je že nastavljen."
+    }
+  }
+}

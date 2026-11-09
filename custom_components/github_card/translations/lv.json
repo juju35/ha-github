@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub Card",
+        "description": "Pievieno GitHub paneli sānjoslai (tikai administratoriem), lai sekotu jūsu krātuvēm GitHub integrācijā, un GitHub kartes jūsu informācijas paneļiem."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "GitHub Card jau ir iestatīts."
+    }
+  }
+}

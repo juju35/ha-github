@@ -1,4 +1,4 @@
-// Evaluates src/github-card.js (a plain script, not a module) in a sandbox with just enough browser stubs to define
+// Evaluates custom_components/github_card/frontend/github-card.js (a plain script, not a module) in a sandbox with just enough browser stubs to define
 // the cards, and returns its internal helpers for the tests.
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -6,7 +6,7 @@ import vm from "node:vm";
 const NAMES = ["discover", "keyOf", "fmtCount", "safeUrl", "lang", "STRINGS", "TRANSLATIONS", "KEYS", "LANGUAGES", "GitHubCard", "GitHubMiniCard", "GitHubCardEditor", "GitHubMiniCardEditor", "document", "window"];
 
 export const load = () => {
-  const src = readFileSync(new URL("../src/github-card.js", import.meta.url), "utf8");
+  const src = readFileSync(new URL("../custom_components/github_card/frontend/github-card.js", import.meta.url), "utf8");
   const defined = new Map();
   const context = {
     HTMLElement: class {

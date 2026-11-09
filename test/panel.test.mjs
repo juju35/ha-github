@@ -1,0 +1,97 @@
+// The sidebar panel: translations, the rows of the Repositories tab and the commands it sends.
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { test } from "node:test";
+import vm from "node:vm";
+
+const load = () => {
+  const src = readFileSync(new URL("../custom_components/github_card/frontend/github-panel.js", import.meta.url), "utf8");
+  const defined = new Map();
+  const context = {
+    HTMLElement: class {
+      attachShadow() {
+        this.shadowRoot = { innerHTML: "", querySelector: () => null, querySelectorAll: () => [], getElementById: () => null };
+        return this.shadowRoot;
+      }
+    },
+    customElements: { get: (n) => defined.get(n), define: (n, c) => defined.set(n, c) },
+    console: { error() {} },
+    history: { replaceState() {}, pushState() {} },
+    window: { dispatchEvent() {} },
+    CustomEvent: class {},
+  };
+  vm.createContext(context);
+  return vm.runInContext(`${src}\n;({ GITHUB_PANEL_KEYS, GITHUB_PANEL_TRANSLATIONS, GITHUB_PANEL_STRINGS, GitHubPanel })`, context);
+};
+
+const lib = load();
+const LANGS = ["en", "fr", "de", "es", "sr", "sr-Latn", "it", "nl", "pt", "pl", "ro", "da", "sv", "bg", "ru", "uk", "hu", "sk", "cs", "sl", "lv", "el"];
+const placeholders = (s) => (String(s).match(/\{\w+\}/g) || []).sort();
+
+test("every language has one string per key, with the English placeholders", () => {
+  assert.deepEqual([...Object.keys(lib.GITHUB_PANEL_TRANSLATIONS)].sort(), [...LANGS].sort());
+  for (const l of LANGS) {
+    assert.equal(lib.GITHUB_PANEL_TRANSLATIONS[l].length, lib.GITHUB_PANEL_KEYS.length, l);
+    for (const k of lib.GITHUB_PANEL_KEYS) {
+      assert.ok(String(lib.GITHUB_PANEL_STRINGS[l][k]).trim(), `${l}.${k}`);
+      assert.deepEqual(placeholders(lib.GITHUB_PANEL_STRINGS[l][k]), placeholders(lib.GITHUB_PANEL_STRINGS.en[k]), `${l}.${k}`);
+    }
+  }
+});
+
+const panel = (calls = []) => {
+  const p = new lib.GitHubPanel();
+  p._hass = {
+    language: "fr",
+    callWS: async (msg) => {
+      calls.push(msg);
+      if (msg.type === "github_card/follow") return { ok: true, added: msg.add, removed: msg.remove, skipped: [] };
+      return { configured: true, state: "loaded", followed: ["juju35/ha-parcel"], offered: ["juju35/ha-iptv", "juju35/ha-uv-card"], offered_error: false };
+    },
+  };
+  p._overview = { configured: true, state: "loaded", followed: ["juju35/ha-parcel"], offered: ["juju35/ha-iptv", "juju35/ha-uv-card"] };
+  return p;
+};
+
+test("rows: followed first, then offered, filtered by the search", () => {
+  const p = panel();
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(p._rows().map((r) => [r.name, r.followed]))),
+    [["juju35/ha-parcel", true], ["juju35/ha-iptv", false], ["juju35/ha-uv-card", false]],
+  );
+  p._query = "UV";
+  assert.deepEqual([...p._rows().map((r) => r.name)], ["juju35/ha-uv-card"]);
+});
+
+test("follow all sends the offered repositories shown in one command", async () => {
+  const calls = [];
+  const p = panel(calls);
+  p._query = "ha-";
+  await p._repoAction("follow-all");
+  const follow = calls.find((c) => c.type === "github_card/follow");
+  assert.deepEqual([...follow.add], ["juju35/ha-iptv", "juju35/ha-uv-card"]);
+  assert.deepEqual([...follow.remove], []);
+  assert.equal(p._message.tone, "good");
+  assert.equal(p._message.text, "Suivis : 2 · Plus suivis : 0");
+});
+
+test("stop following asks first, then sends the removal", async () => {
+  const calls = [];
+  const p = panel(calls);
+  await p._repoAction("unfollow", "juju35/ha-parcel");
+  assert.equal(p._confirm, "juju35/ha-parcel");
+  assert.equal(calls.length, 0);
+  await p._repoAction("unfollow-confirmed", "juju35/ha-parcel");
+  assert.equal(p._confirm, null);
+  assert.deepEqual([...calls[0].remove], ["juju35/ha-parcel"]);
+});
+
+test("the language falls back to the base, then English", () => {
+  const p = new lib.GitHubPanel();
+  p._hass = { language: "sr-Latn" };
+  assert.equal(p._lang(), "sr-Latn");
+  p._hass = { language: "de-CH" };
+  assert.equal(p._t("follow"), "Verfolgen");
+  p._hass = { language: "ja" };
+  assert.equal(p._t("summary", { followed: 1, offered: 2 }), "Followed: 1 · Not followed: 2");
+});

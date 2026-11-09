@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub Card",
+        "description": "Aggiunge il pannello GitHub alla barra laterale (solo amministratori), per seguire i tuoi repository nell’integrazione GitHub, e le schede GitHub alle tue plance."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "GitHub Card è già configurato."
+    }
+  }
+}

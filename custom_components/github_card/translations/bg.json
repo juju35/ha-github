@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub Card",
+        "description": "Добавя панела GitHub в страничната лента (само администратори), за следене на хранилищата ви в интеграцията GitHub, и картите GitHub към таблата ви."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "GitHub Card вече е настроен."
+    }
+  }
+}

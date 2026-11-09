@@ -1,6 +1,6 @@
 /*
  * GitHub Card for Home Assistant
- * https://github.com/juju35/ha-github-card
+ * https://github.com/juju35/ha-github
  *
  * Lovelace cards for the core GitHub integration (https://www.home-assistant.io/integrations/github/):
  * stars, forks, watchers, open issues and pull requests, and the latest release, tag, commit, issue,
@@ -8,7 +8,7 @@
  * entity registry (platform "github", translation key, device), whatever the language.
  */
 
-const VERSION = "__VERSION__";
+const VERSION = "2.0.0";
 
 // Material Design Icons paths.
 const ICONS = {
@@ -1159,7 +1159,7 @@ for (const card of [
   { type: "github-mini-card", name: "GitHub Mini Card", description: "Compact overview of your GitHub repositories: totals and one line per repository." },
 ]) {
   if (!window.customCards.some((c) => c.type === card.type))
-    window.customCards.push({ ...card, preview: true, documentationURL: "https://github.com/juju35/ha-github-card" });
+    window.customCards.push({ ...card, preview: true, documentationURL: "https://github.com/juju35/ha-github" });
 }
 
 console.info(`%c GITHUB-CARD %c v${VERSION} `, "color: white; background: #8957e5; font-weight: 700;", "color: #8957e5; background: white; font-weight: 700;");

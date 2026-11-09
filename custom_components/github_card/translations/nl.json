@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub Card",
+        "description": "Voegt het GitHub-paneel toe aan de zijbalk (alleen beheerders), om je repositories te volgen in de GitHub-integratie, en de GitHub-kaarten aan je dashboards."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "GitHub Card is al ingesteld."
+    }
+  }
+}
