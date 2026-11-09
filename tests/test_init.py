@@ -62,7 +62,13 @@ async def test_config_flow_single_entry(hass):
     assert result["type"] is FlowResultType.FORM
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["options"] == {"filter": "", "include_starred": False, "notify_issues": False, "notify_pulls": False}
+    assert result["options"] == {
+        "filter": "",
+        "include_starred": False,
+        "notify_issues": False,
+        "notify_pulls": False,
+        "notify_releases": False,
+    }
     again = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
     assert again["type"] is FlowResultType.ABORT
     assert again["reason"] == "single_instance_allowed"

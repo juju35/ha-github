@@ -26,6 +26,7 @@ from .const import (
     CONF_INCLUDE_STARRED,
     CONF_NOTIFY_ISSUES,
     CONF_NOTIFY_PULLS,
+    CONF_NOTIFY_RELEASES,
     DEFAULTS,
     DOMAIN,
     MAX_FILTER_LENGTH,
@@ -120,6 +121,7 @@ async def _ws_settings(hass: HomeAssistant, connection: websocket_api.ActiveConn
         vol.Optional(CONF_INCLUDE_STARRED): bool,
         vol.Optional(CONF_NOTIFY_ISSUES): bool,
         vol.Optional(CONF_NOTIFY_PULLS): bool,
+        vol.Optional(CONF_NOTIFY_RELEASES): bool,
     }
 )
 @websocket_api.require_admin

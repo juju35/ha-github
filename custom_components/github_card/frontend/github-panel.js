@@ -15,7 +15,7 @@
  *   notifications.
  */
 
-const GITHUB_PANEL_VERSION = "2.3.1";
+const GITHUB_PANEL_VERSION = "2.4.0";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "settings"];
 // Orders of the Repositories tab (see GitHubPanel._rows)
@@ -27,7 +27,7 @@ const GITHUB_PANEL_KEYS = [
   "no_github", "add_github", "not_loaded", "offered_error",
   "summary", "search", "follow_all", "follow", "unfollow", "followed", "confirm_unfollow", "cancel",
   "working", "done", "skipped", "error", "empty", "open_github",
-  "s_filter", "s_filter_hint", "s_starred", "s_starred_hint", "s_notify_issues", "s_notify_pulls", "s_notify_hint",
+  "s_filter", "s_filter_hint", "s_starred", "s_starred_hint", "s_notify_issues", "s_notify_pulls", "s_notify_releases", "s_notify_hint",
   "save", "saved",
   // Issues and Pull requests tabs
   "issues", "pulls", "refresh", "no_issues", "no_pulls", "no_followed", "items_error",
@@ -51,7 +51,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Not offered by the GitHub integration: {names}", "Error: {error}", "No repository matches.", "Open on GitHub",
     "Repositories offered", "Name patterns separated by commas, e.g. juju35/ha-*. Empty: all of them.",
     "Include starred repositories", "Besides the repositories of your account.",
-    "Notify new issues", "Notify new pull requests",
+    "Notify new issues", "Notify new pull requests", "Notify new releases",
     "A Home Assistant notification for each new issue or pull request of the followed repositories.",
     "Save", "Saved.",
     "Issues", "Pull requests", "Refresh", "No open issue in the followed repositories.", "No open pull request in the followed repositories.", "Follow repositories in the Repositories tab to see their issues and pull requests here.", "GitHub could not be queried ({error}). Try again later.", "Draft", "Approved", "Changes requested", "Review required", "by {author}", "updated {when}", "Comments: {n}", "All repositories", "Open: {n}",
@@ -70,7 +70,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Non proposés par l’intégration GitHub : {names}", "Erreur : {error}", "Aucun dépôt ne correspond.", "Ouvrir sur GitHub",
     "Dépôts proposés", "Modèles de noms séparés par des virgules, par ex. juju35/ha-*. Vide : tous.",
     "Inclure les dépôts favoris", "En plus des dépôts de votre compte.",
-    "Notifier les nouvelles issues", "Notifier les nouvelles pull requests",
+    "Notifier les nouvelles issues", "Notifier les nouvelles pull requests", "Notifier les nouvelles versions",
     "Une notification Home Assistant pour chaque nouvelle issue ou pull request des dépôts suivis.",
     "Enregistrer", "Enregistré.",
     "Issues", "Pull requests", "Actualiser", "Aucune issue ouverte dans les dépôts suivis.", "Aucune pull request ouverte dans les dépôts suivis.", "Suivez des dépôts dans l’onglet Dépôts pour voir ici leurs issues et pull requests.", "GitHub n’a pas pu être interrogé ({error}). Réessayez plus tard.", "Brouillon", "Approuvée", "Modifications demandées", "Revue requise", "par {author}", "mise à jour {when}", "Commentaires : {n}", "Tous les dépôts", "Ouvertes : {n}",
@@ -89,7 +89,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Von der GitHub-Integration nicht angeboten: {names}", "Fehler: {error}", "Kein Repository passt.", "Auf GitHub öffnen",
     "Angebotene Repositorys", "Namensmuster, durch Kommas getrennt, z. B. juju35/ha-*. Leer: alle.",
     "Markierte Repositorys einbeziehen", "Zusätzlich zu den Repositorys deines Kontos.",
-    "Neue Issues melden", "Neue Pull Requests melden",
+    "Neue Issues melden", "Neue Pull Requests melden", "Neue Releases melden",
     "Eine Home-Assistant-Benachrichtigung für jedes neue Issue oder jeden neuen Pull Request der verfolgten Repositorys.",
     "Speichern", "Gespeichert.",
     "Issues", "Pull Requests", "Aktualisieren", "Kein offenes Issue in den verfolgten Repositorys.", "Kein offener Pull Request in den verfolgten Repositorys.", "Verfolge Repositorys im Tab Repositorys, um hier ihre Issues und Pull Requests zu sehen.", "GitHub konnte nicht abgefragt werden ({error}). Versuche es später erneut.", "Entwurf", "Genehmigt", "Änderungen angefordert", "Review erforderlich", "von {author}", "aktualisiert {when}", "Kommentare: {n}", "Alle Repositorys", "Offen: {n}",
@@ -108,7 +108,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "No ofrecidos por la integración GitHub: {names}", "Error: {error}", "Ningún repositorio coincide.", "Abrir en GitHub",
     "Repositorios ofrecidos", "Patrones de nombre separados por comas, p. ej. juju35/ha-*. Vacío: todos.",
     "Incluir los repositorios destacados", "Además de los repositorios de tu cuenta.",
-    "Notificar nuevas issues", "Notificar nuevas pull requests",
+    "Notificar nuevas issues", "Notificar nuevas pull requests", "Notificar nuevas versiones",
     "Una notificación de Home Assistant por cada nueva issue o pull request de los repositorios seguidos.",
     "Guardar", "Guardado.",
     "Issues", "Pull requests", "Actualizar", "Ninguna issue abierta en los repositorios seguidos.", "Ninguna pull request abierta en los repositorios seguidos.", "Sigue repositorios en la pestaña Repositorios para ver aquí sus issues y pull requests.", "No se pudo consultar GitHub ({error}). Inténtalo más tarde.", "Borrador", "Aprobada", "Cambios solicitados", "Revisión requerida", "por {author}", "actualizada {when}", "Comentarios: {n}", "Todos los repositorios", "Abiertas: {n}",
@@ -127,7 +127,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Интеграција GitHub их не нуди: {names}", "Грешка: {error}", "Ниједан репозиторијум не одговара.", "Отвори на GitHub-у",
     "Понуђени репозиторијуми", "Обрасци имена одвојени зарезима, нпр. juju35/ha-*. Празно: сви.",
     "Укључи репозиторијуме са звездицом", "Поред репозиторијума вашег налога.",
-    "Обавести о новим проблемима", "Обавести о новим pull захтевима",
+    "Обавести о новим проблемима", "Обавести о новим pull захтевима", "Обавести о новим издањима",
     "Обавештење у Home Assistant-у за сваки нови проблем или pull захтев праћених репозиторијума.",
     "Сачувај", "Сачувано.",
     "Проблеми", "Pull захтеви", "Освежи", "Нема отворених проблема у праћеним репозиторијумима.", "Нема отворених pull захтева у праћеним репозиторијумима.", "Пратите репозиторијуме на картици Репозиторијуми да бисте овде видели њихове проблеме и pull захтеве.", "GitHub није могао да се упита ({error}). Покушајте касније.", "Нацрт", "Одобрен", "Тражене измене", "Потребан преглед", "аутор {author}", "ажурирано {when}", "Коментари: {n}", "Сви репозиторијуми", "Отворено: {n}",
@@ -146,7 +146,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Integracija GitHub ih ne nudi: {names}", "Greška: {error}", "Nijedan repozitorijum ne odgovara.", "Otvori na GitHub-u",
     "Ponuđeni repozitorijumi", "Obrasci imena odvojeni zarezima, npr. juju35/ha-*. Prazno: svi.",
     "Uključi repozitorijume sa zvezdicom", "Pored repozitorijuma vašeg naloga.",
-    "Obavesti o novim problemima", "Obavesti o novim pull zahtevima",
+    "Obavesti o novim problemima", "Obavesti o novim pull zahtevima", "Obavesti o novim izdanjima",
     "Obaveštenje u Home Assistant-u za svaki novi problem ili pull zahtev praćenih repozitorijuma.",
     "Sačuvaj", "Sačuvano.",
     "Problemi", "Pull zahtevi", "Osveži", "Nema otvorenih problema u praćenim repozitorijumima.", "Nema otvorenih pull zahteva u praćenim repozitorijumima.", "Pratite repozitorijume na kartici Repozitorijumi da biste ovde videli njihove probleme i pull zahteve.", "GitHub nije mogao da se upita ({error}). Pokušajte kasnije.", "Nacrt", "Odobren", "Tražene izmene", "Potreban pregled", "autor {author}", "ažurirano {when}", "Komentari: {n}", "Svi repozitorijumi", "Otvoreno: {n}",
@@ -165,7 +165,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Non offerti dall’integrazione GitHub: {names}", "Errore: {error}", "Nessun repository corrisponde.", "Apri su GitHub",
     "Repository proposti", "Modelli di nome separati da virgole, ad es. juju35/ha-*. Vuoto: tutti.",
     "Includi i repository con stella", "Oltre ai repository del tuo account.",
-    "Notifica nuove issue", "Notifica nuove pull request",
+    "Notifica nuove issue", "Notifica nuove pull request", "Notifica nuove release",
     "Una notifica di Home Assistant per ogni nuova issue o pull request dei repository seguiti.",
     "Salva", "Salvato.",
     "Issue", "Pull request", "Aggiorna", "Nessuna issue aperta nei repository seguiti.", "Nessuna pull request aperta nei repository seguiti.", "Segui dei repository nella scheda Repository per vedere qui le loro issue e pull request.", "Impossibile interrogare GitHub ({error}). Riprova più tardi.", "Bozza", "Approvata", "Modifiche richieste", "Revisione richiesta", "di {author}", "aggiornata {when}", "Commenti: {n}", "Tutti i repository", "Aperte: {n}",
@@ -184,7 +184,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Niet aangeboden door de GitHub-integratie: {names}", "Fout: {error}", "Geen repository komt overeen.", "Openen op GitHub",
     "Aangeboden repositories", "Naampatronen gescheiden door komma’s, bijv. juju35/ha-*. Leeg: allemaal.",
     "Repositories met ster meenemen", "Naast de repositories van je account.",
-    "Nieuwe issues melden", "Nieuwe pull requests melden",
+    "Nieuwe issues melden", "Nieuwe pull requests melden", "Nieuwe releases melden",
     "Een Home Assistant-melding voor elke nieuwe issue of pull request van de gevolgde repositories.",
     "Opslaan", "Opgeslagen.",
     "Issues", "Pull requests", "Vernieuwen", "Geen open issue in de gevolgde repositories.", "Geen open pull request in de gevolgde repositories.", "Volg repositories in het tabblad Repositories om hier hun issues en pull requests te zien.", "GitHub kon niet worden bevraagd ({error}). Probeer het later opnieuw.", "Concept", "Goedgekeurd", "Wijzigingen gevraagd", "Review vereist", "door {author}", "bijgewerkt {when}", "Reacties: {n}", "Alle repositories", "Open: {n}",
@@ -203,7 +203,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Não propostos pela integração GitHub: {names}", "Erro: {error}", "Nenhum repositório corresponde.", "Abrir no GitHub",
     "Repositórios propostos", "Padrões de nome separados por vírgulas, p. ex. juju35/ha-*. Vazio: todos.",
     "Incluir os repositórios com estrela", "Além dos repositórios da sua conta.",
-    "Notificar novas issues", "Notificar novos pull requests",
+    "Notificar novas issues", "Notificar novos pull requests", "Notificar novas versões",
     "Uma notificação do Home Assistant para cada nova issue ou pull request dos repositórios seguidos.",
     "Guardar", "Guardado.",
     "Issues", "Pull requests", "Atualizar", "Nenhuma issue em aberto nos repositórios seguidos.", "Nenhum pull request em aberto nos repositórios seguidos.", "Siga repositórios no separador Repositórios para ver aqui as suas issues e pull requests.", "Não foi possível consultar o GitHub ({error}). Tente mais tarde.", "Rascunho", "Aprovado", "Alterações pedidas", "Revisão necessária", "por {author}", "atualizado {when}", "Comentários: {n}", "Todos os repositórios", "Em aberto: {n}",
@@ -222,7 +222,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Nieoferowane przez integrację GitHub: {names}", "Błąd: {error}", "Brak pasujących repozytoriów.", "Otwórz w GitHub",
     "Oferowane repozytoria", "Wzorce nazw oddzielone przecinkami, np. juju35/ha-*. Puste: wszystkie.",
     "Uwzględnij repozytoria z gwiazdką", "Oprócz repozytoriów Twojego konta.",
-    "Powiadamiaj o nowych zgłoszeniach", "Powiadamiaj o nowych pull requestach",
+    "Powiadamiaj o nowych zgłoszeniach", "Powiadamiaj o nowych pull requestach", "Powiadamiaj o nowych wydaniach",
     "Powiadomienie Home Assistant o każdym nowym zgłoszeniu lub pull requeście śledzonych repozytoriów.",
     "Zapisz", "Zapisano.",
     "Zgłoszenia", "Pull requesty", "Odśwież", "Brak otwartych zgłoszeń w śledzonych repozytoriach.", "Brak otwartych pull requestów w śledzonych repozytoriach.", "Śledź repozytoria w zakładce Repozytoria, aby zobaczyć tu ich zgłoszenia i pull requesty.", "Nie udało się odpytać GitHub ({error}). Spróbuj później.", "Szkic", "Zatwierdzony", "Wymagane zmiany", "Wymagana recenzja", "autor: {author}", "zaktualizowano {when}", "Komentarze: {n}", "Wszystkie repozytoria", "Otwarte: {n}",
@@ -241,7 +241,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Neoferite de integrarea GitHub: {names}", "Eroare: {error}", "Niciun depozit nu corespunde.", "Deschide pe GitHub",
     "Depozite oferite", "Modele de nume separate prin virgule, ex. juju35/ha-*. Gol: toate.",
     "Include depozitele cu stea", "Pe lângă depozitele contului tău.",
-    "Notifică issue-urile noi", "Notifică pull request-urile noi",
+    "Notifică issue-urile noi", "Notifică pull request-urile noi", "Notifică versiunile noi",
     "O notificare Home Assistant pentru fiecare issue sau pull request nou al depozitelor urmărite.",
     "Salvează", "Salvat.",
     "Issue-uri", "Pull request-uri", "Reîmprospătează", "Niciun issue deschis în depozitele urmărite.", "Niciun pull request deschis în depozitele urmărite.", "Urmărește depozite în fila Depozite pentru a vedea aici issue-urile și pull request-urile lor.", "GitHub nu a putut fi interogat ({error}). Încearcă mai târziu.", "Ciornă", "Aprobat", "Modificări solicitate", "Revizuire necesară", "de {author}", "actualizat {when}", "Comentarii: {n}", "Toate depozitele", "Deschise: {n}",
@@ -260,7 +260,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Ikke tilbudt af GitHub-integrationen: {names}", "Fejl: {error}", "Intet repository matcher.", "Åbn på GitHub",
     "Tilbudte repositories", "Navnemønstre adskilt af kommaer, fx juju35/ha-*. Tom: alle.",
     "Medtag stjernemarkerede repositories", "Ud over repositories på din konto.",
-    "Giv besked om nye issues", "Giv besked om nye pull requests",
+    "Giv besked om nye issues", "Giv besked om nye pull requests", "Giv besked om nye udgivelser",
     "En Home Assistant-meddelelse for hver ny issue eller pull request i de fulgte repositories.",
     "Gem", "Gemt.",
     "Issues", "Pull requests", "Opdater", "Ingen åbne issues i de fulgte repositories.", "Ingen åbne pull requests i de fulgte repositories.", "Følg repositories under fanen Repositories for at se deres issues og pull requests her.", "GitHub kunne ikke forespørges ({error}). Prøv igen senere.", "Kladde", "Godkendt", "Ændringer ønsket", "Gennemgang påkrævet", "af {author}", "opdateret {when}", "Kommentarer: {n}", "Alle repositories", "Åbne: {n}",
@@ -279,7 +279,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Erbjuds inte av GitHub-integrationen: {names}", "Fel: {error}", "Inget repo matchar.", "Öppna på GitHub",
     "Erbjudna repon", "Namnmönster åtskilda med kommatecken, t.ex. juju35/ha-*. Tomt: alla.",
     "Ta med stjärnmärkta repon", "Utöver repona i ditt konto.",
-    "Meddela nya ärenden", "Meddela nya pull requests",
+    "Meddela nya ärenden", "Meddela nya pull requests", "Meddela nya versioner",
     "En Home Assistant-avisering för varje nytt ärende eller ny pull request i de följda repona.",
     "Spara", "Sparat.",
     "Ärenden", "Pull requests", "Uppdatera", "Inga öppna ärenden i de följda repona.", "Inga öppna pull requests i de följda repona.", "Följ repon under fliken Repon för att se deras ärenden och pull requests här.", "GitHub kunde inte frågas ({error}). Försök igen senare.", "Utkast", "Godkänd", "Ändringar begärda", "Granskning krävs", "av {author}", "uppdaterad {when}", "Kommentarer: {n}", "Alla repon", "Öppna: {n}",
@@ -298,7 +298,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Не се предлагат от интеграцията GitHub: {names}", "Грешка: {error}", "Няма съвпадащо хранилище.", "Отвори в GitHub",
     "Предлагани хранилища", "Шаблони на имена, разделени със запетаи, напр. juju35/ha-*. Празно: всички.",
     "Включи хранилищата със звезда", "Освен хранилищата на акаунта ви.",
-    "Известявай за нови проблеми", "Известявай за нови pull заявки",
+    "Известявай за нови проблеми", "Известявай за нови pull заявки", "Известявай за нови версии",
     "Известие в Home Assistant за всеки нов проблем или pull заявка на следените хранилища.",
     "Запази", "Запазено.",
     "Проблеми", "Pull заявки", "Опресни", "Няма отворени проблеми в следените хранилища.", "Няма отворени pull заявки в следените хранилища.", "Следете хранилища в раздела Хранилища, за да виждате тук проблемите и pull заявките им.", "GitHub не можа да бъде запитан ({error}). Опитайте по-късно.", "Чернова", "Одобрена", "Поискани промени", "Нужен преглед", "от {author}", "обновено {when}", "Коментари: {n}", "Всички хранилища", "Отворени: {n}",
@@ -317,7 +317,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Не предлагаются интеграцией GitHub: {names}", "Ошибка: {error}", "Нет подходящих репозиториев.", "Открыть на GitHub",
     "Предлагаемые репозитории", "Шаблоны имён через запятую, например juju35/ha-*. Пусто: все.",
     "Включить отмеченные звездой", "Помимо репозиториев вашего аккаунта.",
-    "Уведомлять о новых задачах", "Уведомлять о новых pull-запросах",
+    "Уведомлять о новых задачах", "Уведомлять о новых pull-запросах", "Уведомлять о новых релизах",
     "Уведомление Home Assistant о каждой новой задаче или pull-запросе отслеживаемых репозиториев.",
     "Сохранить", "Сохранено.",
     "Задачи", "Pull-запросы", "Обновить", "Нет открытых задач в отслеживаемых репозиториях.", "Нет открытых pull-запросов в отслеживаемых репозиториях.", "Отслеживайте репозитории на вкладке «Репозитории», чтобы видеть здесь их задачи и pull-запросы.", "Не удалось запросить GitHub ({error}). Повторите позже.", "Черновик", "Одобрен", "Запрошены изменения", "Требуется ревью", "автор {author}", "обновлено {when}", "Комментарии: {n}", "Все репозитории", "Открыто: {n}",
@@ -336,7 +336,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Не пропонуються інтеграцією GitHub: {names}", "Помилка: {error}", "Немає відповідних репозиторіїв.", "Відкрити на GitHub",
     "Запропоновані репозиторії", "Шаблони назв через кому, напр. juju35/ha-*. Порожньо: усі.",
     "Включити позначені зіркою", "Окрім репозиторіїв вашого облікового запису.",
-    "Сповіщати про нові задачі", "Сповіщати про нові pull-запити",
+    "Сповіщати про нові задачі", "Сповіщати про нові pull-запити", "Сповіщати про нові релізи",
     "Сповіщення Home Assistant про кожну нову задачу або pull-запит відстежуваних репозиторіїв.",
     "Зберегти", "Збережено.",
     "Задачі", "Pull-запити", "Оновити", "Немає відкритих задач у відстежуваних репозиторіях.", "Немає відкритих pull-запитів у відстежуваних репозиторіях.", "Відстежуйте репозиторії на вкладці «Репозиторії», щоб бачити тут їхні задачі та pull-запити.", "Не вдалося запитати GitHub ({error}). Спробуйте пізніше.", "Чернетка", "Схвалено", "Запитано зміни", "Потрібне рев’ю", "автор {author}", "оновлено {when}", "Коментарі: {n}", "Усі репозиторії", "Відкрито: {n}",
@@ -355,7 +355,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "A GitHub integráció nem kínálja: {names}", "Hiba: {error}", "Nincs egyező tároló.", "Megnyitás a GitHubon",
     "Felkínált tárolók", "Névminták vesszővel elválasztva, pl. juju35/ha-*. Üres: mind.",
     "Csillagozott tárolók is", "A fiókod tárolói mellett.",
-    "Új hibajegyek értesítése", "Új pull requestek értesítése",
+    "Új hibajegyek értesítése", "Új pull requestek értesítése", "Új kiadások értesítése",
     "Home Assistant értesítés a követett tárolók minden új hibajegyéről vagy pull requestjéről.",
     "Mentés", "Mentve.",
     "Hibajegyek", "Pull requestek", "Frissítés", "Nincs nyitott hibajegy a követett tárolókban.", "Nincs nyitott pull request a követett tárolókban.", "Kövess tárolókat a Tárolók lapon, hogy itt lásd a hibajegyeiket és pull requestjeiket.", "A GitHub nem volt lekérdezhető ({error}). Próbáld újra később.", "Piszkozat", "Jóváhagyva", "Módosítás kérve", "Felülvizsgálat szükséges", "szerző: {author}", "frissítve {when}", "Hozzászólások: {n}", "Minden tároló", "Nyitott: {n}",
@@ -374,7 +374,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Integrácia GitHub ich neponúka: {names}", "Chyba: {error}", "Žiadny repozitár nevyhovuje.", "Otvoriť na GitHube",
     "Ponúkané repozitáre", "Vzory názvov oddelené čiarkami, napr. juju35/ha-*. Prázdne: všetky.",
     "Zahrnúť repozitáre s hviezdičkou", "Okrem repozitárov vášho účtu.",
-    "Upozorniť na nové problémy", "Upozorniť na nové pull requesty",
+    "Upozorniť na nové problémy", "Upozorniť na nové pull requesty", "Upozorniť na nové vydania",
     "Upozornenie Home Assistant na každý nový problém alebo pull request sledovaných repozitárov.",
     "Uložiť", "Uložené.",
     "Problémy", "Pull requesty", "Obnoviť", "Žiadny otvorený problém v sledovaných repozitároch.", "Žiadny otvorený pull request v sledovaných repozitároch.", "Sledujte repozitáre na karte Repozitáre, aby ste tu videli ich problémy a pull requesty.", "GitHub sa nepodarilo opýtať ({error}). Skúste to neskôr.", "Koncept", "Schválené", "Požadované zmeny", "Vyžaduje sa kontrola", "autor {author}", "aktualizované {when}", "Komentáre: {n}", "Všetky repozitáre", "Otvorené: {n}",
@@ -393,7 +393,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Integrace GitHub je nenabízí: {names}", "Chyba: {error}", "Žádný repozitář neodpovídá.", "Otevřít na GitHubu",
     "Nabízené repozitáře", "Vzory názvů oddělené čárkami, např. juju35/ha-*. Prázdné: všechny.",
     "Zahrnout repozitáře s hvězdičkou", "Kromě repozitářů vašeho účtu.",
-    "Upozornit na nové problémy", "Upozornit na nové pull requesty",
+    "Upozornit na nové problémy", "Upozornit na nové pull requesty", "Upozornit na nová vydání",
     "Oznámení Home Assistant pro každý nový problém nebo pull request sledovaných repozitářů.",
     "Uložit", "Uloženo.",
     "Problémy", "Pull requesty", "Obnovit", "Žádný otevřený problém ve sledovaných repozitářích.", "Žádný otevřený pull request ve sledovaných repozitářích.", "Sledujte repozitáře na kartě Repozitáře, abyste zde viděli jejich problémy a pull requesty.", "GitHub se nepodařilo dotázat ({error}). Zkuste to později.", "Koncept", "Schváleno", "Požadovány změny", "Vyžadována kontrola", "autor {author}", "aktualizováno {when}", "Komentáře: {n}", "Všechny repozitáře", "Otevřeno: {n}",
@@ -412,7 +412,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Integracija GitHub jih ne ponuja: {names}", "Napaka: {error}", "Noben repozitorij se ne ujema.", "Odpri na GitHubu",
     "Ponujeni repozitoriji", "Vzorci imen, ločeni z vejicami, npr. juju35/ha-*. Prazno: vsi.",
     "Vključi repozitorije z zvezdico", "Poleg repozitorijev vašega računa.",
-    "Obvesti o novih težavah", "Obvesti o novih pull requestih",
+    "Obvesti o novih težavah", "Obvesti o novih pull requestih", "Obvesti o novih izdajah",
     "Obvestilo Home Assistant za vsako novo težavo ali pull request spremljanih repozitorijev.",
     "Shrani", "Shranjeno.",
     "Težave", "Pull requesti", "Osveži", "V spremljanih repozitorijih ni odprtih težav.", "V spremljanih repozitorijih ni odprtih pull requestov.", "Spremljajte repozitorije na zavihku Repozitoriji, da tukaj vidite njihove težave in pull requeste.", "GitHuba ni bilo mogoče poizvedeti ({error}). Poskusite pozneje.", "Osnutek", "Odobreno", "Zahtevane spremembe", "Potreben pregled", "avtor {author}", "posodobljeno {when}", "Komentarji: {n}", "Vsi repozitoriji", "Odprto: {n}",
@@ -431,7 +431,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "GitHub integrācija tās nepiedāvā: {names}", "Kļūda: {error}", "Neviena krātuve neatbilst.", "Atvērt GitHub",
     "Piedāvātās krātuves", "Nosaukumu šabloni, atdalīti ar komatiem, piem. juju35/ha-*. Tukšs: visas.",
     "Iekļaut ar zvaigzni atzīmētās krātuves", "Papildus jūsu konta krātuvēm.",
-    "Paziņot par jaunām problēmām", "Paziņot par jauniem pull pieprasījumiem",
+    "Paziņot par jaunām problēmām", "Paziņot par jauniem pull pieprasījumiem", "Paziņot par jauniem laidieniem",
     "Home Assistant paziņojums par katru jaunu sekoto krātuvju problēmu vai pull pieprasījumu.",
     "Saglabāt", "Saglabāts.",
     "Problēmas", "Pull pieprasījumi", "Atsvaidzināt", "Sekotajās krātuvēs nav atvērtu problēmu.", "Sekotajās krātuvēs nav atvērtu pull pieprasījumu.", "Sekojiet krātuvēm cilnē Krātuves, lai šeit redzētu to problēmas un pull pieprasījumus.", "GitHub nevarēja vaicāt ({error}). Mēģiniet vēlāk.", "Melnraksts", "Apstiprināts", "Pieprasītas izmaiņas", "Nepieciešama pārskatīšana", "autors {author}", "atjaunināts {when}", "Komentāri: {n}", "Visas krātuves", "Atvērti: {n}",
@@ -450,7 +450,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Δεν προτείνονται από την ενσωμάτωση GitHub: {names}", "Σφάλμα: {error}", "Κανένα αποθετήριο δεν ταιριάζει.", "Άνοιγμα στο GitHub",
     "Προτεινόμενα αποθετήρια", "Μοτίβα ονομάτων χωρισμένα με κόμματα, π.χ. juju35/ha-*. Κενό: όλα.",
     "Συμπερίληψη αποθετηρίων με αστέρι", "Εκτός από τα αποθετήρια του λογαριασμού σας.",
-    "Ειδοποίηση για νέα ζητήματα", "Ειδοποίηση για νέα pull requests",
+    "Ειδοποίηση για νέα ζητήματα", "Ειδοποίηση για νέα pull requests", "Ειδοποίηση για νέες εκδόσεις",
     "Μια ειδοποίηση Home Assistant για κάθε νέο ζήτημα ή pull request των παρακολουθούμενων αποθετηρίων.",
     "Αποθήκευση", "Αποθηκεύτηκε.",
     "Ζητήματα", "Pull requests", "Ανανέωση", "Κανένα ανοιχτό ζήτημα στα παρακολουθούμενα αποθετήρια.", "Κανένα ανοιχτό pull request στα παρακολουθούμενα αποθετήρια.", "Παρακολουθήστε αποθετήρια στην καρτέλα Αποθετήρια για να βλέπετε εδώ τα ζητήματα και τα pull requests τους.", "Δεν ήταν δυνατή η επικοινωνία με το GitHub ({error}). Δοκιμάστε αργότερα.", "Πρόχειρο", "Εγκρίθηκε", "Ζητήθηκαν αλλαγές", "Απαιτείται έλεγχος", "από {author}", "ενημερώθηκε {when}", "Σχόλια: {n}", "Όλα τα αποθετήρια", "Ανοιχτά: {n}",
@@ -707,7 +707,7 @@ class GitHubPanel extends HTMLElement {
     try {
       this._settings = (await this._hass.callWS({ type: "github_card/settings" })).settings;
     } catch (_err) {
-      this._settings = { filter: "", include_starred: false, notify_issues: false, notify_pulls: false };
+      this._settings = { filter: "", include_starred: false, notify_issues: false, notify_pulls: false, notify_releases: false };
     }
     this._renderSettings();
   }
@@ -1167,6 +1167,7 @@ class GitHubPanel extends HTMLElement {
         ${toggle("include_starred", "s_starred", "s_starred_hint")}
         ${toggle("notify_issues", "s_notify_issues", "s_notify_hint")}
         ${toggle("notify_pulls", "s_notify_pulls", "")}
+        ${toggle("notify_releases", "s_notify_releases", "")}
         <div class="bar"><button class="act" data-action="save"${changed ? "" : " disabled"}>${esc(this._t("save"))}</button>
           ${this._saved ? `<span class="note good" role="status">${esc(this._t("saved"))}</span>` : ""}</div>
       </div>`;

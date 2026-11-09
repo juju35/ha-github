@@ -26,7 +26,7 @@ It works on top of the core [GitHub integration](https://www.home-assistant.io/i
 
 - **Repositories**: every repository of your GitHub account (and your starred ones, if you choose), followed or not by the GitHub integration. Each followed one shows its stars, open issues, open pull requests and latest release on its row, and unfolds the same details as the GitHub Card (counters, latest release, commit, pull request, issue…). The head gives the totals of the followed repositories, and your GitHub account (followers, following, public repositories and gists) closes the list. **Follow** or **Stop following** one, or **Follow all** at once: the whole change reloads the GitHub integration a single time
 - **Issues** and **Pull requests**: the open ones of all the followed repositories, most recently updated first, with their repository, number, author, age, comments and labels, and the review state of pull requests (approved, changes requested, review required, draft); filter by repository; each opens on GitHub
-- **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories), and a Home Assistant notification for each new issue or pull request
+- **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories), and a Home Assistant notification for each new issue, pull request or release
 - Tabs in the address (`/github-config/issues`), so a link or a reload opens the same tab
 
 ### Cards
@@ -114,7 +114,7 @@ The GitHub integration only has counts and the latest issue and pull request of 
 
 ### Notifications
 
-With **Notify new issues** or **Notify new pull requests** in **Settings**, a Home Assistant notification shows each new issue or pull request of a followed repository (one per repository and kind, replaced by the next), with its link. They come from the GitHub integration's **Latest issue** and **Latest pull request** sensors, refreshed by the GitHub integration itself.
+With **Notify new issues**, **Notify new pull requests** or **Notify new releases** in **Settings**, a Home Assistant notification shows each new issue, pull request or release of a followed repository (one per repository and kind, replaced by the next), with its link. They come from the GitHub integration's **Latest issue**, **Latest pull request** and **Latest release** sensors, refreshed by the GitHub integration itself: a higher number is a new issue or pull request, another tag a new release (a sensor back from unavailable says nothing new).
 
 ## Cards
 

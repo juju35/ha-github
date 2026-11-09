@@ -1,7 +1,8 @@
-"""Persistent notification when a followed repository gets a new issue or pull request (off by default).
+"""Persistent notification when a followed repository gets a new issue, pull request or release (off by default).
 
-Follows the "Latest issue" and "Latest pull request" sensors of the GitHub integration: a higher number
-than before is a new one. A sensor coming back from unavailable or unknown (a reload) says nothing new.
+Follows the "Latest issue", "Latest pull request" and "Latest release" sensors of the GitHub integration: a higher
+number than before is a new issue or pull request, another tag a new release. A sensor coming back from unavailable
+or unknown (a reload) says nothing new.
 """
 
 from __future__ import annotations
@@ -15,37 +16,126 @@ from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
-from .const import CONF_NOTIFY_ISSUES, CONF_NOTIFY_PULLS, DOMAIN, GITHUB_DOMAIN
+from .const import CONF_NOTIFY_ISSUES, CONF_NOTIFY_PULLS, CONF_NOTIFY_RELEASES, DOMAIN, GITHUB_DOMAIN
 
-KINDS = {"latest_issue": CONF_NOTIFY_ISSUES, "latest_pull_request": CONF_NOTIFY_PULLS}
+KINDS = {
+    "latest_issue": CONF_NOTIFY_ISSUES,
+    "latest_pull_request": CONF_NOTIFY_PULLS,
+    "latest_release": CONF_NOTIFY_RELEASES,
+}
 
 # Notification titles: {repo} is the repository's full name
 MESSAGES: dict[str, dict[str, str]] = {
-    "en": {"latest_issue": "New issue in {repo}", "latest_pull_request": "New pull request in {repo}"},
-    "fr": {"latest_issue": "Nouvelle issue dans {repo}", "latest_pull_request": "Nouvelle pull request dans {repo}"},
-    "de": {"latest_issue": "Neues Issue in {repo}", "latest_pull_request": "Neuer Pull Request in {repo}"},
-    "es": {"latest_issue": "Nueva issue en {repo}", "latest_pull_request": "Nueva pull request en {repo}"},
-    "sr": {"latest_issue": "Нови проблем у {repo}", "latest_pull_request": "Нови pull захтев у {repo}"},
-    "sr-Latn": {"latest_issue": "Novi problem u {repo}", "latest_pull_request": "Novi pull zahtev u {repo}"},
-    "it": {"latest_issue": "Nuova issue in {repo}", "latest_pull_request": "Nuova pull request in {repo}"},
-    "nl": {"latest_issue": "Nieuwe issue in {repo}", "latest_pull_request": "Nieuwe pull request in {repo}"},
-    "pt": {"latest_issue": "Nova issue em {repo}", "latest_pull_request": "Novo pull request em {repo}"},
-    "pl": {"latest_issue": "Nowe zgłoszenie w {repo}", "latest_pull_request": "Nowy pull request w {repo}"},
-    "ro": {"latest_issue": "Issue nou în {repo}", "latest_pull_request": "Pull request nou în {repo}"},
-    "da": {"latest_issue": "Ny issue i {repo}", "latest_pull_request": "Ny pull request i {repo}"},
-    "sv": {"latest_issue": "Nytt ärende i {repo}", "latest_pull_request": "Ny pull request i {repo}"},
-    "bg": {"latest_issue": "Нов проблем в {repo}", "latest_pull_request": "Нова pull заявка в {repo}"},
-    "ru": {"latest_issue": "Новая задача в {repo}", "latest_pull_request": "Новый pull-запрос в {repo}"},
-    "uk": {"latest_issue": "Нова задача в {repo}", "latest_pull_request": "Новий pull-запит у {repo}"},
-    "hu": {"latest_issue": "Új hibajegy: {repo}", "latest_pull_request": "Új pull request: {repo}"},
-    "sk": {"latest_issue": "Nový problém v {repo}", "latest_pull_request": "Nový pull request v {repo}"},
-    "cs": {"latest_issue": "Nový problém v {repo}", "latest_pull_request": "Nový pull request v {repo}"},
-    "sl": {"latest_issue": "Nova težava v {repo}", "latest_pull_request": "Nov pull request v {repo}"},
+    "en": {
+        "latest_issue": "New issue in {repo}",
+        "latest_pull_request": "New pull request in {repo}",
+        "latest_release": "New release of {repo}",
+    },
+    "fr": {
+        "latest_issue": "Nouvelle issue dans {repo}",
+        "latest_pull_request": "Nouvelle pull request dans {repo}",
+        "latest_release": "Nouvelle version de {repo}",
+    },
+    "de": {
+        "latest_issue": "Neues Issue in {repo}",
+        "latest_pull_request": "Neuer Pull Request in {repo}",
+        "latest_release": "Neues Release von {repo}",
+    },
+    "es": {
+        "latest_issue": "Nueva issue en {repo}",
+        "latest_pull_request": "Nueva pull request en {repo}",
+        "latest_release": "Nueva versión de {repo}",
+    },
+    "sr": {
+        "latest_issue": "Нови проблем у {repo}",
+        "latest_pull_request": "Нови pull захтев у {repo}",
+        "latest_release": "Ново издање за {repo}",
+    },
+    "sr-Latn": {
+        "latest_issue": "Novi problem u {repo}",
+        "latest_pull_request": "Novi pull zahtev u {repo}",
+        "latest_release": "Novo izdanje za {repo}",
+    },
+    "it": {
+        "latest_issue": "Nuova issue in {repo}",
+        "latest_pull_request": "Nuova pull request in {repo}",
+        "latest_release": "Nuova release di {repo}",
+    },
+    "nl": {
+        "latest_issue": "Nieuwe issue in {repo}",
+        "latest_pull_request": "Nieuwe pull request in {repo}",
+        "latest_release": "Nieuwe release van {repo}",
+    },
+    "pt": {
+        "latest_issue": "Nova issue em {repo}",
+        "latest_pull_request": "Novo pull request em {repo}",
+        "latest_release": "Nova versão de {repo}",
+    },
+    "pl": {
+        "latest_issue": "Nowe zgłoszenie w {repo}",
+        "latest_pull_request": "Nowy pull request w {repo}",
+        "latest_release": "Nowe wydanie {repo}",
+    },
+    "ro": {
+        "latest_issue": "Issue nou în {repo}",
+        "latest_pull_request": "Pull request nou în {repo}",
+        "latest_release": "Versiune nouă pentru {repo}",
+    },
+    "da": {
+        "latest_issue": "Ny issue i {repo}",
+        "latest_pull_request": "Ny pull request i {repo}",
+        "latest_release": "Ny udgivelse af {repo}",
+    },
+    "sv": {
+        "latest_issue": "Nytt ärende i {repo}",
+        "latest_pull_request": "Ny pull request i {repo}",
+        "latest_release": "Ny version av {repo}",
+    },
+    "bg": {
+        "latest_issue": "Нов проблем в {repo}",
+        "latest_pull_request": "Нова pull заявка в {repo}",
+        "latest_release": "Нова версия на {repo}",
+    },
+    "ru": {
+        "latest_issue": "Новая задача в {repo}",
+        "latest_pull_request": "Новый pull-запрос в {repo}",
+        "latest_release": "Новый релиз {repo}",
+    },
+    "uk": {
+        "latest_issue": "Нова задача в {repo}",
+        "latest_pull_request": "Новий pull-запит у {repo}",
+        "latest_release": "Новий реліз {repo}",
+    },
+    "hu": {
+        "latest_issue": "Új hibajegy: {repo}",
+        "latest_pull_request": "Új pull request: {repo}",
+        "latest_release": "Új kiadás: {repo}",
+    },
+    "sk": {
+        "latest_issue": "Nový problém v {repo}",
+        "latest_pull_request": "Nový pull request v {repo}",
+        "latest_release": "Nové vydanie {repo}",
+    },
+    "cs": {
+        "latest_issue": "Nový problém v {repo}",
+        "latest_pull_request": "Nový pull request v {repo}",
+        "latest_release": "Nové vydání {repo}",
+    },
+    "sl": {
+        "latest_issue": "Nova težava v {repo}",
+        "latest_pull_request": "Nov pull request v {repo}",
+        "latest_release": "Nova izdaja {repo}",
+    },
     "lv": {
         "latest_issue": "Jauna problēma krātuvē {repo}",
         "latest_pull_request": "Jauns pull pieprasījums krātuvē {repo}",
+        "latest_release": "Jauns laidiens krātuvē {repo}",
     },
-    "el": {"latest_issue": "Νέο ζήτημα στο {repo}", "latest_pull_request": "Νέο pull request στο {repo}"},
+    "el": {
+        "latest_issue": "Νέο ζήτημα στο {repo}",
+        "latest_pull_request": "Νέο pull request στο {repo}",
+        "latest_release": "Νέα έκδοση του {repo}",
+    },
 }
 
 
@@ -64,6 +154,13 @@ def _number(state: Any) -> int | None:
         return int(state.attributes.get("number"))
     except (TypeError, ValueError):
         return None
+
+
+def _tag(state: Any) -> str | None:
+    if state is None or state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+        return None
+    tag = state.attributes.get("tag")
+    return str(tag) if tag else None
 
 
 class NewItemNotifier:
@@ -114,17 +211,23 @@ class NewItemNotifier:
         kind = self._watch_list().get(entity_id)
         if kind is None:  # The registry changed since the filter ran.
             return
-        old, new = _number(event.data.get("old_state")), _number(event.data.get("new_state"))
-        if old is None or new is None or new <= old:
-            return
         state = event.data["new_state"]
+        if kind == "latest_release":
+            old_tag, new_tag = _tag(event.data.get("old_state")), _tag(state)
+            if old_tag is None or new_tag is None or new_tag == old_tag:
+                return
+            text = f"{new_tag} {state.state}" if state.state != new_tag else new_tag
+        else:
+            old, new = _number(event.data.get("old_state")), _number(state)
+            if old is None or new is None or new <= old:
+                return
+            text = f"#{new} {state.state}"
         entry = er.async_get(self._hass).async_get(entity_id)
         device = dr.async_get(self._hass).async_get(entry.device_id) if entry and entry.device_id else None
         repo = device.name if device and device.name else entity_id
         lang = message_language(self._hass.config.language)
         title = MESSAGES[lang][kind].format(repo=repo)
         url = state.attributes.get("url")
-        text = f"#{new} {state.state}"
         persistent_notification.async_create(
             self._hass,
             f"[{text}]({url})" if isinstance(url, str) and url.startswith("https://") else text,

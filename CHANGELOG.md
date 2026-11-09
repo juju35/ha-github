@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.0 - 2026-11-09
+
+### Features
+- **Notify new releases** (panel Settings, off by default): a Home Assistant notification for each new release of a followed repository, with its tag, name and link, from the GitHub integration's *Latest release* sensor (another tag than before is a new release; a sensor back from unavailable says nothing new).
+
 ## 2.3.1 - 2026-11-09
 
 ### Performance
