@@ -14,8 +14,10 @@
  *   notifications.
  */
 
-const GITHUB_PANEL_VERSION = "2.1.0";
+const GITHUB_PANEL_VERSION = "2.2.0";
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "activity", "settings"];
+// Orders of the Repositories tab (see GitHubPanel._rows)
+const GITHUB_PANEL_SORTS = ["followed", "name", "stars", "issues", "pulls"];
 
 // Translations: one list per language, in the order of KEYS (the tests check the parity).
 const GITHUB_PANEL_KEYS = [
@@ -30,6 +32,8 @@ const GITHUB_PANEL_KEYS = [
   "draft", "approved", "changes_requested", "review_required", "by", "updated", "comments", "all_repos", "open_n",
   // Rows of the followed repositories
   "stars", "release", "details",
+  // Order of the Repositories tab
+  "sort_label", "sort_followed", "sort_name", "sort_stars", "sort_issues", "sort_pulls",
 ];
 
 const GITHUB_PANEL_TRANSLATIONS = {
@@ -50,6 +54,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Save", "Saved.",
     "Issues", "Pull requests", "Refresh", "No open issue in the followed repositories.", "No open pull request in the followed repositories.", "Follow repositories in the Repositories tab to see their issues and pull requests here.", "GitHub could not be queried ({error}). Try again later.", "Draft", "Approved", "Changes requested", "Review required", "by {author}", "updated {when}", "Comments: {n}", "All repositories", "Open: {n}",
     "Stars", "Latest release", "Show or hide the details",
+    "Sort", "Followed first", "Name", "Stars", "Open issues", "Open pull requests",
   ],
   fr: [
     "GitHub", "Dépôts", "Activité", "Réglages", "Intégration GitHub", "Chargement…",
@@ -68,6 +73,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Enregistrer", "Enregistré.",
     "Issues", "Pull requests", "Actualiser", "Aucune issue ouverte dans les dépôts suivis.", "Aucune pull request ouverte dans les dépôts suivis.", "Suivez des dépôts dans l’onglet Dépôts pour voir ici leurs issues et pull requests.", "GitHub n’a pas pu être interrogé ({error}). Réessayez plus tard.", "Brouillon", "Approuvée", "Modifications demandées", "Revue requise", "par {author}", "mise à jour {when}", "Commentaires : {n}", "Tous les dépôts", "Ouvertes : {n}",
     "Étoiles", "Dernière version", "Afficher ou masquer le détail",
+    "Tri", "Suivis d’abord", "Nom", "Étoiles", "Issues ouvertes", "Pull requests ouvertes",
   ],
   de: [
     "GitHub", "Repositorys", "Aktivität", "Einstellungen", "GitHub-Integration", "Wird geladen…",
@@ -86,6 +92,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Speichern", "Gespeichert.",
     "Issues", "Pull Requests", "Aktualisieren", "Kein offenes Issue in den verfolgten Repositorys.", "Kein offener Pull Request in den verfolgten Repositorys.", "Verfolge Repositorys im Tab Repositorys, um hier ihre Issues und Pull Requests zu sehen.", "GitHub konnte nicht abgefragt werden ({error}). Versuche es später erneut.", "Entwurf", "Genehmigt", "Änderungen angefordert", "Review erforderlich", "von {author}", "aktualisiert {when}", "Kommentare: {n}", "Alle Repositorys", "Offen: {n}",
     "Sterne", "Neuestes Release", "Details ein- oder ausblenden",
+    "Sortierung", "Verfolgte zuerst", "Name", "Sterne", "Offene Issues", "Offene Pull Requests",
   ],
   es: [
     "GitHub", "Repositorios", "Actividad", "Ajustes", "Integración GitHub", "Cargando…",
@@ -104,6 +111,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Guardar", "Guardado.",
     "Issues", "Pull requests", "Actualizar", "Ninguna issue abierta en los repositorios seguidos.", "Ninguna pull request abierta en los repositorios seguidos.", "Sigue repositorios en la pestaña Repositorios para ver aquí sus issues y pull requests.", "No se pudo consultar GitHub ({error}). Inténtalo más tarde.", "Borrador", "Aprobada", "Cambios solicitados", "Revisión requerida", "por {author}", "actualizada {when}", "Comentarios: {n}", "Todos los repositorios", "Abiertas: {n}",
     "Estrellas", "Última versión", "Mostrar u ocultar el detalle",
+    "Orden", "Seguidos primero", "Nombre", "Estrellas", "Issues abiertas", "Pull requests abiertas",
   ],
   sr: [
     "GitHub", "Репозиторијуми", "Активност", "Подешавања", "Интеграција GitHub", "Учитавање…",
@@ -122,6 +130,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Сачувај", "Сачувано.",
     "Проблеми", "Pull захтеви", "Освежи", "Нема отворених проблема у праћеним репозиторијумима.", "Нема отворених pull захтева у праћеним репозиторијумима.", "Пратите репозиторијуме на картици Репозиторијуми да бисте овде видели њихове проблеме и pull захтеве.", "GitHub није могао да се упита ({error}). Покушајте касније.", "Нацрт", "Одобрен", "Тражене измене", "Потребан преглед", "аутор {author}", "ажурирано {when}", "Коментари: {n}", "Сви репозиторијуми", "Отворено: {n}",
     "Звездице", "Најновије издање", "Прикажи или сакриј детаље",
+    "Редослед", "Прво праћени", "Име", "Звездице", "Отворени проблеми", "Отворени pull захтеви",
   ],
   "sr-Latn": [
     "GitHub", "Repozitorijumi", "Aktivnost", "Podešavanja", "Integracija GitHub", "Učitavanje…",
@@ -140,6 +149,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sačuvaj", "Sačuvano.",
     "Problemi", "Pull zahtevi", "Osveži", "Nema otvorenih problema u praćenim repozitorijumima.", "Nema otvorenih pull zahteva u praćenim repozitorijumima.", "Pratite repozitorijume na kartici Repozitorijumi da biste ovde videli njihove probleme i pull zahteve.", "GitHub nije mogao da se upita ({error}). Pokušajte kasnije.", "Nacrt", "Odobren", "Tražene izmene", "Potreban pregled", "autor {author}", "ažurirano {when}", "Komentari: {n}", "Svi repozitorijumi", "Otvoreno: {n}",
     "Zvezdice", "Najnovije izdanje", "Prikaži ili sakrij detalje",
+    "Redosled", "Prvo praćeni", "Ime", "Zvezdice", "Otvoreni problemi", "Otvoreni pull zahtevi",
   ],
   it: [
     "GitHub", "Repository", "Attività", "Impostazioni", "Integrazione GitHub", "Caricamento…",
@@ -158,6 +168,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Salva", "Salvato.",
     "Issue", "Pull request", "Aggiorna", "Nessuna issue aperta nei repository seguiti.", "Nessuna pull request aperta nei repository seguiti.", "Segui dei repository nella scheda Repository per vedere qui le loro issue e pull request.", "Impossibile interrogare GitHub ({error}). Riprova più tardi.", "Bozza", "Approvata", "Modifiche richieste", "Revisione richiesta", "di {author}", "aggiornata {when}", "Commenti: {n}", "Tutti i repository", "Aperte: {n}",
     "Stelle", "Ultima release", "Mostra o nascondi i dettagli",
+    "Ordinamento", "Prima i seguiti", "Nome", "Stelle", "Issue aperte", "Pull request aperte",
   ],
   nl: [
     "GitHub", "Repositories", "Activiteit", "Instellingen", "GitHub-integratie", "Laden…",
@@ -176,6 +187,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Opslaan", "Opgeslagen.",
     "Issues", "Pull requests", "Vernieuwen", "Geen open issue in de gevolgde repositories.", "Geen open pull request in de gevolgde repositories.", "Volg repositories in het tabblad Repositories om hier hun issues en pull requests te zien.", "GitHub kon niet worden bevraagd ({error}). Probeer het later opnieuw.", "Concept", "Goedgekeurd", "Wijzigingen gevraagd", "Review vereist", "door {author}", "bijgewerkt {when}", "Reacties: {n}", "Alle repositories", "Open: {n}",
     "Sterren", "Nieuwste release", "Details tonen of verbergen",
+    "Sortering", "Gevolgde eerst", "Naam", "Sterren", "Open issues", "Open pull requests",
   ],
   pt: [
     "GitHub", "Repositórios", "Atividade", "Definições", "Integração GitHub", "A carregar…",
@@ -194,6 +206,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Guardar", "Guardado.",
     "Issues", "Pull requests", "Atualizar", "Nenhuma issue em aberto nos repositórios seguidos.", "Nenhum pull request em aberto nos repositórios seguidos.", "Siga repositórios no separador Repositórios para ver aqui as suas issues e pull requests.", "Não foi possível consultar o GitHub ({error}). Tente mais tarde.", "Rascunho", "Aprovado", "Alterações pedidas", "Revisão necessária", "por {author}", "atualizado {when}", "Comentários: {n}", "Todos os repositórios", "Em aberto: {n}",
     "Estrelas", "Versão mais recente", "Mostrar ou ocultar o detalhe",
+    "Ordenação", "Seguidos primeiro", "Nome", "Estrelas", "Issues em aberto", "Pull requests em aberto",
   ],
   pl: [
     "GitHub", "Repozytoria", "Aktywność", "Ustawienia", "Integracja GitHub", "Ładowanie…",
@@ -212,6 +225,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Zapisz", "Zapisano.",
     "Zgłoszenia", "Pull requesty", "Odśwież", "Brak otwartych zgłoszeń w śledzonych repozytoriach.", "Brak otwartych pull requestów w śledzonych repozytoriach.", "Śledź repozytoria w zakładce Repozytoria, aby zobaczyć tu ich zgłoszenia i pull requesty.", "Nie udało się odpytać GitHub ({error}). Spróbuj później.", "Szkic", "Zatwierdzony", "Wymagane zmiany", "Wymagana recenzja", "autor: {author}", "zaktualizowano {when}", "Komentarze: {n}", "Wszystkie repozytoria", "Otwarte: {n}",
     "Gwiazdki", "Najnowsze wydanie", "Pokaż lub ukryj szczegóły",
+    "Sortowanie", "Najpierw śledzone", "Nazwa", "Gwiazdki", "Otwarte zgłoszenia", "Otwarte pull requesty",
   ],
   ro: [
     "GitHub", "Depozite", "Activitate", "Setări", "Integrarea GitHub", "Se încarcă…",
@@ -230,6 +244,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Salvează", "Salvat.",
     "Issue-uri", "Pull request-uri", "Reîmprospătează", "Niciun issue deschis în depozitele urmărite.", "Niciun pull request deschis în depozitele urmărite.", "Urmărește depozite în fila Depozite pentru a vedea aici issue-urile și pull request-urile lor.", "GitHub nu a putut fi interogat ({error}). Încearcă mai târziu.", "Ciornă", "Aprobat", "Modificări solicitate", "Revizuire necesară", "de {author}", "actualizat {when}", "Comentarii: {n}", "Toate depozitele", "Deschise: {n}",
     "Stele", "Cea mai recentă versiune", "Afișează sau ascunde detaliile",
+    "Sortare", "Mai întâi cele urmărite", "Nume", "Stele", "Issue-uri deschise", "Pull request-uri deschise",
   ],
   da: [
     "GitHub", "Repositories", "Aktivitet", "Indstillinger", "GitHub-integration", "Indlæser…",
@@ -248,6 +263,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Gem", "Gemt.",
     "Issues", "Pull requests", "Opdater", "Ingen åbne issues i de fulgte repositories.", "Ingen åbne pull requests i de fulgte repositories.", "Følg repositories under fanen Repositories for at se deres issues og pull requests her.", "GitHub kunne ikke forespørges ({error}). Prøv igen senere.", "Kladde", "Godkendt", "Ændringer ønsket", "Gennemgang påkrævet", "af {author}", "opdateret {when}", "Kommentarer: {n}", "Alle repositories", "Åbne: {n}",
     "Stjerner", "Seneste udgivelse", "Vis eller skjul detaljer",
+    "Sortering", "Fulgte først", "Navn", "Stjerner", "Åbne issues", "Åbne pull requests",
   ],
   sv: [
     "GitHub", "Repon", "Aktivitet", "Inställningar", "GitHub-integration", "Laddar…",
@@ -266,6 +282,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Spara", "Sparat.",
     "Ärenden", "Pull requests", "Uppdatera", "Inga öppna ärenden i de följda repona.", "Inga öppna pull requests i de följda repona.", "Följ repon under fliken Repon för att se deras ärenden och pull requests här.", "GitHub kunde inte frågas ({error}). Försök igen senare.", "Utkast", "Godkänd", "Ändringar begärda", "Granskning krävs", "av {author}", "uppdaterad {when}", "Kommentarer: {n}", "Alla repon", "Öppna: {n}",
     "Stjärnor", "Senaste release", "Visa eller dölj detaljer",
+    "Sortering", "Följda först", "Namn", "Stjärnor", "Öppna ärenden", "Öppna pull requests",
   ],
   bg: [
     "GitHub", "Хранилища", "Активност", "Настройки", "Интеграция GitHub", "Зареждане…",
@@ -284,6 +301,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Запази", "Запазено.",
     "Проблеми", "Pull заявки", "Опресни", "Няма отворени проблеми в следените хранилища.", "Няма отворени pull заявки в следените хранилища.", "Следете хранилища в раздела Хранилища, за да виждате тук проблемите и pull заявките им.", "GitHub не можа да бъде запитан ({error}). Опитайте по-късно.", "Чернова", "Одобрена", "Поискани промени", "Нужен преглед", "от {author}", "обновено {when}", "Коментари: {n}", "Всички хранилища", "Отворени: {n}",
     "Звезди", "Последна версия", "Покажи или скрий подробностите",
+    "Подреждане", "Първо следените", "Име", "Звезди", "Отворени проблеми", "Отворени pull заявки",
   ],
   ru: [
     "GitHub", "Репозитории", "Активность", "Настройки", "Интеграция GitHub", "Загрузка…",
@@ -302,6 +320,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Сохранить", "Сохранено.",
     "Задачи", "Pull-запросы", "Обновить", "Нет открытых задач в отслеживаемых репозиториях.", "Нет открытых pull-запросов в отслеживаемых репозиториях.", "Отслеживайте репозитории на вкладке «Репозитории», чтобы видеть здесь их задачи и pull-запросы.", "Не удалось запросить GitHub ({error}). Повторите позже.", "Черновик", "Одобрен", "Запрошены изменения", "Требуется ревью", "автор {author}", "обновлено {when}", "Комментарии: {n}", "Все репозитории", "Открыто: {n}",
     "Звёзды", "Последний релиз", "Показать или скрыть подробности",
+    "Сортировка", "Сначала отслеживаемые", "Имя", "Звёзды", "Открытые задачи", "Открытые pull-запросы",
   ],
   uk: [
     "GitHub", "Репозиторії", "Активність", "Налаштування", "Інтеграція GitHub", "Завантаження…",
@@ -320,6 +339,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Зберегти", "Збережено.",
     "Задачі", "Pull-запити", "Оновити", "Немає відкритих задач у відстежуваних репозиторіях.", "Немає відкритих pull-запитів у відстежуваних репозиторіях.", "Відстежуйте репозиторії на вкладці «Репозиторії», щоб бачити тут їхні задачі та pull-запити.", "Не вдалося запитати GitHub ({error}). Спробуйте пізніше.", "Чернетка", "Схвалено", "Запитано зміни", "Потрібне рев’ю", "автор {author}", "оновлено {when}", "Коментарі: {n}", "Усі репозиторії", "Відкрито: {n}",
     "Зірки", "Останній реліз", "Показати або приховати подробиці",
+    "Сортування", "Спершу відстежувані", "Назва", "Зірки", "Відкриті задачі", "Відкриті pull-запити",
   ],
   hu: [
     "GitHub", "Tárolók", "Tevékenység", "Beállítások", "GitHub integráció", "Betöltés…",
@@ -338,6 +358,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Mentés", "Mentve.",
     "Hibajegyek", "Pull requestek", "Frissítés", "Nincs nyitott hibajegy a követett tárolókban.", "Nincs nyitott pull request a követett tárolókban.", "Kövess tárolókat a Tárolók lapon, hogy itt lásd a hibajegyeiket és pull requestjeiket.", "A GitHub nem volt lekérdezhető ({error}). Próbáld újra később.", "Piszkozat", "Jóváhagyva", "Módosítás kérve", "Felülvizsgálat szükséges", "szerző: {author}", "frissítve {when}", "Hozzászólások: {n}", "Minden tároló", "Nyitott: {n}",
     "Csillagok", "Legújabb kiadás", "Részletek megjelenítése vagy elrejtése",
+    "Rendezés", "Követettek elöl", "Név", "Csillagok", "Nyitott hibajegyek", "Nyitott pull requestek",
   ],
   sk: [
     "GitHub", "Repozitáre", "Aktivita", "Nastavenia", "Integrácia GitHub", "Načítava sa…",
@@ -356,6 +377,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Uložiť", "Uložené.",
     "Problémy", "Pull requesty", "Obnoviť", "Žiadny otvorený problém v sledovaných repozitároch.", "Žiadny otvorený pull request v sledovaných repozitároch.", "Sledujte repozitáre na karte Repozitáre, aby ste tu videli ich problémy a pull requesty.", "GitHub sa nepodarilo opýtať ({error}). Skúste to neskôr.", "Koncept", "Schválené", "Požadované zmeny", "Vyžaduje sa kontrola", "autor {author}", "aktualizované {when}", "Komentáre: {n}", "Všetky repozitáre", "Otvorené: {n}",
     "Hviezdičky", "Najnovšie vydanie", "Zobraziť alebo skryť podrobnosti",
+    "Zoradenie", "Najprv sledované", "Názov", "Hviezdičky", "Otvorené problémy", "Otvorené pull requesty",
   ],
   cs: [
     "GitHub", "Repozitáře", "Aktivita", "Nastavení", "Integrace GitHub", "Načítání…",
@@ -374,6 +396,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Uložit", "Uloženo.",
     "Problémy", "Pull requesty", "Obnovit", "Žádný otevřený problém ve sledovaných repozitářích.", "Žádný otevřený pull request ve sledovaných repozitářích.", "Sledujte repozitáře na kartě Repozitáře, abyste zde viděli jejich problémy a pull requesty.", "GitHub se nepodařilo dotázat ({error}). Zkuste to později.", "Koncept", "Schváleno", "Požadovány změny", "Vyžadována kontrola", "autor {author}", "aktualizováno {when}", "Komentáře: {n}", "Všechny repozitáře", "Otevřeno: {n}",
     "Hvězdičky", "Nejnovější vydání", "Zobrazit nebo skrýt podrobnosti",
+    "Řazení", "Nejdřív sledované", "Název", "Hvězdičky", "Otevřené problémy", "Otevřené pull requesty",
   ],
   sl: [
     "GitHub", "Repozitoriji", "Dejavnost", "Nastavitve", "Integracija GitHub", "Nalaganje…",
@@ -392,6 +415,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Shrani", "Shranjeno.",
     "Težave", "Pull requesti", "Osveži", "V spremljanih repozitorijih ni odprtih težav.", "V spremljanih repozitorijih ni odprtih pull requestov.", "Spremljajte repozitorije na zavihku Repozitoriji, da tukaj vidite njihove težave in pull requeste.", "GitHuba ni bilo mogoče poizvedeti ({error}). Poskusite pozneje.", "Osnutek", "Odobreno", "Zahtevane spremembe", "Potreben pregled", "avtor {author}", "posodobljeno {when}", "Komentarji: {n}", "Vsi repozitoriji", "Odprto: {n}",
     "Zvezdice", "Najnovejša izdaja", "Prikaži ali skrij podrobnosti",
+    "Razvrščanje", "Najprej spremljani", "Ime", "Zvezdice", "Odprte težave", "Odprti pull requesti",
   ],
   lv: [
     "GitHub", "Krātuves", "Aktivitāte", "Iestatījumi", "GitHub integrācija", "Ielādē…",
@@ -410,6 +434,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Saglabāt", "Saglabāts.",
     "Problēmas", "Pull pieprasījumi", "Atsvaidzināt", "Sekotajās krātuvēs nav atvērtu problēmu.", "Sekotajās krātuvēs nav atvērtu pull pieprasījumu.", "Sekojiet krātuvēm cilnē Krātuves, lai šeit redzētu to problēmas un pull pieprasījumus.", "GitHub nevarēja vaicāt ({error}). Mēģiniet vēlāk.", "Melnraksts", "Apstiprināts", "Pieprasītas izmaiņas", "Nepieciešama pārskatīšana", "autors {author}", "atjaunināts {when}", "Komentāri: {n}", "Visas krātuves", "Atvērti: {n}",
     "Zvaigznes", "Jaunākais laidiens", "Rādīt vai paslēpt informāciju",
+    "Kārtošana", "Vispirms sekotās", "Nosaukums", "Zvaigznes", "Atvērtās problēmas", "Atvērtie pull pieprasījumi",
   ],
   el: [
     "GitHub", "Αποθετήρια", "Δραστηριότητα", "Ρυθμίσεις", "Ενσωμάτωση GitHub", "Φόρτωση…",
@@ -428,6 +453,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Αποθήκευση", "Αποθηκεύτηκε.",
     "Ζητήματα", "Pull requests", "Ανανέωση", "Κανένα ανοιχτό ζήτημα στα παρακολουθούμενα αποθετήρια.", "Κανένα ανοιχτό pull request στα παρακολουθούμενα αποθετήρια.", "Παρακολουθήστε αποθετήρια στην καρτέλα Αποθετήρια για να βλέπετε εδώ τα ζητήματα και τα pull requests τους.", "Δεν ήταν δυνατή η επικοινωνία με το GitHub ({error}). Δοκιμάστε αργότερα.", "Πρόχειρο", "Εγκρίθηκε", "Ζητήθηκαν αλλαγές", "Απαιτείται έλεγχος", "από {author}", "ενημερώθηκε {when}", "Σχόλια: {n}", "Όλα τα αποθετήρια", "Ανοιχτά: {n}",
     "Αστέρια", "Τελευταία έκδοση", "Εμφάνιση ή απόκρυψη λεπτομερειών",
+    "Ταξινόμηση", "Πρώτα τα παρακολουθούμενα", "Όνομα", "Αστέρια", "Ανοιχτά ζητήματα", "Ανοιχτά pull requests",
   ],
 };
 
@@ -483,8 +509,8 @@ class GitHubPanel extends HTMLElement {
     .note.bad { color:color-mix(in srgb, var(--tone-bad) 50%, var(--primary-text-color)); }
     .note.good { color:color-mix(in srgb, var(--tone-good) 50%, var(--primary-text-color)); }
     .head { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .head .sum { flex:1 1 200px; font-size:14px; color:var(--secondary-text-color); }
-    .search { flex:1 1 220px; display:flex; align-items:center; border-radius:8px; border:1px solid var(--divider-color, rgba(127,127,127,.3));
+    .head .sum { flex:1 1 160px; font-size:14px; color:var(--secondary-text-color); }
+    .search { flex:1 1 160px; display:flex; align-items:center; border-radius:8px; border:1px solid var(--divider-color, rgba(127,127,127,.3));
               background:var(--secondary-background-color, rgba(127,127,127,.08)); }
     .search:focus-within, .field:focus-within { border-color:var(--gh-accent); }
     .search input, .field input { flex:1; min-width:0; border:0; outline:0; background:none; color:inherit; font:inherit; font-size:14px; padding:8px 10px; }
@@ -538,6 +564,7 @@ class GitHubPanel extends HTMLElement {
     .toggle input { width:18px; height:18px; accent-color:var(--gh-accent); }
     .bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
     /* Issues and pull requests: one line per item, its repository, number, author and age under the title */
+    .head .pick[data-sort] { flex:0 0 auto; }
     .pick { flex:0 1 240px; min-width:0; border-radius:8px; border:1px solid var(--divider-color, rgba(127,127,127,.3)); padding:7px 8px;
             background:var(--secondary-background-color, rgba(127,127,127,.08)); color:inherit; font:inherit; font-size:14px; }
     .item { display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-top:1px solid var(--divider-color, rgba(127,127,127,.15));
@@ -574,6 +601,13 @@ class GitHubPanel extends HTMLElement {
     this._items = null; // open issues and pull requests, loaded with the first of their tabs
     this._itemsBusy = false;
     this._itemRepo = ""; // repository filter of the Issues and Pull requests tabs
+    this._sort = "followed"; // order of the Repositories tab
+    try {
+      const saved = localStorage.getItem("github_card.repos_sort");
+      if (GITHUB_PANEL_SORTS.includes(saved)) this._sort = saved;
+    } catch (_err) {
+      // no storage: the default order
+    }
   }
 
   // /github-config/<tab> opens that tab (Home Assistant sets the route; the base address is Repositories)
@@ -760,11 +794,31 @@ class GitHubPanel extends HTMLElement {
   // ── Repositories tab ──
 
   /** Rows to show: followed and offered repositories matching the search, followed first, then by name. */
+  /**
+   * Rows to show: followed and offered repositories matching the search, in the chosen order. `followed` (the
+   * default): followed first, then by name; `name`: all by name; `stars`, `issues`, `pulls`: the followed ones by
+   * that live counter (highest first), then the others by name, which have no counter.
+   */
   _rows() {
     const o = this._overview;
     const q = this._query.trim().toLowerCase();
-    const rows = [...o.followed.map((name) => ({ name, followed: true })), ...o.offered.map((name) => ({ name, followed: false }))];
-    return rows.filter((r) => !q || r.name.toLowerCase().includes(q));
+    const rows = [...o.followed.map((name) => ({ name, followed: true })), ...o.offered.map((name) => ({ name, followed: false }))]
+      .filter((r) => !q || r.name.toLowerCase().includes(q));
+    const byName = (a, b) => a.name.localeCompare(b.name);
+    const key = { stars: "stargazers_count", issues: "issues_count", pulls: "pulls_count" }[this._sort];
+    if (this._sort === "name") return rows.sort(byName);
+    if (key) {
+      const n = (r) => (r.followed ? this._number(r.name, key) : null) ?? -1;
+      return rows.sort((a, b) => n(b) - n(a) || Number(b.followed) - Number(a.followed) || byName(a, b));
+    }
+    return rows.sort((a, b) => Number(b.followed) - Number(a.followed) || byName(a, b));
+  }
+
+  /** A live counter of a followed repository (its GitHub sensor), or null. */
+  _number(repo, key) {
+    const s = this._hass?.states?.[this._overview?.sensors?.[repo]?.[key]];
+    const v = Number(s?.state);
+    return s && s.state !== "" && Number.isFinite(v) ? v : null;
   }
 
   _renderRepos() {
@@ -812,6 +866,9 @@ class GitHubPanel extends HTMLElement {
     host.innerHTML = `<div class="box">
         <div class="head">
           <span class="sum">${esc(this._t("summary", { followed: o.followed.length, offered: o.offered.length }))}</span>
+          <select class="pick" data-sort aria-label="${esc(this._t("sort_label"))}" title="${esc(this._t("sort_label"))}">${GITHUB_PANEL_SORTS.map(
+            (v) => `<option value="${v}"${v === this._sort ? " selected" : ""}>${esc(this._t(`sort_${v}`))}</option>`,
+          ).join("")}</select>
           <label class="search"><input type="search" placeholder="${esc(this._t("search"))}" aria-label="${esc(this._t("search"))}" value="${esc(this._query)}"></label>
           ${toFollow.length > 1 ? `<button class="act" data-action="follow-all"${disabled}>${githubPanelIcon("plus")}${esc(this._t("follow_all", { n: toFollow.length }))}</button>` : ""}
         </div>
@@ -873,6 +930,16 @@ class GitHubPanel extends HTMLElement {
   }
 
   _bindRepos(host) {
+    host.querySelector("select[data-sort]")?.addEventListener("change", (ev) => {
+      this._sort = GITHUB_PANEL_SORTS.includes(ev.target.value) ? ev.target.value : "followed";
+      // Remembered in this browser only, like the panel's other display choices
+      try {
+        localStorage.setItem("github_card.repos_sort", this._sort);
+      } catch (_err) {
+        // no storage (private window, blocked site data): the choice lasts until the page is left
+      }
+      this._renderRepos();
+    });
     const input = host.querySelector("input[type=search]");
     input?.addEventListener("input", () => {
       this._query = input.value;

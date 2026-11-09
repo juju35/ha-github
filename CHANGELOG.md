@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.2.0 - 2026-11-09
+
+### Features
+- **Panel, Repositories tab**: a sort menu next to the search field: **Followed first** (default), **Name**, **Stars**, **Open issues** or **Open pull requests**. The counter orders put the followed repositories first, highest first from their live sensors, then the others by name; the search applies to every order. The choice is remembered in the browser.
+
+### Maintenance
+- Tests: every order of the Repositories tab, an unavailable counter, the search with an order.
+
 ## 2.1.0 - 2026-11-09
 
 ### Features
