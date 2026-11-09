@@ -1,7 +1,7 @@
 """Constants for the GitHub Card integration."""
 
 DOMAIN = "github_card"
-VERSION = "2.3.1"
+VERSION = "2.4.0"
 
 # The core GitHub integration, whose repositories the panel follows and unfollows
 GITHUB_DOMAIN = "github"
@@ -22,10 +22,12 @@ CONF_FILTER = "filter"
 CONF_INCLUDE_STARRED = "include_starred"
 CONF_NOTIFY_ISSUES = "notify_issues"
 CONF_NOTIFY_PULLS = "notify_pulls"
+CONF_NOTIFY_RELEASES = "notify_releases"
 DEFAULTS = {
     CONF_FILTER: "",
     CONF_INCLUDE_STARRED: False,
     CONF_NOTIFY_ISSUES: False,
     CONF_NOTIFY_PULLS: False,
+    CONF_NOTIFY_RELEASES: False,
 }
 MAX_FILTER_LENGTH = 500
