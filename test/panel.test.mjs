@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import vm from "node:vm";
 
+const timers = [];
 const load = () => {
   const src = readFileSync(new URL("../custom_components/github_card/frontend/github-panel.js", import.meta.url), "utf8");
   const defined = new Map();
@@ -16,6 +17,9 @@ const load = () => {
     },
     customElements: { get: (n) => defined.get(n), define: (n, c) => defined.set(n, c) },
     console: { error() {} },
+    // Timers recorded, not run: the retry test calls them itself
+    setTimeout: (fn, ms) => timers.push({ fn, ms }),
+    clearTimeout() {},
     history: { replaceState() {}, pushState() {} },
     window: { dispatchEvent() {} },
     CustomEvent: class {},
@@ -162,4 +166,41 @@ test("Repositories head: totals of the followed repositories (stars, open issues
   // The former Activity address opens Repositories
   p.route = { path: "/activity" };
   assert.equal(p._tab, "repos");
+});
+
+test("a failed load is tried again after 2 s, 5 s, 15 s then every 30 s, its error goes once it loads, and on reconnection", async () => {
+  timers.length = 0;
+  const panel = Object.create(lib.GitHubPanel.prototype);
+  panel._renderRepos = () => {};
+  panel._renderSettings = () => {};
+  panel._needsItems = () => false;
+  panel.isConnected = true;
+  let fail = true;
+  panel._hass = {
+    language: "en",
+    callWS: async (msg) => {
+      if (fail) throw new Error("Unknown command.");
+      return msg.type === "github_card/settings" ? { settings: { filter: "x" } } : { configured: true, followed: [], offered: [] };
+    },
+  };
+  await panel._reload();
+  assert.equal(panel._failed, true);
+  assert.match(panel._message.text, /Unknown command/);
+  // Both loads failed: one retry pending (the second replaces the first), 2 s
+  assert.equal(timers.at(-1).ms, 2000);
+  fail = false;
+  await timers.at(-1).fn();
+  await new Promise((r) => setTimeout(r));
+  assert.equal(panel._failed, false);
+  assert.equal(panel._message, null);
+  assert.equal(panel._settings.filter, "x");
+  const listeners = new Map();
+  panel._hass.connection = { addEventListener: (t, f) => listeners.set(t, f), removeEventListener: (t, f) => listeners.get(t) === f && listeners.delete(t) };
+  panel._watchConnection(true);
+  let reloads = 0;
+  panel._reload = async () => { reloads++; };
+  listeners.get("ready")();
+  assert.equal(reloads, 1);
+  panel._watchConnection(false);
+  assert.equal(listeners.size, 0);
 });
