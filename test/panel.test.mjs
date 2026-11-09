@@ -117,3 +117,35 @@ test("followed rows: live counters from the GitHub sensors, one row unfolded at 
   await p._repoAction("expand", "juju35/ha-parcel");
   assert.equal(p._expanded, null);
 });
+
+test("sorts of the Repositories tab: followed first by default, name, and the followed ones by a live counter", () => {
+  const p = panel();
+  p._overview = {
+    configured: true,
+    state: "loaded",
+    followed: ["juju35/ha-parcel", "juju35/ha-weather-card"],
+    offered: ["juju35/aaos-parcel", "juju35/ha-iptv"],
+    sensors: {
+      "juju35/ha-parcel": { stargazers_count: "sensor.p_s", issues_count: "sensor.p_i", pulls_count: "sensor.p_p" },
+      "juju35/ha-weather-card": { stargazers_count: "sensor.w_s", issues_count: "sensor.w_i", pulls_count: "sensor.w_p" },
+    },
+  };
+  p._hass.states = {
+    "sensor.p_s": { state: "184" }, "sensor.p_i": { state: "3" }, "sensor.p_p": { state: "0" },
+    "sensor.w_s": { state: "57" }, "sensor.w_i": { state: "9" }, "sensor.w_p": { state: "unavailable" },
+  };
+  const order = () => [...p._rows().map((r) => r.name)];
+  assert.deepEqual(order(), ["juju35/ha-parcel", "juju35/ha-weather-card", "juju35/aaos-parcel", "juju35/ha-iptv"]);
+  p._sort = "name";
+  assert.deepEqual(order(), ["juju35/aaos-parcel", "juju35/ha-iptv", "juju35/ha-parcel", "juju35/ha-weather-card"]);
+  p._sort = "stars";
+  assert.deepEqual(order(), ["juju35/ha-parcel", "juju35/ha-weather-card", "juju35/aaos-parcel", "juju35/ha-iptv"]);
+  p._sort = "issues";
+  assert.deepEqual(order(), ["juju35/ha-weather-card", "juju35/ha-parcel", "juju35/aaos-parcel", "juju35/ha-iptv"]);
+  // An unavailable counter goes after the known ones, still before the repositories not followed
+  p._sort = "pulls";
+  assert.deepEqual(order(), ["juju35/ha-parcel", "juju35/ha-weather-card", "juju35/aaos-parcel", "juju35/ha-iptv"]);
+  // The search applies to every order
+  p._query = "parcel";
+  assert.deepEqual(order(), ["juju35/ha-parcel", "juju35/aaos-parcel"]);
+});
