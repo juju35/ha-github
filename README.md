@@ -48,6 +48,8 @@ Home Assistant 2024.8 or later, and the [GitHub integration](https://www.home-as
 
 The account sensors (followers, following, public repositories and gists) are disabled by default: enable them on the device of your GitHub account to show the **Account** section. Sections and values without a sensor are simply not displayed.
 
+The `repositories` option only chooses among the repositories that the integration follows: each repository must first be added to the integration (**Settings → Devices & services → GitHub → Add repository**). While the integration follows none, the cards say so, with a button that opens the integration's page.
+
 ## Installation
 
 ### Via the Marketplace (recommended)
@@ -134,6 +136,7 @@ language: fr
 |---|---|
 | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/card.png" alt="card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/card-dark.png" alt="card dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/card-single.png" alt="card with a single repository" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/card-single-dark.png" alt="card with a single repository dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/card-empty.png" alt="card without any repository followed" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/card-empty-dark.png" alt="card without any repository followed dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/mini-card.png" alt="mini card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/mini-card-dark.png" alt="mini card dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/mini-card-zoom.png" alt="mini card zoomed in" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/mini-card-zoom-dark.png" alt="mini card zoomed in dark" width="400"> |
 

@@ -3,6 +3,7 @@
 const pairs = [
   { light: "card", dark: "card-dark", type: "github-card", width: 460, config: {}, open: "dev_core" },
   { light: "card-single", dark: "card-single-dark", type: "github-card", width: 460, config: { title: "ha-parcel", repositories: ["juju35/ha-parcel"], show_account: false } },
+  { light: "card-empty", dark: "card-empty-dark", type: "github-card", width: 460, config: {}, accountOnly: true },
   { light: "mini-card", dark: "mini-card-dark", type: "github-mini-card", width: 380, config: {} },
   { light: "mini-card-zoom", dark: "mini-card-zoom-dark", type: "github-mini-card", width: 460, config: {}, zoom: "dev_parcel" },
 ];

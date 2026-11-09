@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
-import { states, entities, devices } from "./mock-states.mjs";
+import { accountOnly, devices, entities, states } from "./mock-states.mjs";
 import { shots } from "./screenshot-shots.mjs";
 import { writeIfChanged } from "./screenshot-write.mjs";
 
@@ -74,7 +74,7 @@ async function openCard(s) {
         el._update();
       }
     },
-    { type: s.type, config: s.config, states, entities, devices, open: s.open, zoom: s.zoom }
+    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom }
   );
   await page.waitForTimeout(800);
   return page;
