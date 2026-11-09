@@ -104,3 +104,17 @@ async def test_items_command(hass, aioclient_mock, github, hass_ws_client):
     assert msg["result"]["issues"][0]["title"] == "Logo missing"
     assert msg["result"]["pulls"][0]["url"] == "https://github.com/juju35/ha-parcel/pull/97"
     assert "tok" not in str(msg)
+
+
+def test_a_repository_followed_under_two_names_is_counted_once():
+    """The former name of a renamed repository redirects to it: GitHub answers twice with the same repository."""
+    answer = _answer()["data"]
+    answer["r1"] = answer["r0"]
+    issues, pulls, totals = parse(answer)
+    assert [p["number"] for p in pulls] == [97]
+    assert [i["number"] for i in issues] == [94]
+    assert totals == {"juju35/ha-parcel": {"issues": 3, "pulls": 1}}
+    # Across two queries (20 repositories each) too
+    seen = set()
+    parse(_answer()["data"], seen)
+    assert parse(_answer()["data"], seen) == ([], [], {})
