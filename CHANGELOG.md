@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.3.1 - 2026-11-09
+
+### Performance
+- New issue / pull request notifications: the state listener filters on the watched GitHub sensors in the event bus (`event_filter`), so the state changes of every other entity no longer schedule a call.
+
+### Maintenance
+- `__pycache__` files are no longer committed (they were shipped with the integration), and `.gitignore` ignores them.
+
 ## 2.3.0 - 2026-11-09
 
 ### Changes

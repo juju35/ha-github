@@ -6,7 +6,7 @@ than before is a new one. A sensor coming back from unavailable or unknown (a re
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from typing import Any
 
 from homeassistant.components import persistent_notification
@@ -77,7 +77,9 @@ class NewItemNotifier:
     @callback
     def async_start(self) -> Callable[[], None]:
         unsubs = [
-            self._hass.bus.async_listen(EVENT_STATE_CHANGED, self._state_changed),
+            # The filter runs inline in the event bus: the many state changes of other entities never schedule
+            # a call to _state_changed, only those of a watched sensor whose notification is on.
+            self._hass.bus.async_listen(EVENT_STATE_CHANGED, self._state_changed, event_filter=self._is_watched),
             self._hass.bus.async_listen(er.EVENT_ENTITY_REGISTRY_UPDATED, self._registry_changed),
         ]
 
@@ -102,10 +104,15 @@ class NewItemNotifier:
         return self._watched
 
     @callback
+    def _is_watched(self, event_data: Mapping[str, Any]) -> bool:
+        kind = self._watch_list().get(event_data["entity_id"])
+        return kind is not None and bool(self._options().get(KINDS[kind]))
+
+    @callback
     def _state_changed(self, event: Event) -> None:
         entity_id = event.data["entity_id"]
         kind = self._watch_list().get(entity_id)
-        if kind is None or not self._options().get(KINDS[kind]):
+        if kind is None:  # The registry changed since the filter ran.
             return
         old, new = _number(event.data.get("old_state")), _number(event.data.get("new_state"))
         if old is None or new is None or new <= old:
