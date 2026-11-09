@@ -54,3 +54,6 @@ devices[USER.id] = { id: USER.id, name: USER.name, configuration_url: `https://g
 for (const [key, v] of Object.entries(USER.stats)) add(USER.id, USER.name, key, v, { state_class: "measurement" });
 
 export const hass = (extra = {}) => ({ states: { ...states, ...extra }, entities, devices, language: "en", locale: { language: "en" } });
+
+/** The account alone: the GitHub integration set up without any repository. */
+export const accountOnly = Object.fromEntries(Object.entries(entities).filter(([, e]) => e.device_id === USER.id));

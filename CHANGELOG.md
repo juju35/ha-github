@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.1 - 2026-11-09
+
+### Fixes
+- **No repository followed**: when the GitHub integration follows no repository (only the account), or none of those of the `repositories` option, both cards say so instead of "Repositories: 0" and an "Unknown" status, and offer a button that opens the GitHub integration page, where repositories are added; the account is still shown below. Translated in every language.
+
+### Maintenance
+- Screenshots: the full card without any repository, light and dark.
+- Tests: the empty state of both cards, repositories not followed, the integration button.
+
 ## 1.0.0 - 2026-11-09
 
 ### Features

@@ -48,6 +48,8 @@ const KEYS = [
   // Editor
   "title", "repositories", "show_latest", "show_account", "sort", "sort_name", "sort_stars", "sort_open",
   "max_repos", "zoom", "zoom_helper", "language", "lang_auto",
+  // Empty state
+  "no_repos", "no_repos_hint", "no_match", "open_integration",
 ];
 
 const TRANSLATIONS = {
@@ -61,6 +63,7 @@ const TRANSLATIONS = {
     "Title (optional, defaults to GitHub)", "Repositories (optional, all by default)", "Show latest activity", "Show account",
     "Sort repositories", "By name", "By stars", "By open issues and pull requests",
     "Repositories in the compact view", "Zoom button", "Switches the card to the full card and back", "Language", "Automatic",
+    "No repository followed", "Add your repositories to the GitHub integration to see them here.", "None of the repositories of the card is followed by the GitHub integration.", "Open the GitHub integration",
   ],
   fr: [
     "Étoiles", "Forks", "Observateurs", "Issues", "Pull requests", "PR fusionnées", "Discussions", "Téléchargements",
@@ -72,6 +75,7 @@ const TRANSLATIONS = {
     "Titre (facultatif, GitHub par défaut)", "Dépôts (facultatif, tous par défaut)", "Afficher l’activité récente", "Afficher le compte",
     "Tri des dépôts", "Par nom", "Par étoiles", "Par issues et pull requests ouvertes",
     "Dépôts dans la vue compacte", "Bouton zoom", "Bascule la carte en carte complète, et inversement", "Langue", "Automatique",
+    "Aucun dépôt suivi", "Ajoutez vos dépôts à l’intégration GitHub pour les afficher ici.", "Aucun des dépôts de la carte n’est suivi par l’intégration GitHub.", "Ouvrir l’intégration GitHub",
   ],
   de: [
     "Sterne", "Forks", "Beobachter", "Issues", "Pull Requests", "Gemergte PRs", "Diskussionen", "Downloads",
@@ -83,6 +87,7 @@ const TRANSLATIONS = {
     "Titel (optional, standardmäßig GitHub)", "Repositorys (optional, standardmäßig alle)", "Letzte Aktivität anzeigen", "Konto anzeigen",
     "Sortierung der Repositorys", "Nach Name", "Nach Sternen", "Nach offenen Issues und Pull Requests",
     "Repositorys in der kompakten Ansicht", "Zoom-Schaltfläche", "Schaltet zwischen kompakter und vollständiger Karte um", "Sprache", "Automatisch",
+    "Kein Repository verfolgt", "Füge deine Repositorys in der GitHub-Integration hinzu, um sie hier zu sehen.", "Keines der Repositorys der Karte wird von der GitHub-Integration verfolgt.", "GitHub-Integration öffnen",
   ],
   es: [
     "Estrellas", "Forks", "Observadores", "Issues", "Pull requests", "PR fusionadas", "Discusiones", "Descargas",
@@ -94,6 +99,7 @@ const TRANSLATIONS = {
     "Título (opcional, GitHub por defecto)", "Repositorios (opcional, todos por defecto)", "Mostrar la actividad reciente", "Mostrar la cuenta",
     "Orden de los repositorios", "Por nombre", "Por estrellas", "Por issues y pull requests abiertas",
     "Repositorios en la vista compacta", "Botón de zoom", "Alterna entre la tarjeta completa y la vista compacta", "Idioma", "Automático",
+    "Ningún repositorio seguido", "Añade tus repositorios a la integración GitHub para verlos aquí.", "La integración GitHub no sigue ninguno de los repositorios de la tarjeta.", "Abrir la integración GitHub",
   ],
   sr: [
     "Звездице", "Форкови", "Посматрачи", "Проблеми", "Pull захтеви", "Спојени PR", "Дискусије", "Преузимања",
@@ -105,6 +111,7 @@ const TRANSLATIONS = {
     "Наслов (опционо, подразумевано GitHub)", "Репозиторијуми (опционо, подразумевано сви)", "Прикажи недавну активност", "Прикажи налог",
     "Редослед репозиторијума", "По имену", "По звездицама", "По отвореним проблемима и pull захтевима",
     "Репозиторијуми у компактном приказу", "Дугме за зумирање", "Пребацује између целе картице и компактног приказа", "Језик", "Аутоматски",
+    "Ниједан репозиторијум се не прати", "Додајте своје репозиторијуме у интеграцију GitHub да бисте их видели овде.", "Интеграција GitHub не прати ниједан репозиторијум картице.", "Отвори интеграцију GitHub",
   ],
   "sr-Latn": [
     "Zvezdice", "Forkovi", "Posmatrači", "Problemi", "Pull zahtevi", "Spojeni PR", "Diskusije", "Preuzimanja",
@@ -116,6 +123,7 @@ const TRANSLATIONS = {
     "Naslov (opciono, podrazumevano GitHub)", "Repozitorijumi (opciono, podrazumevano svi)", "Prikaži nedavnu aktivnost", "Prikaži nalog",
     "Redosled repozitorijuma", "Po imenu", "Po zvezdicama", "Po otvorenim problemima i pull zahtevima",
     "Repozitorijumi u kompaktnom prikazu", "Dugme za zumiranje", "Prebacuje između cele kartice i kompaktnog prikaza", "Jezik", "Automatski",
+    "Nijedan repozitorijum se ne prati", "Dodajte svoje repozitorijume u integraciju GitHub da biste ih videli ovde.", "Integracija GitHub ne prati nijedan repozitorijum kartice.", "Otvori integraciju GitHub",
   ],
   it: [
     "Stelle", "Fork", "Osservatori", "Issue", "Pull request", "PR unite", "Discussioni", "Download",
@@ -127,6 +135,7 @@ const TRANSLATIONS = {
     "Titolo (facoltativo, GitHub per impostazione predefinita)", "Repository (facoltativo, tutti per impostazione predefinita)", "Mostra l’attività recente", "Mostra l’account",
     "Ordinamento dei repository", "Per nome", "Per stelle", "Per issue e pull request aperte",
     "Repository nella vista compatta", "Pulsante zoom", "Alterna tra la scheda completa e la vista compatta", "Lingua", "Automatica",
+    "Nessun repository seguito", "Aggiungi i tuoi repository all’integrazione GitHub per vederli qui.", "L’integrazione GitHub non segue nessuno dei repository della scheda.", "Apri l’integrazione GitHub",
   ],
   nl: [
     "Sterren", "Forks", "Kijkers", "Issues", "Pull requests", "Samengevoegde PR’s", "Discussies", "Downloads",
@@ -138,6 +147,7 @@ const TRANSLATIONS = {
     "Titel (optioneel, standaard GitHub)", "Repositories (optioneel, standaard alle)", "Recente activiteit tonen", "Account tonen",
     "Sortering van repositories", "Op naam", "Op sterren", "Op open issues en pull requests",
     "Repositories in de compacte weergave", "Zoomknop", "Schakelt tussen de volledige kaart en de compacte weergave", "Taal", "Automatisch",
+    "Geen repository gevolgd", "Voeg je repositories toe aan de GitHub-integratie om ze hier te zien.", "De GitHub-integratie volgt geen enkele repository van de kaart.", "GitHub-integratie openen",
   ],
   pt: [
     "Estrelas", "Forks", "Observadores", "Issues", "Pull requests", "PR integrados", "Discussões", "Transferências",
@@ -149,6 +159,7 @@ const TRANSLATIONS = {
     "Título (opcional, GitHub por predefinição)", "Repositórios (opcional, todos por predefinição)", "Mostrar a atividade recente", "Mostrar a conta",
     "Ordenação dos repositórios", "Por nome", "Por estrelas", "Por issues e pull requests em aberto",
     "Repositórios na vista compacta", "Botão de zoom", "Alterna entre o cartão completo e a vista compacta", "Idioma", "Automático",
+    "Nenhum repositório seguido", "Adicione os seus repositórios à integração GitHub para os ver aqui.", "A integração GitHub não segue nenhum dos repositórios do cartão.", "Abrir a integração GitHub",
   ],
   pl: [
     "Gwiazdki", "Forki", "Obserwatorzy", "Zgłoszenia", "Pull requesty", "Scalone PR", "Dyskusje", "Pobrania",
@@ -160,6 +171,7 @@ const TRANSLATIONS = {
     "Tytuł (opcjonalny, domyślnie GitHub)", "Repozytoria (opcjonalne, domyślnie wszystkie)", "Pokaż ostatnią aktywność", "Pokaż konto",
     "Sortowanie repozytoriów", "Według nazwy", "Według gwiazdek", "Według otwartych zgłoszeń i pull requestów",
     "Repozytoria w widoku kompaktowym", "Przycisk powiększenia", "Przełącza między pełną kartą a widokiem kompaktowym", "Język", "Automatyczny",
+    "Brak śledzonych repozytoriów", "Dodaj swoje repozytoria do integracji GitHub, aby zobaczyć je tutaj.", "Integracja GitHub nie śledzi żadnego z repozytoriów karty.", "Otwórz integrację GitHub",
   ],
   ro: [
     "Stele", "Fork-uri", "Observatori", "Issue-uri", "Pull request-uri", "PR-uri îmbinate", "Discuții", "Descărcări",
@@ -171,6 +183,7 @@ const TRANSLATIONS = {
     "Titlu (opțional, implicit GitHub)", "Depozite (opțional, implicit toate)", "Afișează activitatea recentă", "Afișează contul",
     "Sortarea depozitelor", "După nume", "După stele", "După issue-uri și pull request-uri deschise",
     "Depozite în vizualizarea compactă", "Buton de zoom", "Comută între cardul complet și vizualizarea compactă", "Limbă", "Automat",
+    "Niciun depozit urmărit", "Adaugă depozitele tale în integrarea GitHub pentru a le vedea aici.", "Integrarea GitHub nu urmărește niciunul dintre depozitele cardului.", "Deschide integrarea GitHub",
   ],
   da: [
     "Stjerner", "Forks", "Overvågere", "Issues", "Pull requests", "Flettede PR’er", "Diskussioner", "Downloads",
@@ -182,6 +195,7 @@ const TRANSLATIONS = {
     "Titel (valgfri, GitHub som standard)", "Repositories (valgfri, alle som standard)", "Vis seneste aktivitet", "Vis konto",
     "Sortering af repositories", "Efter navn", "Efter stjerner", "Efter åbne issues og pull requests",
     "Repositories i kompakt visning", "Zoomknap", "Skifter mellem hele kortet og kompakt visning", "Sprog", "Automatisk",
+    "Ingen repositories fulgt", "Tilføj dine repositories i GitHub-integrationen for at se dem her.", "GitHub-integrationen følger ingen af kortets repositories.", "Åbn GitHub-integrationen",
   ],
   sv: [
     "Stjärnor", "Forks", "Bevakare", "Ärenden", "Pull requests", "Sammanfogade PR", "Diskussioner", "Nedladdningar",
@@ -193,6 +207,7 @@ const TRANSLATIONS = {
     "Titel (valfri, GitHub som standard)", "Repon (valfritt, alla som standard)", "Visa senaste aktivitet", "Visa konto",
     "Sortering av repon", "Efter namn", "Efter stjärnor", "Efter öppna ärenden och pull requests",
     "Repon i kompakt vy", "Zoomknapp", "Växlar mellan hela kortet och kompakt vy", "Språk", "Automatiskt",
+    "Inga repon följs", "Lägg till dina repon i GitHub-integrationen för att se dem här.", "GitHub-integrationen följer inget av kortets repon.", "Öppna GitHub-integrationen",
   ],
   bg: [
     "Звезди", "Форкове", "Наблюдаващи", "Проблеми", "Pull заявки", "Слети PR", "Дискусии", "Изтегляния",
@@ -204,6 +219,7 @@ const TRANSLATIONS = {
     "Заглавие (по избор, по подразбиране GitHub)", "Хранилища (по избор, по подразбиране всички)", "Покажи последната активност", "Покажи акаунта",
     "Подреждане на хранилищата", "По име", "По звезди", "По отворени проблеми и pull заявки",
     "Хранилища в компактния изглед", "Бутон за мащабиране", "Превключва между цялата карта и компактния изглед", "Език", "Автоматично",
+    "Няма следени хранилища", "Добавете хранилищата си в интеграцията GitHub, за да ги видите тук.", "Интеграцията GitHub не следи нито едно от хранилищата на картата.", "Отвори интеграцията GitHub",
   ],
   ru: [
     "Звёзды", "Форки", "Наблюдатели", "Задачи", "Pull-запросы", "Слитые PR", "Обсуждения", "Загрузки",
@@ -215,6 +231,7 @@ const TRANSLATIONS = {
     "Заголовок (необязательно, по умолчанию GitHub)", "Репозитории (необязательно, по умолчанию все)", "Показывать последнюю активность", "Показывать аккаунт",
     "Сортировка репозиториев", "По имени", "По звёздам", "По открытым задачам и pull-запросам",
     "Репозитории в компактном виде", "Кнопка масштабирования", "Переключает между полной карточкой и компактным видом", "Язык", "Автоматически",
+    "Нет отслеживаемых репозиториев", "Добавьте свои репозитории в интеграцию GitHub, чтобы увидеть их здесь.", "Интеграция GitHub не отслеживает ни один из репозиториев карточки.", "Открыть интеграцию GitHub",
   ],
   uk: [
     "Зірки", "Форки", "Спостерігачі", "Задачі", "Pull-запити", "Злиті PR", "Обговорення", "Завантаження",
@@ -226,6 +243,7 @@ const TRANSLATIONS = {
     "Заголовок (необов’язково, за замовчуванням GitHub)", "Репозиторії (необов’язково, за замовчуванням усі)", "Показувати останню активність", "Показувати обліковий запис",
     "Сортування репозиторіїв", "За назвою", "За зірками", "За відкритими задачами та pull-запитами",
     "Репозиторії в компактному вигляді", "Кнопка масштабування", "Перемикає між повною карткою та компактним виглядом", "Мова", "Автоматично",
+    "Немає відстежуваних репозиторіїв", "Додайте свої репозиторії до інтеграції GitHub, щоб побачити їх тут.", "Інтеграція GitHub не відстежує жодного з репозиторіїв картки.", "Відкрити інтеграцію GitHub",
   ],
   hu: [
     "Csillagok", "Forkok", "Figyelők", "Hibajegyek", "Pull requestek", "Egyesített PR-ek", "Beszélgetések", "Letöltések",
@@ -237,6 +255,7 @@ const TRANSLATIONS = {
     "Cím (nem kötelező, alapértelmezés: GitHub)", "Tárolók (nem kötelező, alapértelmezés: mind)", "Legutóbbi tevékenység megjelenítése", "Fiók megjelenítése",
     "Tárolók rendezése", "Név szerint", "Csillagok szerint", "Nyitott hibajegyek és pull requestek szerint",
     "Tárolók a kompakt nézetben", "Nagyítás gomb", "Vált a teljes kártya és a kompakt nézet között", "Nyelv", "Automatikus",
+    "Nincs követett tároló", "Add hozzá a tárolóidat a GitHub integrációhoz, hogy itt lásd őket.", "A GitHub integráció a kártya egyik tárolóját sem követi.", "GitHub integráció megnyitása",
   ],
   sk: [
     "Hviezdičky", "Forky", "Pozorovatelia", "Problémy", "Pull requesty", "Zlúčené PR", "Diskusie", "Stiahnutia",
@@ -248,6 +267,7 @@ const TRANSLATIONS = {
     "Názov (voliteľný, predvolene GitHub)", "Repozitáre (voliteľné, predvolene všetky)", "Zobraziť nedávnu aktivitu", "Zobraziť účet",
     "Zoradenie repozitárov", "Podľa názvu", "Podľa hviezdičiek", "Podľa otvorených problémov a pull requestov",
     "Repozitáre v kompaktnom zobrazení", "Tlačidlo priblíženia", "Prepína medzi celou kartou a kompaktným zobrazením", "Jazyk", "Automaticky",
+    "Žiadny sledovaný repozitár", "Pridajte svoje repozitáre do integrácie GitHub, aby ste ich videli tu.", "Integrácia GitHub nesleduje žiadny z repozitárov karty.", "Otvoriť integráciu GitHub",
   ],
   cs: [
     "Hvězdičky", "Forky", "Pozorovatelé", "Problémy", "Pull requesty", "Sloučené PR", "Diskuze", "Stažení",
@@ -259,6 +279,7 @@ const TRANSLATIONS = {
     "Název (volitelný, výchozí GitHub)", "Repozitáře (volitelné, výchozí všechny)", "Zobrazit nedávnou aktivitu", "Zobrazit účet",
     "Řazení repozitářů", "Podle názvu", "Podle hvězdiček", "Podle otevřených problémů a pull requestů",
     "Repozitáře v kompaktním zobrazení", "Tlačítko přiblížení", "Přepíná mezi celou kartou a kompaktním zobrazením", "Jazyk", "Automaticky",
+    "Žádný sledovaný repozitář", "Přidejte své repozitáře do integrace GitHub, abyste je zde viděli.", "Integrace GitHub nesleduje žádný z repozitářů karty.", "Otevřít integraci GitHub",
   ],
   sl: [
     "Zvezdice", "Forki", "Opazovalci", "Težave", "Pull requesti", "Združeni PR", "Razprave", "Prenosi",
@@ -270,6 +291,7 @@ const TRANSLATIONS = {
     "Naslov (neobvezno, privzeto GitHub)", "Repozitoriji (neobvezno, privzeto vsi)", "Prikaži nedavno dejavnost", "Prikaži račun",
     "Razvrščanje repozitorijev", "Po imenu", "Po zvezdicah", "Po odprtih težavah in pull requestih",
     "Repozitoriji v strnjenem pogledu", "Gumb za povečavo", "Preklaplja med celotno kartico in strnjenim pogledom", "Jezik", "Samodejno",
+    "Noben repozitorij ni spremljan", "Dodajte svoje repozitorije v integracijo GitHub, da jih vidite tukaj.", "Integracija GitHub ne spremlja nobenega repozitorija kartice.", "Odpri integracijo GitHub",
   ],
   lv: [
     "Zvaigznes", "Forki", "Vērotāji", "Problēmas", "Pull pieprasījumi", "Apvienotie PR", "Diskusijas", "Lejupielādes",
@@ -281,6 +303,7 @@ const TRANSLATIONS = {
     "Virsraksts (neobligāts, pēc noklusējuma GitHub)", "Krātuves (neobligāti, pēc noklusējuma visas)", "Rādīt nesenās aktivitātes", "Rādīt kontu",
     "Krātuvju kārtošana", "Pēc nosaukuma", "Pēc zvaigznēm", "Pēc atvērtajām problēmām un pull pieprasījumiem",
     "Krātuves kompaktajā skatā", "Tālummaiņas poga", "Pārslēdz starp pilno karti un kompakto skatu", "Valoda", "Automātiski",
+    "Netiek sekots nevienai krātuvei", "Pievienojiet savas krātuves GitHub integrācijai, lai tās redzētu šeit.", "GitHub integrācija neseko nevienai kartes krātuvei.", "Atvērt GitHub integrāciju",
   ],
   el: [
     "Αστέρια", "Forks", "Παρατηρητές", "Ζητήματα", "Pull requests", "Συγχωνευμένα PR", "Συζητήσεις", "Λήψεις",
@@ -292,6 +315,7 @@ const TRANSLATIONS = {
     "Τίτλος (προαιρετικός, προεπιλογή GitHub)", "Αποθετήρια (προαιρετικά, προεπιλογή όλα)", "Εμφάνιση πρόσφατης δραστηριότητας", "Εμφάνιση λογαριασμού",
     "Ταξινόμηση αποθετηρίων", "Κατά όνομα", "Κατά αστέρια", "Κατά ανοιχτά ζητήματα και pull requests",
     "Αποθετήρια στη συμπαγή προβολή", "Κουμπί μεγέθυνσης", "Εναλλάσσει μεταξύ πλήρους κάρτας και συμπαγούς προβολής", "Γλώσσα", "Αυτόματα",
+    "Δεν παρακολουθείται κανένα αποθετήριο", "Προσθέστε τα αποθετήριά σας στην ενσωμάτωση GitHub για να τα δείτε εδώ.", "Η ενσωμάτωση GitHub δεν παρακολουθεί κανένα από τα αποθετήρια της κάρτας.", "Άνοιγμα της ενσωμάτωσης GitHub",
   ],
 };
 
@@ -536,7 +560,27 @@ const BASE_STYLE = `
   .link { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; color: var(--secondary-text-color); }
   .link .icon { width: 14px; height: 14px; }
   .link:hover { background: color-mix(in srgb, var(--secondary-text-color) 16%, transparent); color: var(--primary-text-color); }
+  /* No repository shown: what to do, and an outlined button to the GitHub integration (never a filled one). */
+  .empty { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 10px;
+           background: var(--secondary-background-color, rgba(127,127,127,.08)); }
+  .empty > .icon { color: var(--gh-accent); margin-top: 1px; }
+  .empty .t { font-size: 14px; font-weight: 500; }
+  .empty .h { font-size: 12px; color: var(--secondary-text-color); margin-top: 2px; }
+  .empty .action { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 4px 12px;
+                   border-radius: 16px; font-size: 12px; font-weight: 500; color: var(--gh-accent);
+                   border: 1px solid color-mix(in srgb, var(--gh-accent) 50%, transparent); }
+  .empty .action .icon { width: 14px; height: 14px; }
+  .empty .action:hover { background: color-mix(in srgb, var(--gh-accent) 12%, transparent); }
+  .empty .action:focus-visible { outline: 2px solid var(--gh-focus); outline-offset: 1px; }
 `;
+
+/** Opens a page of the Home Assistant frontend, as its own links do. */
+const navigate = (path) => {
+  window.history.pushState(null, "", path);
+  window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } }));
+};
+
+const INTEGRATION_PATH = "/config/integrations/integration/github";
 
 const FULL_STYLE = `
   .section-title { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; text-transform: uppercase;
@@ -649,6 +693,7 @@ class GitHubBase extends HTMLElement {
   }
 
   _action(action, target) {
+    if (action === "integration") return navigate(INTEGRATION_PATH);
     if (action === "repo") {
       this._openRepo = this._openRepo === target ? null : target;
       this._update();
@@ -728,6 +773,7 @@ class GitHubBase extends HTMLElement {
 
   /** Overall status: the open issues and pull requests of the repositories shown. */
   _status(repos) {
+    if (!repos.length) return { cls: "muted", text: this._t("no_repos") };
     const counts = repos.map((r) => this._openCount(r)).filter((v) => v !== null);
     if (!counts.length) return { cls: "muted", text: this._t("unknown") };
     const n = counts.reduce((a, b) => a + b, 0);
@@ -736,13 +782,17 @@ class GitHubBase extends HTMLElement {
 
   _header(repos, aside = "") {
     const st = this._status(repos);
+    // Without a repository, the message under the header says so: no pill.
+    const chip = repos.length
+      ? `<span class="chip ${st.cls}" title="${esc(st.text)}" aria-label="${esc(st.text)}"><span class="dot"></span><span class="chip-text">${esc(st.text)}</span></span>`
+      : "";
     const stars = this._sum(repos, "stargazers_count");
-    const sub = [this._t("repos_n").replace("{n}", repos.length), stars !== null ? `★ ${fmtCount(stars, this._loc())}` : ""].filter(Boolean).join(" · ");
+    const sub = [repos.length ? this._t("repos_n").replace("{n}", repos.length) : "", stars !== null ? `★ ${fmtCount(stars, this._loc())}` : ""].filter(Boolean).join(" · ");
     return `
       <div class="header">
         <span class="logo" aria-hidden="true">${svgIcon(ICONS.github)}</span>
         <div class="titles">
-          <div class="title-row"><div class="name">${esc(this._config.title || "GitHub")}</div><span class="chip ${st.cls}" title="${esc(st.text)}" aria-label="${esc(st.text)}"><span class="dot"></span><span class="chip-text">${esc(st.text)}</span></span></div>
+          <div class="title-row"><div class="name">${esc(this._config.title || "GitHub")}</div>${chip}</div>
           <div class="sub">${esc(sub)}</div>
         </div>
         ${aside}
@@ -765,6 +815,19 @@ class GitHubBase extends HTMLElement {
     const u = safeUrl(url);
     const title = esc(this._t("open_github"));
     return u ? `<a class="link" href="${esc(u)}" target="_blank" rel="noopener noreferrer" title="${title}" aria-label="${title}">${svgIcon(ICONS.open)}</a>` : "";
+  }
+
+  /**
+   * No repository to show: the GitHub integration follows none (only the account), or none of those of the
+   * `repositories` option. Says which, with a button that opens the integration's page to add some.
+   */
+  _empty() {
+    const filtered = discover(this._hass).repos.length > 0;
+    return `<div class="empty">${svgIcon(ICONS.github)}<div>
+        <div class="t">${esc(this._t("no_repos"))}</div>
+        <div class="h">${esc(this._t(filtered ? "no_match" : "no_repos_hint"))}</div>
+        <button class="action" data-action="integration">${svgIcon(ICONS.open)}${esc(this._t("open_integration"))}</button>
+      </div></div>`;
   }
 
   _noGh() {
@@ -800,7 +863,7 @@ class GitHubCard extends GitHubBase {
     if (!repos.length && !users.length) return this._noGh();
     // A single repository is always unfolded; otherwise one at a time, folded on a click elsewhere.
     const single = repos.length === 1;
-    const sections = repos.map((r) => this._repoSection(r, single));
+    const sections = repos.length ? repos.map((r) => this._repoSection(r, single)) : [this._empty()];
     for (const u of users) sections.push(this._accountSection(u));
     return `<style>${BASE_STYLE}${FULL_STYLE}</style>
       <ha-card>
@@ -949,7 +1012,8 @@ class GitHubMiniCard extends GitHubCard {
     if (repos.length > max)
       items.push(`<div class="item more${zoom ? ' clickable" data-action="show" role="button" tabindex="0' : ""}"><span class="n">+${repos.length - max}</span></div>`);
     const st = this._status(repos);
-    const foot = [`<span class="${st.cls}"><span class="dot"></span>${esc(st.text)}</span>`];
+    // Without a repository, the message above already says so: no status in the footer.
+    const foot = repos.length ? [`<span class="${st.cls}"><span class="dot"></span>${esc(st.text)}</span>`] : [];
     for (const u of users) {
       const v = this._num(u.s.followers);
       if (u.s.followers)
@@ -959,6 +1023,7 @@ class GitHubMiniCard extends GitHubCard {
       <ha-card>
         ${this._header(repos, this._aside())}
         <div class="content">
+          ${repos.length ? "" : this._empty()}
           ${totals ? `<div class="tiles">${totals}</div>` : ""}
           ${items.length ? `<div class="list">${items.join("")}</div>` : ""}
           <div class="foot">${foot.join("")}</div>

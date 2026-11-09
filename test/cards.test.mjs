@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { hass } from "../scripts/mock-states.mjs";
+import { accountOnly, hass } from "../scripts/mock-states.mjs";
 import { load, render } from "./load.mjs";
 
 const lib = load();
@@ -89,4 +89,33 @@ test("the French card uses French labels and number formats", () => {
   const { html } = render(lib.GitHubMiniCard, {}, h);
   assert.match(html, /Dépôts : 3/);
   assert.match(html, /Étoiles/);
+});
+
+test("no repository followed: a message and a button to the GitHub integration, the account still shown", () => {
+  const h = { ...hass(), entities: accountOnly };
+  for (const Cls of [lib.GitHubCard, lib.GitHubMiniCard]) {
+    const { html } = render(Cls, {}, h);
+    assert.match(html, /No repository followed/);
+    assert.match(html, /Add your repositories to the GitHub integration/);
+    assert.match(html, /data-action="integration"/);
+    assert.doesNotMatch(html, /Repositories: 0/);
+    assert.doesNotMatch(html, /Unknown/);
+    assert.doesNotMatch(html, /class="chip /);
+  }
+  assert.match(render(lib.GitHubCard, {}, h).html, /Account · octocat/);
+});
+
+test("repositories that the integration does not follow: the message says so", () => {
+  const { html } = render(lib.GitHubCard, { repositories: ["juju35/nope"] }, hass());
+  assert.match(html, /None of the repositories of the card is followed by the GitHub integration/);
+  assert.doesNotMatch(html, /class="chip /);
+});
+
+test("the button opens the GitHub integration page", () => {
+  const { card } = render(lib.GitHubCard, {}, { ...hass(), entities: accountOnly });
+  const pushed = [];
+  lib.window.history = { pushState: (_s, _t, url) => pushed.push(url) };
+  lib.window.dispatchEvent = (ev) => pushed.push(ev.type);
+  card._action("integration");
+  assert.deepEqual([...pushed], ["/config/integrations/integration/github", "location-changed"]);
 });
