@@ -1,0 +1,17 @@
+{
+  "name": "ha-github-card",
+  "version": "1.0.0",
+  "description": "Lovelace cards for Home Assistant showing your GitHub repositories (GitHub integration).",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/build.mjs && node --check dist/github-card.js",
+    "screenshots": "node scripts/screenshots.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "^1.64.1"
+  }
+}
