@@ -1,6 +1,6 @@
 {
   "name": "ha-github",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "Home Assistant integration with an admin sidebar panel to follow your GitHub repositories, and Lovelace cards.",
   "private": true,
   "type": "module",
