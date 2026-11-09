@@ -15,7 +15,7 @@
  *   notifications.
  */
 
-const GITHUB_PANEL_VERSION = "2.4.1";
+const GITHUB_PANEL_VERSION = "2.4.2";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "settings"];
 // Orders of the Repositories tab (see GitHubPanel._rows)
@@ -645,15 +645,52 @@ class GitHubPanel extends HTMLElement {
 
   connectedCallback() {
     if (this._hass && !this._unsub) this._subscribe();
+    this._watchConnection(true);
+    // Back on the panel after a failed load: try again now.
+    if (this._hass && this._failed) this._reload();
   }
 
   disconnectedCallback() {
+    this._watchConnection(false);
+    clearTimeout(this._retryTimer);
     if (this._unsub) {
       this._unsub.then((off) => off()).catch(() => {});
       this._unsub = null;
     }
   }
 
+
+  // The connection back (Home Assistant restarted, the app resumed): load again, the data may have changed meanwhile.
+  _watchConnection(on) {
+    const connection = this._hass?.connection;
+    if (!connection?.addEventListener) return;
+    this._onReady ||= () => this._reload();
+    connection.removeEventListener("ready", this._onReady);
+    if (on) connection.addEventListener("ready", this._onReady);
+  }
+
+  // A load that failed (Home Assistant still starting, the connection dropped) is tried again after 2 s, 5 s, 15 s,
+  // then every 30 s while the panel is shown, instead of leaving it empty.
+  _retry(failed) {
+    clearTimeout(this._retryTimer);
+    this._failed = failed;
+    if (!failed) {
+      this._retries = 0;
+      return;
+    }
+    const delay = [2000, 5000, 15000, 30000][Math.min(this._retries || 0, 3)];
+    this._retries = (this._retries || 0) + 1;
+    this._retryTimer = setTimeout(() => {
+      if (this.isConnected) this._reload();
+    }, delay);
+  }
+
+  async _reload() {
+    this._loadFailed = false;
+    await Promise.all([this._loadSettings(), this._load(), this._needsItems() ? this._loadItems() : null]);
+    // One retry for the lot, whichever failed
+    this._retry(this._loadFailed);
+  }
   // Full code when it has a table (sr-Latn), else its base (de-AT → de), else English
   _lang() {
     const code = this._hass?.language || "en";
@@ -677,7 +714,8 @@ class GitHubPanel extends HTMLElement {
       console.error("GitHub panel: could not load the card", err);
     }
     this._subscribe();
-    await Promise.all([this._loadSettings(), this._load(), this._needsItems() ? this._loadItems() : null]);
+    this._watchConnection(this.isConnected);
+    await this._reload();
   }
 
   // Reload the list when the GitHub integration changes (a repository followed elsewhere, a reload)
@@ -696,9 +734,13 @@ class GitHubPanel extends HTMLElement {
   async _load() {
     try {
       this._overview = await this._hass.callWS({ type: "github_card/repositories" });
+      // The error of a failed load goes once a load succeeds (a retry, the connection back).
+      if (this._message && this._message === this._loadError) this._message = null;
     } catch (err) {
       this._message = { tone: "bad", text: this._t("error", { error: err?.message || err }) };
+      this._loadError = this._message;
       this._overview = this._overview || { configured: true, followed: [], offered: [], offered_error: true };
+      this._loadFailed = true;
     }
     this._renderRepos();
   }
@@ -707,7 +749,8 @@ class GitHubPanel extends HTMLElement {
     try {
       this._settings = (await this._hass.callWS({ type: "github_card/settings" })).settings;
     } catch (_err) {
-      this._settings = { filter: "", include_starred: false, notify_issues: false, notify_pulls: false, notify_releases: false };
+      this._settings = this._settings || { filter: "", include_starred: false, notify_issues: false, notify_pulls: false, notify_releases: false };
+      this._loadFailed = true;
     }
     this._renderSettings();
   }
