@@ -21,6 +21,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  version:
+    name: Version consistency
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The checks the release makes, before merging: a version bumped in one file only fails the release on main.
+      - name: Same version everywhere, and in the changelog
+        run: |
+          VERSION="$(jq -r .version custom_components/github_card/manifest.json)"
+          grep -q "VERSION = \"$VERSION\"" custom_components/github_card/const.py || { echo "::error file=custom_components/github_card/const.py::version $VERSION not found in custom_components/github_card/const.py"; exit 1; }
+          grep -q "const VERSION = \"$VERSION\"" custom_components/github_card/frontend/github-card.js || { echo "::error file=custom_components/github_card/frontend/github-card.js::version $VERSION not found in custom_components/github_card/frontend/github-card.js"; exit 1; }
+          grep -q "GITHUB_PANEL_VERSION = \"$VERSION\"" custom_components/github_card/frontend/github-panel.js || { echo "::error file=custom_components/github_card/frontend/github-panel.js::version $VERSION not found in custom_components/github_card/frontend/github-panel.js"; exit 1; }
+          grep -q "\"version\": \"$VERSION\"" package.json || { echo "::error file=package.json::version $VERSION not found in package.json"; exit 1; }
+          test "$(node -p "require('./package-lock.json').version")" = "$VERSION" || { echo "::error file=package-lock.json::package-lock.json is not at $VERSION (npm install)"; exit 1; }
+          grep -q "^## $VERSION " CHANGELOG.md || { echo "::error file=CHANGELOG.md::no '## $VERSION' entry in CHANGELOG.md"; exit 1; }
+          echo "Version $VERSION everywhere"
+
   hassfest:
     name: Hassfest
     runs-on: ubuntu-latest
