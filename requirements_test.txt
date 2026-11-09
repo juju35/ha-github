@@ -1,0 +1,3 @@
+pytest-homeassistant-custom-component
+# Requirement of the core GitHub integration, whose entry the tests load and unload
+aiogithubapi

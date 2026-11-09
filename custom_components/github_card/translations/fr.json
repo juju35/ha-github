@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub Card",
+        "description": "Ajoute le panneau GitHub à la barre latérale (administrateurs uniquement), pour suivre vos dépôts dans l’intégration GitHub, et les cartes GitHub à vos tableaux de bord."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "GitHub Card est déjà configuré."
+    }
+  }
+}

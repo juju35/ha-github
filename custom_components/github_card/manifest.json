@@ -1,0 +1,15 @@
+{
+  "domain": "github_card",
+  "name": "GitHub Card",
+  "after_dependencies": ["github"],
+  "codeowners": ["@juju35"],
+  "config_flow": true,
+  "dependencies": ["frontend", "http", "lovelace", "panel_custom", "persistent_notification"],
+  "documentation": "https://github.com/juju35/ha-github",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/juju35/ha-github/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "2.0.0"
+}

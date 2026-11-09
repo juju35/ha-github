@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub Card",
+        "description": "Fügt der Seitenleiste das GitHub-Panel hinzu (nur Administratoren), um deine Repositorys in der GitHub-Integration zu verfolgen, sowie die GitHub-Karten für deine Dashboards."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "GitHub Card ist bereits eingerichtet."
+    }
+  }
+}

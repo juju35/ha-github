@@ -1,54 +1,61 @@
-# ha-github-card
+# ha-github
 
 [![Marketplace](https://img.shields.io/badge/Marketplace-Custom-41BDF5.svg)](https://www.home-assistant.io/integrations/marketplace/)
-[![HACS Validation](https://github.com/juju35/ha-github-card/actions/workflows/hacs.yml/badge.svg)](https://github.com/juju35/ha-github-card/actions/workflows/hacs.yml)
-[![Validate](https://github.com/juju35/ha-github-card/actions/workflows/validate.yml/badge.svg)](https://github.com/juju35/ha-github-card/actions/workflows/validate.yml)
-[![Lint](https://github.com/juju35/ha-github-card/actions/workflows/lint.yml/badge.svg)](https://github.com/juju35/ha-github-card/actions/workflows/lint.yml)
-[![Release](https://img.shields.io/github/v/release/juju35/ha-github-card)](https://github.com/juju35/ha-github-card/releases/latest)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/juju35/ha-github-card/blob/main/LICENSE)
+[![HACS Validation](https://github.com/juju35/ha-github/actions/workflows/hacs.yml/badge.svg)](https://github.com/juju35/ha-github/actions/workflows/hacs.yml)
+[![Validate](https://github.com/juju35/ha-github/actions/workflows/validate.yml/badge.svg)](https://github.com/juju35/ha-github/actions/workflows/validate.yml)
+[![Lint](https://github.com/juju35/ha-github/actions/workflows/lint.yml/badge.svg)](https://github.com/juju35/ha-github/actions/workflows/lint.yml)
+[![Release](https://img.shields.io/github/v/release/juju35/ha-github)](https://github.com/juju35/ha-github/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/juju35/ha-github/blob/main/LICENSE)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/julienstep9)
 
-<p align="center"><img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/images/github-card.svg" alt="GitHub Card" width="120"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/juju35/ha-github/main/custom_components/github_card/brand/icon.png" alt="GitHub Card" width="120"></p>
 
-Lovelace cards for Home Assistant showing your GitHub repositories: stars, forks, open issues and pull requests, and the latest release, commit, pull request and issue of each one.
+Home Assistant integration for your GitHub repositories: an **admin sidebar panel** to follow them in the GitHub integration and see their open issues and pull requests, and **Lovelace cards** with their stars, forks, open issues and pull requests, latest release and commit.
 
-The cards are built on top of the core [GitHub integration](https://www.home-assistant.io/integrations/github/): entities are **discovered automatically**, you don't have to pick them one by one, and it works whatever the language of your installation.
+It works on top of the core [GitHub integration](https://www.home-assistant.io/integrations/github/): no token of its own, entities **discovered automatically**, whatever the language of your installation.
 
-[![Open your Home Assistant instance and open a repository inside the Marketplace.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=juju35&repository=ha-github-card&category=plugin)
+[![Open your Home Assistant instance and open a repository inside the Marketplace.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=juju35&repository=ha-github&category=integration)
 
-| GitHub Card | GitHub Mini Card |
+| GitHub panel | GitHub Card |
 |---|---|
-| <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/card.png" alt="github-card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/mini-card.png" alt="github-mini-card" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-repos.png" alt="GitHub panel" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/card.png" alt="github-card" width="400"> |
 
 ## Features
 
-- Two cards: a full **GitHub Card** and a compact **GitHub Mini Card**
-- Automatic discovery of the repositories and the account of the GitHub integration through the entity and device registries (any language)
+### Sidebar panel (administrators only)
+
+- **Repositories**: every repository of your GitHub account (and your starred ones, if you choose), followed or not by the GitHub integration. **Follow** or **Stop following** one, or **Follow all** at once: the whole change reloads the GitHub integration a single time
+- **Issues** and **Pull requests**: the open ones of all the followed repositories, most recently updated first, with their repository, number, author, age, comments and labels, and the review state of pull requests (approved, changes requested, review required, draft); filter by repository; each opens on GitHub
+- **Activity**: the GitHub Card with every followed repository, busiest first
+- **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories), and a Home Assistant notification for each new issue or pull request
+- Tabs in the address (`/github-config/issues`), so a link or a reload opens the same tab
+
+### Cards
+
+- A full **GitHub Card** and a compact **GitHub Mini Card**, loaded on every dashboard by the integration (no resource to add)
 - One foldable section per repository, with its stars, open issues and open pull requests at a glance: one unfolded at a time, folded again on a click elsewhere (a single repository is always unfolded)
 - Stars, forks, watchers, open issues, open pull requests, merged pull requests, discussions and downloads of the latest release
 - Latest release, tag, commit, pull request, issue and discussion, each with a link to its page on GitHub
 - The account: followers, following, public repositories and gists
-- Status pill: the open issues and pull requests of the repositories shown, or "Nothing open"
-- **Zoom** on the mini card: a button at the top right switches it to the full card and back; a click on a repository opens the full card on it; a click anywhere outside the card brings it back
+- Status pill: the open issues and pull requests of the repositories shown, or "Nothing open"; while the integration follows no repository, the cards say so, with a button to the GitHub integration
+- **Zoom** on the mini card: a button at the top right switches it to the full card and back; a click on a repository opens the full card on it
 - Choose the repositories and their order, or sort them by name, stars or open issues and pull requests
-- Click any value to open its Home Assistant history (more-info dialog)
 - Visual editor in the dashboard UI for every card (no YAML needed)
+
+### Everywhere
+
 - Light and dark mode, English, French, German, Spanish, Serbian (Cyrillic and Latin), Italian, Dutch, European Portuguese, Polish, Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian and Greek
-- Single file, no external dependency
+- No dependency: vanilla JavaScript, and Python with Home Assistant only
 
 ## Supported integrations
 
-| Integration | What the cards show |
+| Integration | What it is used for |
 |---|---|
-| [GitHub](https://www.home-assistant.io/integrations/github/) (built in) | Stars, forks, watchers, open issues and pull requests, merged pull requests, discussions, release downloads, latest release, tag, commit, pull request, issue and discussion of each repository; followers, following, public repositories and gists of the account |
+| [GitHub](https://www.home-assistant.io/integrations/github/) (built in) | The repositories followed (one per "repository" entry of the integration), their sensors for the cards and the notifications, and its access token for the open issues and pull requests |
 
 ## Prerequisites
 
-Home Assistant 2024.8 or later, and the [GitHub integration](https://www.home-assistant.io/integrations/github/) added (**Settings → Devices & services → Add integration → GitHub**), with the repositories you want to follow.
-
-The account sensors (followers, following, public repositories and gists) are disabled by default: enable them on the device of your GitHub account to show the **Account** section. Sections and values without a sensor are simply not displayed.
-
-The `repositories` option only chooses among the repositories that the integration follows: each repository must first be added to the integration (**Settings → Devices & services → GitHub → Add repository**). While the integration follows none, the cards say so, with a button that opens the integration's page.
+Home Assistant 2026.11 or later, and the [GitHub integration](https://www.home-assistant.io/integrations/github/) added with your GitHub account (**Settings → Devices & services → Add integration → GitHub**). Repositories can then be followed from the panel. The account sensors (followers, following, public repositories and gists) are disabled by default: enable them on the device of your GitHub account to show the **Account** section of the cards.
 
 ## Installation
 
@@ -56,27 +63,62 @@ The `repositories` option only chooses among the repositories that the integrati
 
 Click the button below to add the repository directly:
 
-[![Add to the Marketplace](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=juju35&repository=ha-github-card&category=plugin)
+[![Add to the Marketplace](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=juju35&repository=ha-github&category=integration)
 
-Then click **Install**, and reload your browser when the Marketplace asks you to.
+Then click **Install** and restart Home Assistant.
 
 Or manually:
 
 1. Open **Settings → Marketplace → Add from link** (top right; this needs a GitHub account connected)
-2. Add `https://github.com/juju35/ha-github-card` — Type: **Dashboard**
-3. Open **GitHub Card** and click **Install**
-4. Clear your browser cache and refresh
+2. Add `https://github.com/juju35/ha-github` — Type: **Integration**
+3. Open **GitHub Card** and click **Install**, then restart Home Assistant
+
+Then **Settings → Devices & services → Add integration → GitHub Card**: the **GitHub** entry appears in the sidebar (administrators only), and the cards are available on every dashboard.
 
 ### Manual
 
-1. Download `github-card.js` from the [latest release](https://github.com/juju35/ha-github-card/releases/latest)
-2. Copy it to `/config/www/github-card.js`
-3. Go to **Settings → Dashboards → ⋮ → Resources** → Add resource:
-   - URL: `/local/github-card.js`
-   - Type: **JavaScript Module**
-4. Clear your browser cache and refresh
+1. Download `github_card.zip` from the [latest release](https://github.com/juju35/ha-github/releases/latest)
+2. Extract it to `/config/custom_components/github_card/`
+3. Restart Home Assistant and add the **GitHub Card** integration
 
-## Configuration
+### Upgrading from 1.x (dashboard card)
+
+Up to 1.0.1 this repository was a dashboard card. Since 2.0.0 it is an integration that ships the card:
+
+1. In the Marketplace, remove **GitHub Card** (type Dashboard), then add the repository again with the type **Integration** and install it
+2. Restart Home Assistant and add the **GitHub Card** integration
+
+The former card resource (`/hacsfiles/ha-github-card/github-card.js` or `/local/community/ha-github-card/github-card.js`) is replaced by the integration's own (`/github_card/github-card.js`) when the integration starts. Card configurations stay the same.
+
+## Panel
+
+The **GitHub** entry of the sidebar, for administrators only.
+
+| Light | Dark |
+|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-repos.png" alt="Repositories tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-repos-dark.png" alt="Repositories tab dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-issues.png" alt="Issues tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-issues-dark.png" alt="Issues tab dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-pulls.png" alt="Pull requests tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-pulls-dark.png" alt="Pull requests tab dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-activity.png" alt="Activity tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-activity-dark.png" alt="Activity tab dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-settings.png" alt="Settings tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-settings-dark.png" alt="Settings tab dark" width="400"> |
+
+### Repositories
+
+The list comes from the GitHub integration's own **Add repository** form: your repositories and your starred ones, read with its token. By default only the repositories of your account are offered; **Settings** can add your starred ones and keep only names matching patterns (`juju35/ha-*, home-assistant/*`). Followed repositories are always listed.
+
+**Follow** adds the repository to the GitHub integration exactly as its **Add repository** form does (a "repository" entry). The GitHub integration reloads whenever its repositories change, so the panel makes the whole change at once: **Follow all** with 40 repositories reloads it once, not 40 times. Its sensors are unavailable for a few seconds meanwhile. **Stop following** asks first: the repository's sensors and their history are removed from Home Assistant.
+
+### Issues and pull requests
+
+The GitHub integration only has counts and the latest issue and pull request of a repository. The full lists come from the GitHub GraphQL API, with the **access token of the GitHub integration** (sent to `api.github.com` only, never to the browser): one query for 20 followed repositories at a time, at most 50 open issues and 50 open pull requests per repository, kept for 5 minutes. **Refresh** asks GitHub again.
+
+### Notifications
+
+With **Notify new issues** or **Notify new pull requests** in **Settings**, a Home Assistant notification shows each new issue or pull request of a followed repository (one per repository and kind, replaced by the next), with its link. They come from the GitHub integration's **Latest issue** and **Latest pull request** sensors, refreshed by the GitHub integration itself.
+
+## Cards
+
+
 
 ### Visual editor
 
@@ -134,11 +176,11 @@ language: fr
 
 | Light | Dark |
 |---|---|
-| <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/card.png" alt="card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/card-dark.png" alt="card dark" width="400"> |
-| <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/card-single.png" alt="card with a single repository" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/card-single-dark.png" alt="card with a single repository dark" width="400"> |
-| <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/card-empty.png" alt="card without any repository followed" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/card-empty-dark.png" alt="card without any repository followed dark" width="400"> |
-| <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/mini-card.png" alt="mini card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/mini-card-dark.png" alt="mini card dark" width="400"> |
-| <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/mini-card-zoom.png" alt="mini card zoomed in" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github-card/main/screenshots/mini-card-zoom-dark.png" alt="mini card zoomed in dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/card.png" alt="card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/card-dark.png" alt="card dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/card-single.png" alt="card with a single repository" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/card-single-dark.png" alt="card with a single repository dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/card-empty.png" alt="card without any repository followed" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/card-empty-dark.png" alt="card without any repository followed dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/mini-card.png" alt="mini card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/mini-card-dark.png" alt="mini card dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/mini-card-zoom.png" alt="mini card zoomed in" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/mini-card-zoom-dark.png" alt="mini card zoomed in dark" width="400"> |
 
 ## How it works
 
@@ -153,24 +195,22 @@ The compact card shows the totals of the repositories shown (stars, forks, open 
 ## Development
 
 ```bash
-npm ci               # installs the locked dev dependencies (Playwright, for the screenshots)
-npm run build        # bundles src/github-card.js into dist/github-card.js
-npm run check        # builds and checks the card (run in CI)
-npm test             # unit tests
-npm run screenshots  # renders the cards with mock data into screenshots/ (ffmpeg compares the pixels of the captures)
+pip install -r requirements_test.txt && pytest   # integration tests (Home Assistant test harness)
+npm ci && npm test                               # card and panel tests
+npm run screenshots                              # renders the cards and the panel with mock data into screenshots/
 ```
 
-`dist/` is not committed: `npm run build` creates it locally, CI builds it on every push, and the release workflow attaches the built file to the release, which is where the Marketplace installs it from.
+The card and the panel are plain JavaScript files in `custom_components/github_card/frontend/`, served by the integration: nothing to build.
 
 ### Releasing
 
-1. Bump `version` in `package.json`
-2. Add a `## <version>` section at the top of [CHANGELOG.md](https://github.com/juju35/ha-github-card/blob/main/CHANGELOG.md)
-3. Push to `main`: the **Release** workflow builds the card, creates the tag and the GitHub release with the changelog section as notes, and attaches `github-card.js`
+1. Bump the version in `custom_components/github_card/manifest.json`, `const.py` (`VERSION`), `frontend/github-card.js` (`VERSION`), `frontend/github-panel.js` (`GITHUB_PANEL_VERSION`) and `package.json`
+2. Add a `## <version>` section at the top of [CHANGELOG.md](https://github.com/juju35/ha-github/blob/main/CHANGELOG.md)
+3. Push to `main`: the **Release** workflow checks that the versions agree, creates the tag and the GitHub release with the changelog section as notes, and attaches `github_card.zip`
 
 ## Translations
 
-The cards auto-detect the language from your Home Assistant settings. Currently supported:
+The cards and the panel auto-detect the language from your Home Assistant settings. Currently supported:
 
 | Language | Code |
 |---|---|
@@ -203,7 +243,7 @@ Contributions for additional languages are welcome!
 
 ## License
 
-[MIT](https://github.com/juju35/ha-github-card/blob/main/LICENSE)
+[MIT](https://github.com/juju35/ha-github/blob/main/LICENSE)
 
 ## Support
 

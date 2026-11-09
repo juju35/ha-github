@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub Card",
+        "description": "Adaugă panoul GitHub în bara laterală (doar administratori), pentru a urmări depozitele tale în integrarea GitHub, și cardurile GitHub în tablourile de bord."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "GitHub Card este deja configurat."
+    }
+  }
+}

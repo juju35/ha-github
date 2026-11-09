@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub Card",
+        "description": "Dodaje panel GitHub u bočnu traku (samo administratori), za praćenje vaših repozitorijuma u integraciji GitHub, i kartice GitHub na vaše kontrolne table."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "GitHub Card je već podešen."
+    }
+  }
+}

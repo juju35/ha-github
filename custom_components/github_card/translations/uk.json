@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub Card",
+        "description": "Додає панель GitHub на бічну панель (лише адміністратори) для відстеження ваших репозиторіїв в інтеграції GitHub, а також картки GitHub для ваших панелей."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "GitHub Card уже налаштовано."
+    }
+  }
+}

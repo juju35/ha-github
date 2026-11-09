@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.0.0 - 2026-11-09
+
+### Breaking changes
+- **The repository is now an integration** (renamed `ha-github`, Marketplace type **Integration**), which ships the cards: remove the former **GitHub Card** dashboard plugin from the Marketplace, add the repository again as an integration, restart, and add the **GitHub Card** integration. The cards are then loaded on every dashboard by the integration, and the former card resource is replaced by `/github_card/github-card.js`. Card configurations are unchanged. Requires Home Assistant 2026.11 (GitHub integration with repository entries).
+
+### Features
+- **GitHub sidebar panel** (administrators only), five tabs as in the other ha-* panels (text tabs, the tab in the address, Settings last):
+  - **Repositories**: the repositories of your account (and your starred ones, if chosen), followed or not by the GitHub integration; **Follow**, **Stop following** (confirmed first) or **Follow all**, through the GitHub integration's own repository entries, with a single reload of the GitHub integration for the whole change; search field;
+  - **Issues** and **Pull requests**: the open ones of the followed repositories, most recently updated first (repository, number, author, age, comments, labels, review state and draft), filter by repository, **Refresh**; read from the GitHub GraphQL API with the GitHub integration's access token, cached for 5 minutes;
+  - **Activity**: the GitHub Card with every followed repository, busiest first;
+  - **Settings**: repositories offered (name patterns, starred repositories) and notifications.
+- **Notifications** (off by default): a Home Assistant notification for each new issue or pull request of a followed repository, with its link.
+- Integration icon in the style of the other ha-* integrations.
+- Panel and notifications translated in the 22 languages of the cards.
+
+### Maintenance
+- CI of an integration: hassfest, pytest, ruff, vulture, HACS validation as an integration, release archive `github_card.zip`; card and panel tests with Node.
+- Screenshots of the five panel tabs, light and dark.
+
 ## 1.0.1 - 2026-11-09
 
 ### Fixes

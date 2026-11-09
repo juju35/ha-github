@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GitHub Card",
+        "description": "Tilføjer GitHub-panelet i sidepanelet (kun administratorer) til at følge dine repositories i GitHub-integrationen, og GitHub-kortene til dine dashboards."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "GitHub Card er allerede sat op."
+    }
+  }
+}
