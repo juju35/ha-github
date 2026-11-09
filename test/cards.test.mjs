@@ -121,12 +121,20 @@ test("the button opens the GitHub integration page", () => {
 });
 
 test("embed (the panel's rows): only the counters and the latest activity, no frame, header or account", () => {
-  const { html } = render(lib.GitHubCard, { embed: true, repositories: ["juju35/ha-parcel"] }, hass());
+  const { html } = render(lib.GitHubCard, { embed: true, repositories: ["juju35/ha-parcel"], show_account: false }, hass());
   assert.match(html, /class="content embed"/);
   assert.match(html, /Latest release/);
   assert.match(html, /v1\.4\.0/);
   assert.doesNotMatch(html, /<ha-card/);
   assert.doesNotMatch(html, /class="repo-head/);
   assert.doesNotMatch(html, /Account ·/);
-  assert.doesNotMatch(render(lib.GitHubCard, { embed: true, repositories: ["juju35/ha-parcel"], show_latest: false }, hass()).html, /Latest release/);
+  assert.doesNotMatch(render(lib.GitHubCard, { embed: true, repositories: ["juju35/ha-parcel"], show_latest: false, show_account: false }, hass()).html, /Latest release/);
+});
+
+test("embed without repositories (the panel's account): the account section only, nothing without its sensors", () => {
+  const { html } = render(lib.GitHubCard, { embed: true }, hass());
+  assert.match(html, /Account · octocat/);
+  assert.match(html, /Followers/);
+  assert.doesNotMatch(html, /Latest release/);
+  assert.equal(render(lib.GitHubCard, { embed: true }, { ...hass(), entities: {} }).html, "");
 });

@@ -149,3 +149,17 @@ test("sorts of the Repositories tab: followed first by default, name, and the fo
   p._query = "parcel";
   assert.deepEqual(order(), ["juju35/ha-parcel", "juju35/aaos-parcel"]);
 });
+
+test("Repositories head: totals of the followed repositories (stars, open issues and pull requests); no Activity tab", () => {
+  const p = panel();
+  p._overview.sensors = { "juju35/ha-parcel": { stargazers_count: "sensor.s", issues_count: "sensor.i", pulls_count: "sensor.p" } };
+  p._hass.states = { "sensor.s": { state: "1840" }, "sensor.i": { state: "3" }, "sensor.p": { state: "1" } };
+  const html = p._totalsHtml();
+  assert.match(html, /1,8\s?k/);
+  assert.match(html, /Ouvertes : 4/);
+  p._overview.sensors = {};
+  assert.equal(p._totalsHtml(), "");
+  // The former Activity address opens Repositories
+  p.route = { path: "/activity" };
+  assert.equal(p._tab, "repos");
+});

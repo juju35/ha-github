@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.3.0 - 2026-11-09
+
+### Changes
+- **Panel: the Activity tab is gone**, its content being in the Repositories tab since 2.1.0 (each repository's counters, and the GitHub Card's details once unfolded). What it still added moves to the Repositories tab: the **totals** of the followed repositories in the head (stars, open issues and pull requests, kept live), and the **GitHub account** (followers, following, public repositories and gists) under the list, when its sensors are enabled. The panel has four tabs: Repositories, Issues, Pull requests, Settings; the former `/github-config/activity` address opens Repositories.
+- Card: with `embed`, the account section is shown too unless `show_account: false`, and the repositories only when `repositories` lists some.
+
+### Maintenance
+- Tests: the head totals, the former Activity address, the card's `embed` account. The Activity tab screenshots are removed.
+
 ## 2.2.0 - 2026-11-09
 
 ### Features

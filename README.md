@@ -24,9 +24,8 @@ It works on top of the core [GitHub integration](https://www.home-assistant.io/i
 
 ### Sidebar panel (administrators only)
 
-- **Repositories**: every repository of your GitHub account (and your starred ones, if you choose), followed or not by the GitHub integration. Each followed one shows its stars, open issues, open pull requests and latest release on its row, and unfolds the same details as the GitHub Card (counters, latest release, commit, pull request, issue…). **Follow** or **Stop following** one, or **Follow all** at once: the whole change reloads the GitHub integration a single time
+- **Repositories**: every repository of your GitHub account (and your starred ones, if you choose), followed or not by the GitHub integration. Each followed one shows its stars, open issues, open pull requests and latest release on its row, and unfolds the same details as the GitHub Card (counters, latest release, commit, pull request, issue…). The head gives the totals of the followed repositories, and your GitHub account (followers, following, public repositories and gists) closes the list. **Follow** or **Stop following** one, or **Follow all** at once: the whole change reloads the GitHub integration a single time
 - **Issues** and **Pull requests**: the open ones of all the followed repositories, most recently updated first, with their repository, number, author, age, comments and labels, and the review state of pull requests (approved, changes requested, review required, draft); filter by repository; each opens on GitHub
-- **Activity**: the GitHub Card with every followed repository, busiest first
 - **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories), and a Home Assistant notification for each new issue or pull request
 - Tabs in the address (`/github-config/issues`), so a link or a reload opens the same tab
 
@@ -99,7 +98,6 @@ The **GitHub** entry of the sidebar, for administrators only.
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-repos.png" alt="Repositories tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-repos-dark.png" alt="Repositories tab dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-issues.png" alt="Issues tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-issues-dark.png" alt="Issues tab dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-pulls.png" alt="Pull requests tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-pulls-dark.png" alt="Pull requests tab dark" width="400"> |
-| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-activity.png" alt="Activity tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-activity-dark.png" alt="Activity tab dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-settings.png" alt="Settings tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-settings-dark.png" alt="Settings tab dark" width="400"> |
 
 ### Repositories
@@ -172,7 +170,7 @@ language: fr
 | `show_account` | all | `true` | Account section (full card) and followers (mini card), when the account sensors are enabled |
 | `max_repos` | mini | `5` | Repositories listed in the compact view, then "+N" |
 | `zoom` | mini | `true` | Zoom button at the top right: shows the full card, and back to the compact view |
-| `embed` | full | `false` | Only the counters and the latest activity of the repositories, without frame, header or account (used by the panel's rows) |
+| `embed` | full | `false` | Without frame, header or foldable sections: the counters and the latest activity of the repositories listed in `repositories`, then the account unless `show_account: false` (used by the panel) |
 | `language` | all | Auto | Force language: `en`, `fr`, `de`, `es`, `sr`, `sr-Latn`, `it`, `nl`, `pt`, `pl`, `ro`, `da`, `sv`, `bg`, `ru`, `uk`, `hu`, `sk`, `cs`, `sl`, `lv` or `el` (auto-detects from HA settings) |
 
 ## Screenshots
