@@ -7,6 +7,7 @@ query for 20 repositories at a time, kept for a few minutes.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import re
 import time
@@ -130,18 +131,25 @@ async def async_items(hass: HomeAssistant, refresh: bool = False) -> Items:
     session = async_get_clientsession(hass)
     issues, pulls, totals = [], [], {}
     seen: set[str] = set()
+
+    async def _query(names: list[str]) -> dict[str, Any] | str:
+        async with session.post(
+            GRAPHQL_URL,
+            json={"query": build_query(names)},
+            headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
+            timeout=aiohttp.ClientTimeout(total=30),
+        ) as resp:
+            if resp.status in (401, 403):
+                return f"http_{resp.status}"
+            resp.raise_for_status()
+            return await resp.json()
+
+    # The queries of 20 repositories each run side by side (they waited for one another), parsed in order
     try:
-        for start in range(0, len(repos), CHUNK):
-            async with session.post(
-                GRAPHQL_URL,
-                json={"query": build_query(repos[start : start + CHUNK])},
-                headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
-                timeout=aiohttp.ClientTimeout(total=30),
-            ) as resp:
-                if resp.status in (401, 403):
-                    return Items(error=f"http_{resp.status}")
-                resp.raise_for_status()
-                body = await resp.json()
+        bodies = await asyncio.gather(*(_query(repos[s : s + CHUNK]) for s in range(0, len(repos), CHUNK)))
+        for body in bodies:
+            if isinstance(body, str):
+                return Items(error=body)
             i, p, t = parse(body.get("data") or {}, seen)
             issues += i
             pulls += p

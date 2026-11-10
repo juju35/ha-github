@@ -15,7 +15,7 @@
  *   notifications.
  */
 
-const GITHUB_PANEL_VERSION = "2.4.3";
+const GITHUB_PANEL_VERSION = "2.4.4";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "settings"];
 // Orders of the Repositories tab (see GitHubPanel._rows)
@@ -729,17 +729,22 @@ class GitHubPanel extends HTMLElement {
     return text;
   }
 
+  // The data and the card (only the account and the unfolded repository use it) load side by side: waiting for the
+  // card first held the whole panel empty until its bundle and its language file were in.
   async _start() {
     this._render();
-    const version = this._panel?.config?.version || GITHUB_PANEL_VERSION;
-    try {
-      if (!customElements.get("github-card")) await import(`/github_card/github-card.js?v=${version}`);
-    } catch (err) {
-      console.error("GitHub panel: could not load the card", err);
-    }
     this._subscribe();
     this._watchConnection(this.isConnected);
-    await this._reload();
+    const version = this._panel?.config?.version || GITHUB_PANEL_VERSION;
+    const card = customElements.get("github-card")
+      ? null
+      : import(`/github_card/github-card.js?v=${version}`)
+          .then(() => customElements.whenDefined("github-card"))
+          .then(() => {
+            if (this._overview) this._renderRepos();
+          })
+          .catch((err) => console.error("GitHub panel: could not load the card", err));
+    await Promise.all([this._reload(), card]);
   }
 
   // Reload the list when the GitHub integration changes (a repository followed elsewhere, a reload)

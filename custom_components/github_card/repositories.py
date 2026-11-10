@@ -11,8 +11,10 @@ the entry once, adds and removes the subentries, and sets it up again.
 
 from __future__ import annotations
 
+import asyncio
 import fnmatch
 import logging
+import time
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from types import MappingProxyType
@@ -24,9 +26,14 @@ from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
-from .const import CONF_FILTER, CONF_INCLUDE_STARRED, CONF_REPOSITORY, DEFAULTS, GITHUB_DOMAIN, SUBENTRY_TYPE
+from .const import CONF_FILTER, CONF_INCLUDE_STARRED, CONF_REPOSITORY, DEFAULTS, DOMAIN, GITHUB_DOMAIN, SUBENTRY_TYPE
 
 _LOGGER = logging.getLogger(__name__)
+
+# The repositories the GitHub integration offers, read from the API by its flow: kept a few minutes
+OFFERED_CACHE_SECONDS = 600
+OFFERED_CACHE = "offered"
+OFFERED_PENDING = "offered_pending"
 
 
 def github_entry(hass: HomeAssistant) -> ConfigEntry | None:
@@ -94,6 +101,37 @@ async def async_offered(hass: HomeAssistant, entry: ConfigEntry) -> list[str] | 
         hass.config_entries.subentries.async_abort(result["flow_id"])
 
 
+async def async_offered_cached(hass: HomeAssistant, entry: ConfigEntry) -> list[str] | None:
+    """`async_offered`, kept `OFFERED_CACHE_SECONDS`: its flow reads the repositories from the GitHub API, which
+    held the panel's Repositories tab for seconds at each opening.
+
+    The cache is dropped when the followed repositories change (here or elsewhere: the key holds them) and after a
+    follow / unfollow; panels opened at the same time share one flow; a failure is not kept.
+    """
+    cache = hass.data.setdefault(DOMAIN, {})
+    key = (entry.entry_id, frozenset(followed(entry)))
+    cached = cache.get(OFFERED_CACHE)
+    if cached and cached[0] == key and time.monotonic() - cached[1] < OFFERED_CACHE_SECONDS:
+        return cached[2]
+    pending = cache.get(OFFERED_PENDING)
+    if pending is None or pending[0] != key:
+        task = hass.async_create_task(async_offered(hass, entry), "github_card offered repositories")
+        pending = cache[OFFERED_PENDING] = (key, task)
+    try:
+        offered = await asyncio.shield(pending[1])
+    finally:
+        if cache.get(OFFERED_PENDING) is pending and pending[1].done():
+            del cache[OFFERED_PENDING]
+    if offered is not None:
+        cache[OFFERED_CACHE] = (key, time.monotonic(), offered)
+    return offered
+
+
+def forget_offered(hass: HomeAssistant) -> None:
+    """Drop the cached offered repositories (after a follow / unfollow)."""
+    hass.data.get(DOMAIN, {}).pop(OFFERED_CACHE, None)
+
+
 def matches(name: str, patterns: str) -> bool:
     """Whether a full name matches one of the comma-separated patterns (any case); no pattern matches all."""
     globs = [p.strip().lower() for p in patterns.split(",") if p.strip()]
@@ -134,7 +172,7 @@ async def async_overview(hass: HomeAssistant, options: dict[str, Any]) -> Overvi
         return Overview(configured=False)
     settings = {**DEFAULTS, **options}
     owner = login(hass, entry)
-    offered = await async_offered(hass, entry) if entry.state is ConfigEntryState.LOADED else None
+    offered = await async_offered_cached(hass, entry) if entry.state is ConfigEntryState.LOADED else None
     names = []
     for name in offered or []:
         if not settings[CONF_INCLUDE_STARRED] and owner and name.split("/")[0].lower() != owner.lower():
@@ -192,6 +230,7 @@ async def async_apply(hass: HomeAssistant, add: Iterable[str] = (), remove: Iter
         for subentry_id in remove_ids.values():
             hass.config_entries.async_remove_subentry(entry, subentry_id)
     finally:
+        forget_offered(hass)
         if loaded:
             await hass.config_entries.async_setup(entry.entry_id)
     return {"added": add, "removed": list(remove_ids), "skipped": skipped}

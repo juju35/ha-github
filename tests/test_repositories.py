@@ -1,13 +1,16 @@
 """The repositories offered by the GitHub integration's own flow, and the name patterns."""
 
+import asyncio
+from types import MappingProxyType
 from unittest.mock import MagicMock, patch
 
 import voluptuous as vol
+from homeassistant.config_entries import ConfigSubentry
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers.selector import SelectSelector, SelectSelectorConfig
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.github_card.repositories import async_offered, matches
+from custom_components.github_card.repositories import async_offered, async_offered_cached, forget_offered, matches
 
 
 async def test_offered_reads_the_flow_and_aborts_it(hass):
@@ -60,3 +63,51 @@ def test_plain_string_options_too():
     """The GitHub integration gives its repositories as plain strings."""
     selector = SelectSelector(SelectSelectorConfig(options=["a/b", "c/d"]))
     assert [o if isinstance(o, str) else o["value"] for o in selector.config["options"]] == ["a/b", "c/d"]
+
+
+async def test_offered_cached_until_the_followed_change(hass):
+    gh = MockConfigEntry(domain="github")
+    gh.add_to_hass(hass)
+    calls = []
+
+    async def offered(_hass, _entry):
+        calls.append(1)
+        return ["a/b"] if len(calls) > 1 else None
+
+    with patch("custom_components.github_card.repositories.async_offered", side_effect=offered):
+        # A failure is not kept
+        assert await async_offered_cached(hass, gh) is None
+        assert await async_offered_cached(hass, gh) == ["a/b"]
+        assert await async_offered_cached(hass, gh) == ["a/b"]
+        assert len(calls) == 2
+        # Followed elsewhere: another key
+        hass.config_entries.async_add_subentry(
+            gh,
+            ConfigSubentry(
+                data=MappingProxyType({"repository": "a/b"}), subentry_type="repository", title="a/b", unique_id="a/b"
+            ),
+        )
+        await async_offered_cached(hass, gh)
+        assert len(calls) == 3
+        forget_offered(hass)
+        await async_offered_cached(hass, gh)
+        assert len(calls) == 4
+
+
+async def test_offered_cached_shares_one_flow(hass):
+    gh = MockConfigEntry(domain="github")
+    gh.add_to_hass(hass)
+    gate = asyncio.Event()
+    calls = []
+
+    async def offered(_hass, _entry):
+        calls.append(1)
+        await gate.wait()
+        return ["a/b"]
+
+    with patch("custom_components.github_card.repositories.async_offered", side_effect=offered):
+        both = asyncio.gather(async_offered_cached(hass, gh), async_offered_cached(hass, gh))
+        await asyncio.sleep(0)
+        gate.set()
+        assert await both == [["a/b"], ["a/b"]]
+    assert len(calls) == 1
