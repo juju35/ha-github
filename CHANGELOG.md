@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.4.4 - 2026-11-10
+
+### Performance
+- Panel opens faster: the repositories offered by the GitHub integration (read from the GitHub API by its *Add repository* flow at each opening) are kept 10 minutes, dropped as soon as the followed repositories change, and panels opened together share one read.
+- Panel: the repositories, settings and issues load alongside the GitHub Card instead of waiting for it (only the account and the unfolded repository need the card).
+- Issues and pull requests: the GitHub queries (20 repositories each) run side by side instead of one after another.
+
 ## 2.4.3 - 2026-11-09
 
 ### Improvements
