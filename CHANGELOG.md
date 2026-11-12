@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.5.0 - 2026-11-12
+
+### Features
+- `show_title` and `show_subtitle` options (also in the visual editor) hide the header's title and its subtitle, separately, for a card placed under a section heading of its own (asked in juju35/ha-vehicle-card#72).
+
 ## 2.4.4 - 2026-11-10
 
 ### Performance

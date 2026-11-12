@@ -164,6 +164,8 @@ language: fr
 | Option | Card | Default | Description |
 |---|---|---|---|
 | `title` | all | `GitHub` | Card title |
+| `show_title` | all | `true` | Show the title in the header (e.g. `false` under a section heading of your own) |
+| `show_subtitle` | all | `true` | Show the subtitle under the title |
 | `repositories` | all | All | Repositories to show (`owner/repo`, any case, or the name given to the device), in this order |
 | `sort` | all | `name` (the `repositories` order when set) | `name`, `stars` (most starred first) or `open` (most open issues and pull requests first) |
 | `show_latest` | all | `true` | Latest release, tag, commit, pull request, issue and discussion of the unfolded repository |

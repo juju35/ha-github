@@ -8,7 +8,7 @@
  * entity registry (platform "github", translation key, device), whatever the language.
  */
 
-const VERSION = "2.4.4";
+const VERSION = "2.5.0";
 
 // Material Design Icons paths.
 const ICONS = {
@@ -46,7 +46,7 @@ const KEYS = [
   "account", "followers", "following", "public_repos", "public_gists",
   "repos_n", "open_none", "open_n", "unknown", "open_github", "no_github", "zoom_in", "zoom_out",
   // Editor
-  "title", "repositories", "show_latest", "show_account", "sort", "sort_name", "sort_stars", "sort_open",
+  "title", "repositories", "show_latest", "show_account", "show_title", "show_subtitle", "sort", "sort_name", "sort_stars", "sort_open",
   "max_repos", "zoom", "zoom_helper", "language", "lang_auto",
   // Empty state
   "no_repos", "no_repos_hint", "no_match", "open_integration",
@@ -61,7 +61,7 @@ const TRANSLATIONS = {
     "No GitHub entities found. Is the GitHub integration set up with at least one repository?",
     "Show the full card", "Back to the compact view",
     "Title (optional, defaults to GitHub)", "Repositories (optional, all by default)", "Show latest activity", "Show account",
-    "Sort repositories", "By name", "By stars", "By open issues and pull requests",
+    "Sort repositories", "By name", "By stars", "By open issues and pull requests", "Show title", "Show subtitle",
     "Repositories in the compact view", "Zoom button", "Switches the card to the full card and back", "Language", "Automatic",
     "No repository followed", "Add your repositories to the GitHub integration to see them here.", "None of the repositories of the card is followed by the GitHub integration.", "Open the GitHub integration",
   ],
@@ -73,7 +73,7 @@ const TRANSLATIONS = {
     "Aucune entité GitHub trouvée. L’intégration GitHub est-elle configurée avec au moins un dépôt ?",
     "Afficher la carte complète", "Revenir à la vue compacte",
     "Titre (facultatif, GitHub par défaut)", "Dépôts (facultatif, tous par défaut)", "Afficher l’activité récente", "Afficher le compte",
-    "Tri des dépôts", "Par nom", "Par étoiles", "Par issues et pull requests ouvertes",
+    "Tri des dépôts", "Par nom", "Par étoiles", "Par issues et pull requests ouvertes", "Afficher le titre", "Afficher le sous-titre",
     "Dépôts dans la vue compacte", "Bouton zoom", "Bascule la carte en carte complète, et inversement", "Langue", "Automatique",
     "Aucun dépôt suivi", "Ajoutez vos dépôts à l’intégration GitHub pour les afficher ici.", "Aucun des dépôts de la carte n’est suivi par l’intégration GitHub.", "Ouvrir l’intégration GitHub",
   ],
@@ -85,7 +85,7 @@ const TRANSLATIONS = {
     "Keine GitHub-Entitäten gefunden. Ist die GitHub-Integration mit mindestens einem Repository eingerichtet?",
     "Vollständige Karte anzeigen", "Zurück zur kompakten Ansicht",
     "Titel (optional, standardmäßig GitHub)", "Repositorys (optional, standardmäßig alle)", "Letzte Aktivität anzeigen", "Konto anzeigen",
-    "Sortierung der Repositorys", "Nach Name", "Nach Sternen", "Nach offenen Issues und Pull Requests",
+    "Sortierung der Repositorys", "Nach Name", "Nach Sternen", "Nach offenen Issues und Pull Requests", "Titel anzeigen", "Untertitel anzeigen",
     "Repositorys in der kompakten Ansicht", "Zoom-Schaltfläche", "Schaltet zwischen kompakter und vollständiger Karte um", "Sprache", "Automatisch",
     "Kein Repository verfolgt", "Füge deine Repositorys in der GitHub-Integration hinzu, um sie hier zu sehen.", "Keines der Repositorys der Karte wird von der GitHub-Integration verfolgt.", "GitHub-Integration öffnen",
   ],
@@ -97,7 +97,7 @@ const TRANSLATIONS = {
     "No se encontraron entidades de GitHub. ¿Está configurada la integración GitHub con al menos un repositorio?",
     "Mostrar la tarjeta completa", "Volver a la vista compacta",
     "Título (opcional, GitHub por defecto)", "Repositorios (opcional, todos por defecto)", "Mostrar la actividad reciente", "Mostrar la cuenta",
-    "Orden de los repositorios", "Por nombre", "Por estrellas", "Por issues y pull requests abiertas",
+    "Orden de los repositorios", "Por nombre", "Por estrellas", "Por issues y pull requests abiertas", "Mostrar el título", "Mostrar el subtítulo",
     "Repositorios en la vista compacta", "Botón de zoom", "Alterna entre la tarjeta completa y la vista compacta", "Idioma", "Automático",
     "Ningún repositorio seguido", "Añade tus repositorios a la integración GitHub para verlos aquí.", "La integración GitHub no sigue ninguno de los repositorios de la tarjeta.", "Abrir la integración GitHub",
   ],
@@ -109,7 +109,7 @@ const TRANSLATIONS = {
     "Није пронађен ниједан GitHub ентитет. Да ли је интеграција GitHub подешена са бар једним репозиторијумом?",
     "Прикажи целу картицу", "Назад на компактни приказ",
     "Наслов (опционо, подразумевано GitHub)", "Репозиторијуми (опционо, подразумевано сви)", "Прикажи недавну активност", "Прикажи налог",
-    "Редослед репозиторијума", "По имену", "По звездицама", "По отвореним проблемима и pull захтевима",
+    "Редослед репозиторијума", "По имену", "По звездицама", "По отвореним проблемима и pull захтевима", "Прикажи наслов", "Прикажи поднаслов",
     "Репозиторијуми у компактном приказу", "Дугме за зумирање", "Пребацује између целе картице и компактног приказа", "Језик", "Аутоматски",
     "Ниједан репозиторијум се не прати", "Додајте своје репозиторијуме у интеграцију GitHub да бисте их видели овде.", "Интеграција GitHub не прати ниједан репозиторијум картице.", "Отвори интеграцију GitHub",
   ],
@@ -121,7 +121,7 @@ const TRANSLATIONS = {
     "Nije pronađen nijedan GitHub entitet. Da li je integracija GitHub podešena sa bar jednim repozitorijumom?",
     "Prikaži celu karticu", "Nazad na kompaktni prikaz",
     "Naslov (opciono, podrazumevano GitHub)", "Repozitorijumi (opciono, podrazumevano svi)", "Prikaži nedavnu aktivnost", "Prikaži nalog",
-    "Redosled repozitorijuma", "Po imenu", "Po zvezdicama", "Po otvorenim problemima i pull zahtevima",
+    "Redosled repozitorijuma", "Po imenu", "Po zvezdicama", "Po otvorenim problemima i pull zahtevima", "Prikaži naslov", "Prikaži podnaslov",
     "Repozitorijumi u kompaktnom prikazu", "Dugme za zumiranje", "Prebacuje između cele kartice i kompaktnog prikaza", "Jezik", "Automatski",
     "Nijedan repozitorijum se ne prati", "Dodajte svoje repozitorijume u integraciju GitHub da biste ih videli ovde.", "Integracija GitHub ne prati nijedan repozitorijum kartice.", "Otvori integraciju GitHub",
   ],
@@ -133,7 +133,7 @@ const TRANSLATIONS = {
     "Nessuna entità GitHub trovata. L’integrazione GitHub è configurata con almeno un repository?",
     "Mostra la scheda completa", "Torna alla vista compatta",
     "Titolo (facoltativo, GitHub per impostazione predefinita)", "Repository (facoltativo, tutti per impostazione predefinita)", "Mostra l’attività recente", "Mostra l’account",
-    "Ordinamento dei repository", "Per nome", "Per stelle", "Per issue e pull request aperte",
+    "Ordinamento dei repository", "Per nome", "Per stelle", "Per issue e pull request aperte", "Mostra il titolo", "Mostra il sottotitolo",
     "Repository nella vista compatta", "Pulsante zoom", "Alterna tra la scheda completa e la vista compatta", "Lingua", "Automatica",
     "Nessun repository seguito", "Aggiungi i tuoi repository all’integrazione GitHub per vederli qui.", "L’integrazione GitHub non segue nessuno dei repository della scheda.", "Apri l’integrazione GitHub",
   ],
@@ -145,7 +145,7 @@ const TRANSLATIONS = {
     "Geen GitHub-entiteiten gevonden. Is de GitHub-integratie ingesteld met ten minste één repository?",
     "Volledige kaart tonen", "Terug naar de compacte weergave",
     "Titel (optioneel, standaard GitHub)", "Repositories (optioneel, standaard alle)", "Recente activiteit tonen", "Account tonen",
-    "Sortering van repositories", "Op naam", "Op sterren", "Op open issues en pull requests",
+    "Sortering van repositories", "Op naam", "Op sterren", "Op open issues en pull requests", "Titel tonen", "Ondertitel tonen",
     "Repositories in de compacte weergave", "Zoomknop", "Schakelt tussen de volledige kaart en de compacte weergave", "Taal", "Automatisch",
     "Geen repository gevolgd", "Voeg je repositories toe aan de GitHub-integratie om ze hier te zien.", "De GitHub-integratie volgt geen enkele repository van de kaart.", "GitHub-integratie openen",
   ],
@@ -157,7 +157,7 @@ const TRANSLATIONS = {
     "Nenhuma entidade GitHub encontrada. A integração GitHub está configurada com pelo menos um repositório?",
     "Mostrar o cartão completo", "Voltar à vista compacta",
     "Título (opcional, GitHub por predefinição)", "Repositórios (opcional, todos por predefinição)", "Mostrar a atividade recente", "Mostrar a conta",
-    "Ordenação dos repositórios", "Por nome", "Por estrelas", "Por issues e pull requests em aberto",
+    "Ordenação dos repositórios", "Por nome", "Por estrelas", "Por issues e pull requests em aberto", "Mostrar o título", "Mostrar o subtítulo",
     "Repositórios na vista compacta", "Botão de zoom", "Alterna entre o cartão completo e a vista compacta", "Idioma", "Automático",
     "Nenhum repositório seguido", "Adicione os seus repositórios à integração GitHub para os ver aqui.", "A integração GitHub não segue nenhum dos repositórios do cartão.", "Abrir a integração GitHub",
   ],
@@ -169,7 +169,7 @@ const TRANSLATIONS = {
     "Nie znaleziono encji GitHub. Czy integracja GitHub jest skonfigurowana z co najmniej jednym repozytorium?",
     "Pokaż pełną kartę", "Wróć do widoku kompaktowego",
     "Tytuł (opcjonalny, domyślnie GitHub)", "Repozytoria (opcjonalne, domyślnie wszystkie)", "Pokaż ostatnią aktywność", "Pokaż konto",
-    "Sortowanie repozytoriów", "Według nazwy", "Według gwiazdek", "Według otwartych zgłoszeń i pull requestów",
+    "Sortowanie repozytoriów", "Według nazwy", "Według gwiazdek", "Według otwartych zgłoszeń i pull requestów", "Pokaż tytuł", "Pokaż podtytuł",
     "Repozytoria w widoku kompaktowym", "Przycisk powiększenia", "Przełącza między pełną kartą a widokiem kompaktowym", "Język", "Automatyczny",
     "Brak śledzonych repozytoriów", "Dodaj swoje repozytoria do integracji GitHub, aby zobaczyć je tutaj.", "Integracja GitHub nie śledzi żadnego z repozytoriów karty.", "Otwórz integrację GitHub",
   ],
@@ -181,7 +181,7 @@ const TRANSLATIONS = {
     "Nu s-au găsit entități GitHub. Este integrarea GitHub configurată cu cel puțin un depozit?",
     "Afișează cardul complet", "Înapoi la vizualizarea compactă",
     "Titlu (opțional, implicit GitHub)", "Depozite (opțional, implicit toate)", "Afișează activitatea recentă", "Afișează contul",
-    "Sortarea depozitelor", "După nume", "După stele", "După issue-uri și pull request-uri deschise",
+    "Sortarea depozitelor", "După nume", "După stele", "După issue-uri și pull request-uri deschise", "Afișează titlul", "Afișează subtitlul",
     "Depozite în vizualizarea compactă", "Buton de zoom", "Comută între cardul complet și vizualizarea compactă", "Limbă", "Automat",
     "Niciun depozit urmărit", "Adaugă depozitele tale în integrarea GitHub pentru a le vedea aici.", "Integrarea GitHub nu urmărește niciunul dintre depozitele cardului.", "Deschide integrarea GitHub",
   ],
@@ -193,7 +193,7 @@ const TRANSLATIONS = {
     "Ingen GitHub-enheder fundet. Er GitHub-integrationen sat op med mindst ét repository?",
     "Vis hele kortet", "Tilbage til kompakt visning",
     "Titel (valgfri, GitHub som standard)", "Repositories (valgfri, alle som standard)", "Vis seneste aktivitet", "Vis konto",
-    "Sortering af repositories", "Efter navn", "Efter stjerner", "Efter åbne issues og pull requests",
+    "Sortering af repositories", "Efter navn", "Efter stjerner", "Efter åbne issues og pull requests", "Vis titel", "Vis undertitel",
     "Repositories i kompakt visning", "Zoomknap", "Skifter mellem hele kortet og kompakt visning", "Sprog", "Automatisk",
     "Ingen repositories fulgt", "Tilføj dine repositories i GitHub-integrationen for at se dem her.", "GitHub-integrationen følger ingen af kortets repositories.", "Åbn GitHub-integrationen",
   ],
@@ -205,7 +205,7 @@ const TRANSLATIONS = {
     "Inga GitHub-entiteter hittades. Är GitHub-integrationen konfigurerad med minst ett repo?",
     "Visa hela kortet", "Tillbaka till kompakt vy",
     "Titel (valfri, GitHub som standard)", "Repon (valfritt, alla som standard)", "Visa senaste aktivitet", "Visa konto",
-    "Sortering av repon", "Efter namn", "Efter stjärnor", "Efter öppna ärenden och pull requests",
+    "Sortering av repon", "Efter namn", "Efter stjärnor", "Efter öppna ärenden och pull requests", "Visa rubrik", "Visa underrubrik",
     "Repon i kompakt vy", "Zoomknapp", "Växlar mellan hela kortet och kompakt vy", "Språk", "Automatiskt",
     "Inga repon följs", "Lägg till dina repon i GitHub-integrationen för att se dem här.", "GitHub-integrationen följer inget av kortets repon.", "Öppna GitHub-integrationen",
   ],
@@ -217,7 +217,7 @@ const TRANSLATIONS = {
     "Не са намерени GitHub обекти. Настроена ли е интеграцията GitHub с поне едно хранилище?",
     "Покажи цялата карта", "Обратно към компактния изглед",
     "Заглавие (по избор, по подразбиране GitHub)", "Хранилища (по избор, по подразбиране всички)", "Покажи последната активност", "Покажи акаунта",
-    "Подреждане на хранилищата", "По име", "По звезди", "По отворени проблеми и pull заявки",
+    "Подреждане на хранилищата", "По име", "По звезди", "По отворени проблеми и pull заявки", "Показване на заглавието", "Показване на подзаглавието",
     "Хранилища в компактния изглед", "Бутон за мащабиране", "Превключва между цялата карта и компактния изглед", "Език", "Автоматично",
     "Няма следени хранилища", "Добавете хранилищата си в интеграцията GitHub, за да ги видите тук.", "Интеграцията GitHub не следи нито едно от хранилищата на картата.", "Отвори интеграцията GitHub",
   ],
@@ -229,7 +229,7 @@ const TRANSLATIONS = {
     "Сущности GitHub не найдены. Настроена ли интеграция GitHub хотя бы с одним репозиторием?",
     "Показать полную карточку", "Вернуться к компактному виду",
     "Заголовок (необязательно, по умолчанию GitHub)", "Репозитории (необязательно, по умолчанию все)", "Показывать последнюю активность", "Показывать аккаунт",
-    "Сортировка репозиториев", "По имени", "По звёздам", "По открытым задачам и pull-запросам",
+    "Сортировка репозиториев", "По имени", "По звёздам", "По открытым задачам и pull-запросам", "Показывать заголовок", "Показывать подзаголовок",
     "Репозитории в компактном виде", "Кнопка масштабирования", "Переключает между полной карточкой и компактным видом", "Язык", "Автоматически",
     "Нет отслеживаемых репозиториев", "Добавьте свои репозитории в интеграцию GitHub, чтобы увидеть их здесь.", "Интеграция GitHub не отслеживает ни один из репозиториев карточки.", "Открыть интеграцию GitHub",
   ],
@@ -241,7 +241,7 @@ const TRANSLATIONS = {
     "Сутності GitHub не знайдено. Чи налаштовано інтеграцію GitHub хоча б з одним репозиторієм?",
     "Показати повну картку", "Повернутися до компактного вигляду",
     "Заголовок (необов’язково, за замовчуванням GitHub)", "Репозиторії (необов’язково, за замовчуванням усі)", "Показувати останню активність", "Показувати обліковий запис",
-    "Сортування репозиторіїв", "За назвою", "За зірками", "За відкритими задачами та pull-запитами",
+    "Сортування репозиторіїв", "За назвою", "За зірками", "За відкритими задачами та pull-запитами", "Показувати заголовок", "Показувати підзаголовок",
     "Репозиторії в компактному вигляді", "Кнопка масштабування", "Перемикає між повною карткою та компактним виглядом", "Мова", "Автоматично",
     "Немає відстежуваних репозиторіїв", "Додайте свої репозиторії до інтеграції GitHub, щоб побачити їх тут.", "Інтеграція GitHub не відстежує жодного з репозиторіїв картки.", "Відкрити інтеграцію GitHub",
   ],
@@ -253,7 +253,7 @@ const TRANSLATIONS = {
     "Nem található GitHub entitás. Be van állítva a GitHub integráció legalább egy tárolóval?",
     "Teljes kártya megjelenítése", "Vissza a kompakt nézethez",
     "Cím (nem kötelező, alapértelmezés: GitHub)", "Tárolók (nem kötelező, alapértelmezés: mind)", "Legutóbbi tevékenység megjelenítése", "Fiók megjelenítése",
-    "Tárolók rendezése", "Név szerint", "Csillagok szerint", "Nyitott hibajegyek és pull requestek szerint",
+    "Tárolók rendezése", "Név szerint", "Csillagok szerint", "Nyitott hibajegyek és pull requestek szerint", "Cím megjelenítése", "Alcím megjelenítése",
     "Tárolók a kompakt nézetben", "Nagyítás gomb", "Vált a teljes kártya és a kompakt nézet között", "Nyelv", "Automatikus",
     "Nincs követett tároló", "Add hozzá a tárolóidat a GitHub integrációhoz, hogy itt lásd őket.", "A GitHub integráció a kártya egyik tárolóját sem követi.", "GitHub integráció megnyitása",
   ],
@@ -265,7 +265,7 @@ const TRANSLATIONS = {
     "Nenašli sa žiadne entity GitHub. Je integrácia GitHub nastavená aspoň s jedným repozitárom?",
     "Zobraziť celú kartu", "Späť na kompaktné zobrazenie",
     "Názov (voliteľný, predvolene GitHub)", "Repozitáre (voliteľné, predvolene všetky)", "Zobraziť nedávnu aktivitu", "Zobraziť účet",
-    "Zoradenie repozitárov", "Podľa názvu", "Podľa hviezdičiek", "Podľa otvorených problémov a pull requestov",
+    "Zoradenie repozitárov", "Podľa názvu", "Podľa hviezdičiek", "Podľa otvorených problémov a pull requestov", "Zobraziť názov", "Zobraziť podnázov",
     "Repozitáre v kompaktnom zobrazení", "Tlačidlo priblíženia", "Prepína medzi celou kartou a kompaktným zobrazením", "Jazyk", "Automaticky",
     "Žiadny sledovaný repozitár", "Pridajte svoje repozitáre do integrácie GitHub, aby ste ich videli tu.", "Integrácia GitHub nesleduje žiadny z repozitárov karty.", "Otvoriť integráciu GitHub",
   ],
@@ -277,7 +277,7 @@ const TRANSLATIONS = {
     "Nebyly nalezeny žádné entity GitHub. Je integrace GitHub nastavena alespoň s jedním repozitářem?",
     "Zobrazit celou kartu", "Zpět na kompaktní zobrazení",
     "Název (volitelný, výchozí GitHub)", "Repozitáře (volitelné, výchozí všechny)", "Zobrazit nedávnou aktivitu", "Zobrazit účet",
-    "Řazení repozitářů", "Podle názvu", "Podle hvězdiček", "Podle otevřených problémů a pull requestů",
+    "Řazení repozitářů", "Podle názvu", "Podle hvězdiček", "Podle otevřených problémů a pull requestů", "Zobrazit název", "Zobrazit podnázev",
     "Repozitáře v kompaktním zobrazení", "Tlačítko přiblížení", "Přepíná mezi celou kartou a kompaktním zobrazením", "Jazyk", "Automaticky",
     "Žádný sledovaný repozitář", "Přidejte své repozitáře do integrace GitHub, abyste je zde viděli.", "Integrace GitHub nesleduje žádný z repozitářů karty.", "Otevřít integraci GitHub",
   ],
@@ -289,7 +289,7 @@ const TRANSLATIONS = {
     "Ni najdenih entitet GitHub. Ali je integracija GitHub nastavljena z vsaj enim repozitorijem?",
     "Prikaži celotno kartico", "Nazaj na strnjen pogled",
     "Naslov (neobvezno, privzeto GitHub)", "Repozitoriji (neobvezno, privzeto vsi)", "Prikaži nedavno dejavnost", "Prikaži račun",
-    "Razvrščanje repozitorijev", "Po imenu", "Po zvezdicah", "Po odprtih težavah in pull requestih",
+    "Razvrščanje repozitorijev", "Po imenu", "Po zvezdicah", "Po odprtih težavah in pull requestih", "Prikaži naslov", "Prikaži podnaslov",
     "Repozitoriji v strnjenem pogledu", "Gumb za povečavo", "Preklaplja med celotno kartico in strnjenim pogledom", "Jezik", "Samodejno",
     "Noben repozitorij ni spremljan", "Dodajte svoje repozitorije v integracijo GitHub, da jih vidite tukaj.", "Integracija GitHub ne spremlja nobenega repozitorija kartice.", "Odpri integracijo GitHub",
   ],
@@ -301,7 +301,7 @@ const TRANSLATIONS = {
     "Nav atrasta neviena GitHub entītija. Vai GitHub integrācija ir iestatīta ar vismaz vienu krātuvi?",
     "Rādīt pilno karti", "Atpakaļ uz kompakto skatu",
     "Virsraksts (neobligāts, pēc noklusējuma GitHub)", "Krātuves (neobligāti, pēc noklusējuma visas)", "Rādīt nesenās aktivitātes", "Rādīt kontu",
-    "Krātuvju kārtošana", "Pēc nosaukuma", "Pēc zvaigznēm", "Pēc atvērtajām problēmām un pull pieprasījumiem",
+    "Krātuvju kārtošana", "Pēc nosaukuma", "Pēc zvaigznēm", "Pēc atvērtajām problēmām un pull pieprasījumiem", "Rādīt virsrakstu", "Rādīt apakšvirsrakstu",
     "Krātuves kompaktajā skatā", "Tālummaiņas poga", "Pārslēdz starp pilno karti un kompakto skatu", "Valoda", "Automātiski",
     "Netiek sekots nevienai krātuvei", "Pievienojiet savas krātuves GitHub integrācijai, lai tās redzētu šeit.", "GitHub integrācija neseko nevienai kartes krātuvei.", "Atvērt GitHub integrāciju",
   ],
@@ -313,7 +313,7 @@ const TRANSLATIONS = {
     "Δεν βρέθηκαν οντότητες GitHub. Έχει ρυθμιστεί η ενσωμάτωση GitHub με τουλάχιστον ένα αποθετήριο;",
     "Εμφάνιση πλήρους κάρτας", "Επιστροφή στη συμπαγή προβολή",
     "Τίτλος (προαιρετικός, προεπιλογή GitHub)", "Αποθετήρια (προαιρετικά, προεπιλογή όλα)", "Εμφάνιση πρόσφατης δραστηριότητας", "Εμφάνιση λογαριασμού",
-    "Ταξινόμηση αποθετηρίων", "Κατά όνομα", "Κατά αστέρια", "Κατά ανοιχτά ζητήματα και pull requests",
+    "Ταξινόμηση αποθετηρίων", "Κατά όνομα", "Κατά αστέρια", "Κατά ανοιχτά ζητήματα και pull requests", "Εμφάνιση τίτλου", "Εμφάνιση υπότιτλου",
     "Αποθετήρια στη συμπαγή προβολή", "Κουμπί μεγέθυνσης", "Εναλλάσσει μεταξύ πλήρους κάρτας και συμπαγούς προβολής", "Γλώσσα", "Αυτόματα",
     "Δεν παρακολουθείται κανένα αποθετήριο", "Προσθέστε τα αποθετήριά σας στην ενσωμάτωση GitHub για να τα δείτε εδώ.", "Η ενσωμάτωση GitHub δεν παρακολουθεί κανένα από τα αποθετήρια της κάρτας.", "Άνοιγμα της ενσωμάτωσης GitHub",
   ],
@@ -526,6 +526,7 @@ const BASE_STYLE = `
           background: color-mix(in srgb, var(--c, var(--gh-ok)) 15%, transparent); color: color-mix(in srgb, var(--c, var(--gh-ok)) 45%, var(--primary-text-color)); }
   .header { display: flex; align-items: center; gap: 10px; padding: 12px 12px 8px; container: gh-header / inline-size; }
   .titles { flex: 1 1 0; min-width: 6.5ch; font-size: 16px; }
+  :host([hide-title]) .titles .name, :host([hide-subtitle]) .titles > .sub { display: none; }
   .title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; row-gap: 2px; }
   .title-row > .name { flex: 1 1 0; min-width: min(6.5ch, 100%); }
   .name { font-size: 16px; font-weight: 500; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -689,6 +690,9 @@ class GitHubBase extends HTMLElement {
     if (config.repositories !== undefined && !Array.isArray(config.repositories))
       throw new Error("repositories must be a list of owner/repo names");
     this._config = { ...config };
+    // show_title / show_subtitle: the header's title / subtitle, hidden by the stylesheet
+    this.toggleAttribute?.("hide-title", config.show_title === false);
+    this.toggleAttribute?.("hide-subtitle", config.show_subtitle === false);
     this._html = "";
     this._update();
   }
@@ -1133,13 +1137,13 @@ class GitHubEditorBase extends HTMLElement {
 
 class GitHubCardEditor extends GitHubEditorBase {
   static get toggles() {
-    return ["show_latest", "show_account"];
+    return ["show_title", "show_subtitle", "show_latest", "show_account"];
   }
 }
 
 class GitHubMiniCardEditor extends GitHubEditorBase {
   static get toggles() {
-    return ["show_latest", "show_account", "zoom"];
+    return ["show_title", "show_subtitle", "show_latest", "show_account", "zoom"];
   }
 
   static get defaults() {
