@@ -4,7 +4,7 @@ const pairs = [
   { light: "card", dark: "card-dark", type: "github-card", width: 460, config: {}, open: "dev_core" },
   { light: "card-single", dark: "card-single-dark", type: "github-card", width: 460, config: { title: "ha-parcel", repositories: ["juju35/ha-parcel"], show_account: false } },
   { light: "card-empty", dark: "card-empty-dark", type: "github-card", width: 460, config: {}, accountOnly: true },
-  { light: "panel-repos", dark: "panel-repos-dark", width: 820, panel: "repos", expand: "juju35/ha-parcel" },
+  { light: "panel-repos", dark: "panel-repos-dark", width: 820, panel: "repos", expand: "juju35/ha-parcel", select: ["juju35/ha-calendar-card", "juju35/ha-iptv"] },
   { light: "panel-issues", dark: "panel-issues-dark", width: 820, panel: "issues" },
   { light: "panel-pulls", dark: "panel-pulls-dark", width: 820, panel: "pulls" },
   { light: "panel-settings", dark: "panel-settings-dark", width: 820, panel: "settings" },

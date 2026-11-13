@@ -606,7 +606,11 @@ class GitHubPanel extends HTMLElement {
     /* Same width for Follow and Stop following, so the links line up */
     .row > .act { min-width:9.5em; justify-content:center; }
     .row .chip .i { width:12px; height:12px; }
-    .row .pick-repo { width:16px; height:16px; margin:0; flex:none; accent-color:var(--gh-accent); cursor:pointer; }
+    .row .pick-repo { appearance:none; width:18px; height:18px; margin:0; flex:none; cursor:pointer; border-radius:4px; display:grid; place-items:center;
+           border:2px solid var(--secondary-text-color); background:none; }
+    .row .pick-repo:checked { border-color:var(--gh-accent); background:var(--gh-accent); }
+    .row .pick-repo:checked::after { content:""; width:5px; height:9px; margin-top:-2px; border:solid var(--card-background-color, #fff); border-width:0 2px 2px 0; transform:rotate(45deg); }
+    .row .pick-repo[disabled] { opacity:.5; cursor:default; }
     .row .link { display:grid; place-items:center; width:28px; height:28px; border-radius:50%; color:var(--secondary-text-color); flex:none; }
     .row .link:hover { background:color-mix(in srgb, var(--secondary-text-color) 15%, transparent); }
     .row .link .i { width:16px; height:16px; }
