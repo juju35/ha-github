@@ -8,7 +8,7 @@
  * entity registry (platform "github", translation key, device), whatever the language.
  */
 
-const VERSION = "2.7.0";
+const VERSION = "2.7.1";
 
 // Material Design Icons paths.
 const ICONS = {
@@ -386,6 +386,41 @@ const fireMoreInfo = (node, entityId) => {
 /** A click inside a dialog (more-info opened from the card) is not a click outside the card. */
 const inDialog = (ev) => ev.composedPath().some((n) => ["ha-more-info-dialog", "ha-dialog", "dialog"].includes(n.localName));
 
+// "A click elsewhere" is caught on the pointer, not only on the click event: on iOS (Safari and the companion app) a
+// tap on something that is not clickable (the background, an empty spot, a card with no action) sends no click to the
+// page. It counts when the press and the release are both outside the card (a slider dragged out of the card does not
+// fold it), and a scroll does not count (the browser cancels the pointer). Keyboard clicks still go through the click
+// event. `tap(ev)` (a press and a release at the same spot) is for the tests.
+const watchOutside = (isOut, handler) => {
+  let downOutside = false;
+  const onDown = (ev) => {
+    downOutside = isOut(ev);
+  };
+  const onUp = (ev) => {
+    if (downOutside && isOut(ev)) handler(ev);
+    downOutside = false;
+  };
+  const onClick = (ev) => {
+    if (ev.detail === 0 && isOut(ev)) handler(ev);
+  };
+  return {
+    on() {
+      document.addEventListener("pointerdown", onDown, true);
+      document.addEventListener("pointerup", onUp, true);
+      document.addEventListener("click", onClick, true);
+    },
+    tap(ev) {
+      onDown(ev);
+      onUp(ev);
+    },
+    off() {
+      document.removeEventListener("pointerdown", onDown, true);
+      document.removeEventListener("pointerup", onUp, true);
+      document.removeEventListener("click", onClick, true);
+    },
+  };
+};
+
 // ---------------------------------------------------------------------------
 // Discovery
 // ---------------------------------------------------------------------------
@@ -657,20 +692,27 @@ class GitHubBase extends HTMLElement {
         ev.target.click();
       }
     });
-    // A click elsewhere folds the unfolded repository (as in ha-carburants-france).
-    this._onOutside = (ev) => {
-      if (this._openRepo === null || ev.composedPath().includes(this) || inDialog(ev)) return;
-      this._openRepo = null;
-      this._update();
-    };
+    // A tap elsewhere folds the unfolded repository (as in ha-carburants-france).
+    this._outside = watchOutside(
+      (ev) => !ev.composedPath().includes(this) && !inDialog(ev),
+      () => {
+        if (this._openRepo === null) return;
+        this._openRepo = null;
+        this._update();
+      },
+    );
   }
 
   connectedCallback() {
-    document.addEventListener("click", this._onOutside, true);
+    this._outside.on();
+    // Back on the page after leaving it: rendered again in its default state.
+    if (this._hass && this._config) this._update();
   }
 
   disconnectedCallback() {
-    document.removeEventListener("click", this._onOutside, true);
+    this._outside.off();
+    // Left (another dashboard view, a conditional card hidden): the repository folds back.
+    this._openRepo = null;
   }
 
   set hass(hass) {
@@ -944,19 +986,24 @@ class GitHubMiniCard extends GitHubCard {
 
   constructor() {
     super();
-    this._onUnzoom = (ev) => {
-      if (this._zoomed && !ev.composedPath().includes(this) && !inDialog(ev)) this._setZoom(false);
-    };
+    this._unzoom = watchOutside(
+      (ev) => !ev.composedPath().includes(this) && !inDialog(ev),
+      () => {
+        if (this._zoomed) this._setZoom(false);
+      },
+    );
   }
 
   connectedCallback() {
     super.connectedCallback();
-    document.addEventListener("click", this._onUnzoom, true);
+    this._unzoom.on();
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    document.removeEventListener("click", this._onUnzoom, true);
+    this._unzoom.off();
+    // Back to the compact view once off the screen (see the full card).
+    this._zoomed = false;
   }
 
   getCardSize() {
