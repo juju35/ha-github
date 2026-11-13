@@ -84,6 +84,56 @@ test("mini card: a repository line shows the full card on it, the zoom button go
   assert.doesNotMatch(html, /repo-head/);
 });
 
+test("no rewrite under a press: an update is held until the click, which draws it at once, or the release", async () => {
+  const { card } = render(lib.GitHubCard, {}, hass());
+  const isOpen = () => card._openRepo === "dev_weather" && card._html === card.shadowRoot.innerHTML;
+  const before = card.shadowRoot.innerHTML;
+  // Pressed: an update (here the repository unfolded from elsewhere) does not rewrite the card under the pointer.
+  card._onPress();
+  card._openRepo = "dev_weather";
+  card._update();
+  assert.equal(card.shadowRoot.innerHTML, before, "held under the press");
+  // Released without a click: drawn right after.
+  card._onPressEnd();
+  await new Promise((r) => setTimeout(r, 0));
+  assert.ok(isOpen() && card.shadowRoot.innerHTML !== before);
+  // The click itself draws at once.
+  card._onPress();
+  card._onPressClick({ detail: 1 });
+  card._action("repo", "dev_weather", { stopPropagation() {} });
+  assert.equal(card._openRepo, null);
+  assert.equal(card.shadowRoot.innerHTML, before);
+  card._onPressEnd();
+  await new Promise((r) => setTimeout(r, 0));
+});
+
+test("folding: a tap elsewhere (pointer), not a drag that ends outside; leaving the page folds back too", () => {
+  const { card } = render(lib.GitHubCard, {}, hass());
+  card.connectedCallback();
+  card._action("repo", "dev_weather", { stopPropagation() {} });
+  assert.equal(card._openRepo, "dev_weather");
+  // A press in the card released outside of it: nothing folds.
+  card._outside.tap({ composedPath: () => [card] });
+  assert.equal(card._openRepo, "dev_weather");
+  // A tap on a spot that sends no click (iOS): the pointer alone folds.
+  card._outside.tap({ composedPath: () => [] });
+  assert.equal(card._openRepo, null);
+  // Left with a repository open and back: folded.
+  card._action("repo", "dev_weather", { stopPropagation() {} });
+  card.disconnectedCallback();
+  card.connectedCallback();
+  assert.equal(card._openRepo, null);
+  card.disconnectedCallback();
+  const mini = render(lib.GitHubMiniCard, {}, hass()).card;
+  mini.connectedCallback();
+  mini._action("show", "dev_weather", { stopPropagation() {} });
+  assert.match(mini.shadowRoot.innerHTML, /Back to the compact view/);
+  mini.disconnectedCallback();
+  mini.connectedCallback();
+  assert.match(mini.shadowRoot.innerHTML, /Show the full card/, "back compact");
+  mini.disconnectedCallback();
+});
+
 test("the French card uses French labels and number formats", () => {
   const h = { ...hass(), language: "fr", locale: { language: "fr" } };
   const { html } = render(lib.GitHubMiniCard, {}, h);
