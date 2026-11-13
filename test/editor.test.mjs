@@ -33,3 +33,13 @@ test("the mini card editor offers max_repos and the zoom toggle", () => {
   assert.ok(schema.some((f) => f.name === "max_repos"));
   assert.ok(schema.find((f) => f.type === "grid").schema.some((f) => f.name === "zoom"));
 });
+
+test("embed is YAML only: not in the editors, but kept by them", () => {
+  for (const Editor of [lib.GitHubCardEditor, lib.GitHubMiniCardEditor]) {
+    const e = new Editor();
+    e._config = {};
+    const names = e._schema().flatMap((f) => (f.type === "grid" ? f.schema.map((g) => g.name) : [f.name]));
+    assert.ok(!names.includes("embed"));
+    assert.equal(e._clean({ type: "custom:github-card", embed: true }).embed, true);
+  }
+});

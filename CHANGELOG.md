@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.2 - 2026-11-14
+
+### Fixes
+- README: `embed` (used by the panel) is marked YAML only; the visual editors do not offer it but keep it in the configuration (a test checks it).
+
 ## 2.7.1 - 2026-11-13
 
 ### Fixes

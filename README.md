@@ -172,7 +172,7 @@ language: fr
 | `show_account` | all | `true` | Account section (full card) and followers (mini card), when the account sensors are enabled |
 | `max_repos` | mini | `5` | Repositories listed in the compact view, then "+N" |
 | `zoom` | mini | `true` | Zoom button at the top right: shows the full card, and back to the compact view |
-| `embed` | full | `false` | Without frame, header or foldable sections: the counters and the latest activity of the repositories listed in `repositories`, then the account unless `show_account: false` (used by the panel) |
+| `embed` | full | `false` | Without frame, header or foldable sections: the counters and the latest activity of the repositories listed in `repositories`, then the account unless `show_account: false` (used by the panel). YAML only (the visual editor keeps it) |
 | `language` | all | Auto | Force language: `en`, `fr`, `de`, `es`, `sr`, `sr-Latn`, `it`, `nl`, `pt`, `pl`, `ro`, `da`, `sv`, `bg`, `ru`, `uk`, `hu`, `sk`, `cs`, `sl`, `lv` or `el` (auto-detects from HA settings) |
 
 ## Screenshots
