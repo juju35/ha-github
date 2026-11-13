@@ -93,7 +93,7 @@ const panelMock = {
     fetched_at: NOW / 1000,
     error: null,
   },
-  "github_card/settings": { settings: { filter: "juju35/ha-*", include_starred: true, notify_issues: true, notify_pulls: false } },
+  "github_card/settings": { settings: { filter: "juju35/ha-*", include_starred: true, ignore_archived: true, notify_issues: true, notify_pulls: false } },
 };
 
 const browser = await chromium.launch(

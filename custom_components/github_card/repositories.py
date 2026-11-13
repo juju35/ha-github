@@ -26,7 +26,17 @@ from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
-from .const import CONF_FILTER, CONF_INCLUDE_STARRED, CONF_REPOSITORY, DEFAULTS, DOMAIN, GITHUB_DOMAIN, SUBENTRY_TYPE
+from .archived import async_archived
+from .const import (
+    CONF_FILTER,
+    CONF_IGNORE_ARCHIVED,
+    CONF_INCLUDE_STARRED,
+    CONF_REPOSITORY,
+    DEFAULTS,
+    DOMAIN,
+    GITHUB_DOMAIN,
+    SUBENTRY_TYPE,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -166,7 +176,7 @@ class Overview:
 
 async def async_overview(hass: HomeAssistant, options: dict[str, Any]) -> Overview:
     """Followed repositories, and the ones offered that pass the settings (own only, unless starred are included;
-    name patterns). The followed ones are always listed, whatever the settings."""
+    name patterns; not archived, if chosen). The followed ones are always listed, whatever the settings."""
     entry = github_entry(hass)
     if entry is None:
         return Overview(configured=False)
@@ -179,6 +189,10 @@ async def async_overview(hass: HomeAssistant, options: dict[str, Any]) -> Overvi
             continue
         if matches(name, settings[CONF_FILTER]):
             names.append(name)
+    if settings[CONF_IGNORE_ARCHIVED] and names:
+        # GitHub could not say (connection, API limit): nothing is hidden rather than the whole list
+        archived = await async_archived(hass, entry, names) or set()
+        names = [n for n in names if n.casefold() not in archived]
     return Overview(
         configured=True,
         state=entry.state.value,
