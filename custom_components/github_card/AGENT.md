@@ -18,6 +18,8 @@ custom_components/github_card/
 │                    # entry for a whole follow / unfollow change
 ├── items.py         # Open issues / PRs via GitHub GraphQL with the github entry's access_token, 20 repos per query,
 │                    # cached 5 minutes in hass.data[DOMAIN]["items"]
+├── archived.py    # Which offered repositories are archived (GraphQL, 50 per query, cached 10 minutes), for the
+│                    # ignore_archived setting
 ├── notify.py        # Persistent notification when a github latest_issue / latest_pull_request number grows
 ├── translations/    # Config flow strings, 22 languages
 ├── brand/           # Integration icon

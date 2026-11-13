@@ -23,6 +23,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import (
     CONF_FILTER,
+    CONF_IGNORE_ARCHIVED,
     CONF_INCLUDE_STARRED,
     CONF_NOTIFY_ISSUES,
     CONF_NOTIFY_PULLS,
@@ -119,6 +120,7 @@ async def _ws_settings(hass: HomeAssistant, connection: websocket_api.ActiveConn
         vol.Required("type"): f"{DOMAIN}/update_settings",
         vol.Optional(CONF_FILTER): vol.All(str, vol.Length(max=MAX_FILTER_LENGTH)),
         vol.Optional(CONF_INCLUDE_STARRED): bool,
+        vol.Optional(CONF_IGNORE_ARCHIVED): bool,
         vol.Optional(CONF_NOTIFY_ISSUES): bool,
         vol.Optional(CONF_NOTIFY_PULLS): bool,
         vol.Optional(CONF_NOTIFY_RELEASES): bool,

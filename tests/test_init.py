@@ -1,6 +1,6 @@
 """Setup, config flow, the panel, the card resource and the panel's WebSocket commands."""
 
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from homeassistant.components.frontend import DATA_PANELS
@@ -65,6 +65,7 @@ async def test_config_flow_single_entry(hass):
     assert result["options"] == {
         "filter": "",
         "include_starred": False,
+        "ignore_archived": False,
         "notify_issues": False,
         "notify_pulls": False,
         "notify_releases": False,
@@ -144,6 +145,19 @@ async def test_repositories_own_then_starred_then_filter(hass, entry, github, ha
         assert entry.options["include_starred"] is True
         msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/repositories"})
         assert msg["result"]["offered"] == ["home-assistant/core", "juju35/ha-weather-card"]
+
+        # Archived repositories ignored: hidden from the offered ones, the followed ones still listed
+        archived = AsyncMock(return_value={"home-assistant/core"})
+        with patch("custom_components.github_card.repositories.async_archived", archived):
+            msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/update_settings", "ignore_archived": True})
+            assert entry.options["ignore_archived"] is True
+            msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/repositories"})
+            assert msg["result"]["offered"] == ["juju35/ha-weather-card"]
+            assert msg["result"]["followed"] == ["juju35/ha-parcel"]
+            # GitHub could not say: nothing hidden
+            archived.return_value = None
+            msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/repositories"})
+            assert msg["result"]["offered"] == ["home-assistant/core", "juju35/ha-weather-card"]
 
 
 async def test_repositories_not_loaded(hass, entry, github, hass_ws_client):

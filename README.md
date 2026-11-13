@@ -26,7 +26,7 @@ It works on top of the core [GitHub integration](https://www.home-assistant.io/i
 
 - **Repositories**: every repository of your GitHub account (and your starred ones, if you choose), followed or not by the GitHub integration. Each followed one shows its stars, open issues, open pull requests and latest release on its row, and unfolds the same details as the GitHub Card (counters, latest release, commit, pull request, issue…). The head gives the totals of the followed repositories, and your GitHub account (followers, following, public repositories and gists) closes the list. **Follow** or **Stop following** one, or **Follow all** at once: the whole change reloads the GitHub integration a single time
 - **Issues** and **Pull requests**: the open ones of all the followed repositories, most recently updated first, with their repository, number, author, age, comments and labels, and the review state of pull requests (approved, changes requested, review required, draft); filter by repository; each opens on GitHub
-- **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories), and a Home Assistant notification for each new issue, pull request or release
+- **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories, archived repositories ignored), and a Home Assistant notification for each new issue, pull request or release
 - Tabs in the address (`/github-config/issues`), so a link or a reload opens the same tab
 
 ### Cards
@@ -102,7 +102,7 @@ The **GitHub** entry of the sidebar, for administrators only.
 
 ### Repositories
 
-The list comes from the GitHub integration's own **Add repository** form: your repositories and your starred ones, read with its token. By default only the repositories of your account are offered; **Settings** can add your starred ones and keep only names matching patterns (`juju35/ha-*, home-assistant/*`). Followed repositories are always listed.
+The list comes from the GitHub integration's own **Add repository** form: your repositories and your starred ones, read with its token. By default only the repositories of your account are offered; **Settings** can add your starred ones, keep only names matching patterns (`juju35/ha-*, home-assistant/*`) and, with **Ignore archived repositories**, leave out the archived ones (read from the GitHub API with the GitHub integration's token, kept 10 minutes; if GitHub cannot be queried, nothing is hidden). Followed repositories are always listed.
 
 The list is sorted with the menu next to the search field: followed first (default), by name, or the followed repositories by stars, open issues or open pull requests (the choice is remembered in the browser). Each followed repository shows its live counters on its row (stars, open issues, open pull requests, latest release); a click on its name unfolds the GitHub Card's details of that repository under the row, one repository at a time.
 

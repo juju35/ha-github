@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.6.0 - 2026-11-13
+
+### Features
+- Panel, **Settings**: **Ignore archived repositories** leaves the archived repositories out of the ones offered in the Repositories tab (and out of **Follow all**). Whether a repository is archived is read from the GitHub API with the GitHub integration's token, kept 10 minutes; followed repositories are always listed.
+
 ## 2.5.0 - 2026-11-12
 
 ### Features
