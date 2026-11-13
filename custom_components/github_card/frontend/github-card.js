@@ -677,6 +677,34 @@ class GitHubBase extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this._html = "";
     this._openRepo = null;
+    // No rewrite of the card between a press and its click: Home Assistant updates the card several times a second,
+    // and a rewrite under the pointer replaces the element pressed, so that the click lands on the card itself and
+    // does nothing. The update held back is drawn once released: by the click (registered before the card's own
+    // handler, which renders at once), else right after the release.
+    this._onPress = () => {
+      this._byPointer = true;
+      this._pressing = true;
+      window.addEventListener("pointerup", this._onPressEnd, true);
+      window.addEventListener("pointercancel", this._onPressEnd, true);
+    };
+    this._onPressEnd = () => {
+      window.removeEventListener("pointerup", this._onPressEnd, true);
+      window.removeEventListener("pointercancel", this._onPressEnd, true);
+      setTimeout(() => {
+        this._pressing = false;
+        if (this._dirty) this._update();
+      }, 0);
+    };
+    this._onPressClick = (ev) => {
+      if (ev.detail === 0) this._byPointer = false;
+      this._pressing = false;
+    };
+    this.shadowRoot.addEventListener("pointerdown", this._onPress);
+    this.shadowRoot.addEventListener("click", this._onPressClick);
+    // From the keyboard, the focus is kept across rewrites (with the pointer it would draw the focus ring).
+    this.shadowRoot.addEventListener("keydown", () => {
+      this._byPointer = false;
+    });
     this.shadowRoot.addEventListener("click", (ev) => {
       const path = ev.composedPath();
       // A link to GitHub opens in a new tab: no other action.
@@ -710,6 +738,9 @@ class GitHubBase extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this._pressing = this._dirty = false;
+    window.removeEventListener("pointerup", this._onPressEnd, true);
+    window.removeEventListener("pointercancel", this._onPressEnd, true);
     this._outside.off();
     // Left (another dashboard view, a conditional card hidden): the repository folds back.
     this._openRepo = null;
@@ -769,9 +800,16 @@ class GitHubBase extends HTMLElement {
 
   _update() {
     if (!this._hass || !this._config) return;
+    // Held back under a press (see the constructor): drawn once released.
+    if (this._pressing) {
+      this._dirty = true;
+      return;
+    }
+    this._dirty = false;
     const html = this._render();
     if (html !== this._html) {
-      const focused = focusSelector(this.shadowRoot.activeElement);
+      // Kept across the rewrite for the keyboard only (with the pointer it would draw the focus ring).
+      const focused = this._byPointer ? null : focusSelector(this.shadowRoot.activeElement);
       this._html = html;
       this.shadowRoot.innerHTML = html;
       if (focused) this.shadowRoot.querySelector(focused)?.focus({ preventScroll: true });

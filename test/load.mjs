@@ -29,6 +29,9 @@ export const load = () => {
       }
     },
     Intl,
+    setTimeout,
+    addEventListener() {},
+    removeEventListener() {},
   };
   context.window = context;
   vm.createContext(context);
