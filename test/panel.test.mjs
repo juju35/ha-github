@@ -79,6 +79,29 @@ test("follow all sends the offered repositories shown in one command", async () 
   assert.equal(p._message.text, "Suivis : 2 · Plus suivis : 0");
 });
 
+test("follow selected: a checkbox per repository not followed, the ticked ones sent together", async () => {
+  const calls = [];
+  const p = panel(calls);
+  const host = { innerHTML: "", querySelector: () => null, querySelectorAll: () => [] };
+  p.shadowRoot.getElementById = (id) => (id === "repos" ? host : null);
+  p._renderRepos();
+  assert.equal((host.innerHTML.match(/class="pick-repo"/g) || []).length, 2);
+  assert.match(host.innerHTML, /aria-label="Sélectionner juju35\/ha-iptv"/);
+  assert.doesNotMatch(host.innerHTML, /follow-selected/);
+  p._selected.add("juju35/ha-uv-card");
+  // A selected repository no longer offered (followed elsewhere) leaves the selection
+  p._selected.add("juju35/gone");
+  p._renderRepos();
+  assert.match(host.innerHTML, /Suivre la sélection \(1\)/);
+  assert.match(host.innerHTML, /data-repo="juju35\/ha-uv-card"[^>]*checked/);
+  // Hidden by the search, still followed with the others
+  p._query = "iptv";
+  await p._repoAction("follow-selected");
+  const follow = calls.find((c) => c.type === "github_card/follow");
+  assert.deepEqual([...follow.add], ["juju35/ha-uv-card"]);
+  assert.equal(p._selected.size, 0);
+});
+
 test("stop following asks first, then sends the removal", async () => {
   const calls = [];
   const p = panel(calls);

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.7.0 - 2026-11-13
+
+### Features
+- Panel, **Repositories**: a checkbox on each repository not followed yet, and **Follow selected (n)** in the head follows the ticked ones together (one reload of the GitHub integration). The selection stays while searching, so repositories found by different searches can be followed at once.
+
 ## 2.6.0 - 2026-11-13
 
 ### Features

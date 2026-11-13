@@ -5,7 +5,7 @@
  * Four tabs under the toolbar, as in Smart Comfort and IPTV (text tabs, the active one underlined, the tab in the
  * address, Settings last):
  * - Repositories: the repositories of your GitHub account (and your starred ones, if chosen), followed or not by the
- *   core GitHub integration; follow or stop following one, or follow all of them at once (one reload of the GitHub
+ *   core GitHub integration; follow or stop following one, the ticked ones or all of them at once (one reload of the GitHub
  *   integration for the whole change), through the github_card/* WebSocket commands. Each followed repository shows
  *   its live counters and unfolds the GitHub Card's details; the head gives the totals (stars, open issues and pull
  *   requests), the GitHub account (followers…) closes the list;
@@ -15,7 +15,7 @@
  *   notifications.
  */
 
-const GITHUB_PANEL_VERSION = "2.6.0";
+const GITHUB_PANEL_VERSION = "2.7.0";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "settings"];
 // Orders of the Repositories tab (see GitHubPanel._rows)
@@ -38,6 +38,8 @@ const GITHUB_PANEL_KEYS = [
   "sort_label", "sort_followed", "sort_name", "sort_stars", "sort_issues", "sort_pulls",
   // A failed load, tried again at once
   "retry",
+  // Several repositories followed at once
+  "follow_selected", "select_repo",
 ];
 
 const GITHUB_PANEL_TRANSLATIONS = {
@@ -61,6 +63,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Stars", "Latest release", "Show or hide the details",
     "Sort", "Followed first", "Name", "Stars", "Open issues", "Open pull requests",
     "Retry",
+    "Follow selected ({n})", "Select {repo}",
   ],
   fr: [
     "GitHub", "Dépôts", "Activité", "Réglages", "Intégration GitHub", "Chargement…",
@@ -82,6 +85,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Étoiles", "Dernière version", "Afficher ou masquer le détail",
     "Tri", "Suivis d’abord", "Nom", "Étoiles", "Issues ouvertes", "Pull requests ouvertes",
     "Réessayer",
+    "Suivre la sélection ({n})", "Sélectionner {repo}",
   ],
   de: [
     "GitHub", "Repositorys", "Aktivität", "Einstellungen", "GitHub-Integration", "Wird geladen…",
@@ -103,6 +107,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sterne", "Neuestes Release", "Details ein- oder ausblenden",
     "Sortierung", "Verfolgte zuerst", "Name", "Sterne", "Offene Issues", "Offene Pull Requests",
     "Erneut versuchen",
+    "Auswahl verfolgen ({n})", "{repo} auswählen",
   ],
   es: [
     "GitHub", "Repositorios", "Actividad", "Ajustes", "Integración GitHub", "Cargando…",
@@ -124,6 +129,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Estrellas", "Última versión", "Mostrar u ocultar el detalle",
     "Orden", "Seguidos primero", "Nombre", "Estrellas", "Issues abiertas", "Pull requests abiertas",
     "Reintentar",
+    "Seguir la selección ({n})", "Seleccionar {repo}",
   ],
   sr: [
     "GitHub", "Репозиторијуми", "Активност", "Подешавања", "Интеграција GitHub", "Учитавање…",
@@ -145,6 +151,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Звездице", "Најновије издање", "Прикажи или сакриј детаље",
     "Редослед", "Прво праћени", "Име", "Звездице", "Отворени проблеми", "Отворени pull захтеви",
     "Покушај поново",
+    "Прати изабране ({n})", "Изабери {repo}",
   ],
   "sr-Latn": [
     "GitHub", "Repozitorijumi", "Aktivnost", "Podešavanja", "Integracija GitHub", "Učitavanje…",
@@ -166,6 +173,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Zvezdice", "Najnovije izdanje", "Prikaži ili sakrij detalje",
     "Redosled", "Prvo praćeni", "Ime", "Zvezdice", "Otvoreni problemi", "Otvoreni pull zahtevi",
     "Pokušaj ponovo",
+    "Prati izabrane ({n})", "Izaberi {repo}",
   ],
   it: [
     "GitHub", "Repository", "Attività", "Impostazioni", "Integrazione GitHub", "Caricamento…",
@@ -187,6 +195,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Stelle", "Ultima release", "Mostra o nascondi i dettagli",
     "Ordinamento", "Prima i seguiti", "Nome", "Stelle", "Issue aperte", "Pull request aperte",
     "Riprova",
+    "Segui la selezione ({n})", "Seleziona {repo}",
   ],
   nl: [
     "GitHub", "Repositories", "Activiteit", "Instellingen", "GitHub-integratie", "Laden…",
@@ -208,6 +217,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sterren", "Nieuwste release", "Details tonen of verbergen",
     "Sortering", "Gevolgde eerst", "Naam", "Sterren", "Open issues", "Open pull requests",
     "Opnieuw proberen",
+    "Selectie volgen ({n})", "{repo} selecteren",
   ],
   pt: [
     "GitHub", "Repositórios", "Atividade", "Definições", "Integração GitHub", "A carregar…",
@@ -229,6 +239,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Estrelas", "Versão mais recente", "Mostrar ou ocultar o detalhe",
     "Ordenação", "Seguidos primeiro", "Nome", "Estrelas", "Issues em aberto", "Pull requests em aberto",
     "Tentar novamente",
+    "Seguir a seleção ({n})", "Selecionar {repo}",
   ],
   pl: [
     "GitHub", "Repozytoria", "Aktywność", "Ustawienia", "Integracja GitHub", "Ładowanie…",
@@ -250,6 +261,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Gwiazdki", "Najnowsze wydanie", "Pokaż lub ukryj szczegóły",
     "Sortowanie", "Najpierw śledzone", "Nazwa", "Gwiazdki", "Otwarte zgłoszenia", "Otwarte pull requesty",
     "Spróbuj ponownie",
+    "Obserwuj zaznaczone ({n})", "Zaznacz {repo}",
   ],
   ro: [
     "GitHub", "Depozite", "Activitate", "Setări", "Integrarea GitHub", "Se încarcă…",
@@ -271,6 +283,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Stele", "Cea mai recentă versiune", "Afișează sau ascunde detaliile",
     "Sortare", "Mai întâi cele urmărite", "Nume", "Stele", "Issue-uri deschise", "Pull request-uri deschise",
     "Reîncearcă",
+    "Urmărește selecția ({n})", "Selectează {repo}",
   ],
   da: [
     "GitHub", "Repositories", "Aktivitet", "Indstillinger", "GitHub-integration", "Indlæser…",
@@ -292,6 +305,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Stjerner", "Seneste udgivelse", "Vis eller skjul detaljer",
     "Sortering", "Fulgte først", "Navn", "Stjerner", "Åbne issues", "Åbne pull requests",
     "Prøv igen",
+    "Følg valgte ({n})", "Vælg {repo}",
   ],
   sv: [
     "GitHub", "Repon", "Aktivitet", "Inställningar", "GitHub-integration", "Laddar…",
@@ -313,6 +327,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Stjärnor", "Senaste release", "Visa eller dölj detaljer",
     "Sortering", "Följda först", "Namn", "Stjärnor", "Öppna ärenden", "Öppna pull requests",
     "Försök igen",
+    "Följ valda ({n})", "Välj {repo}",
   ],
   bg: [
     "GitHub", "Хранилища", "Активност", "Настройки", "Интеграция GitHub", "Зареждане…",
@@ -334,6 +349,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Звезди", "Последна версия", "Покажи или скрий подробностите",
     "Подреждане", "Първо следените", "Име", "Звезди", "Отворени проблеми", "Отворени pull заявки",
     "Опитай отново",
+    "Следи избраните ({n})", "Избери {repo}",
   ],
   ru: [
     "GitHub", "Репозитории", "Активность", "Настройки", "Интеграция GitHub", "Загрузка…",
@@ -355,6 +371,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Звёзды", "Последний релиз", "Показать или скрыть подробности",
     "Сортировка", "Сначала отслеживаемые", "Имя", "Звёзды", "Открытые задачи", "Открытые pull-запросы",
     "Повторить",
+    "Отслеживать выбранные ({n})", "Выбрать {repo}",
   ],
   uk: [
     "GitHub", "Репозиторії", "Активність", "Налаштування", "Інтеграція GitHub", "Завантаження…",
@@ -376,6 +393,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Зірки", "Останній реліз", "Показати або приховати подробиці",
     "Сортування", "Спершу відстежувані", "Назва", "Зірки", "Відкриті задачі", "Відкриті pull-запити",
     "Повторити",
+    "Відстежувати вибрані ({n})", "Вибрати {repo}",
   ],
   hu: [
     "GitHub", "Tárolók", "Tevékenység", "Beállítások", "GitHub integráció", "Betöltés…",
@@ -397,6 +415,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Csillagok", "Legújabb kiadás", "Részletek megjelenítése vagy elrejtése",
     "Rendezés", "Követettek elöl", "Név", "Csillagok", "Nyitott hibajegyek", "Nyitott pull requestek",
     "Újra",
+    "Kijelöltek követése ({n})", "{repo} kijelölése",
   ],
   sk: [
     "GitHub", "Repozitáre", "Aktivita", "Nastavenia", "Integrácia GitHub", "Načítava sa…",
@@ -418,6 +437,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Hviezdičky", "Najnovšie vydanie", "Zobraziť alebo skryť podrobnosti",
     "Zoradenie", "Najprv sledované", "Názov", "Hviezdičky", "Otvorené problémy", "Otvorené pull requesty",
     "Skúsiť znova",
+    "Sledovať vybrané ({n})", "Vybrať {repo}",
   ],
   cs: [
     "GitHub", "Repozitáře", "Aktivita", "Nastavení", "Integrace GitHub", "Načítání…",
@@ -439,6 +459,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Hvězdičky", "Nejnovější vydání", "Zobrazit nebo skrýt podrobnosti",
     "Řazení", "Nejdřív sledované", "Název", "Hvězdičky", "Otevřené problémy", "Otevřené pull requesty",
     "Zkusit znovu",
+    "Sledovat vybrané ({n})", "Vybrat {repo}",
   ],
   sl: [
     "GitHub", "Repozitoriji", "Dejavnost", "Nastavitve", "Integracija GitHub", "Nalaganje…",
@@ -460,6 +481,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Zvezdice", "Najnovejša izdaja", "Prikaži ali skrij podrobnosti",
     "Razvrščanje", "Najprej spremljani", "Ime", "Zvezdice", "Odprte težave", "Odprti pull requesti",
     "Poskusi znova",
+    "Spremljaj izbrane ({n})", "Izberi {repo}",
   ],
   lv: [
     "GitHub", "Krātuves", "Aktivitāte", "Iestatījumi", "GitHub integrācija", "Ielādē…",
@@ -481,6 +503,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Zvaigznes", "Jaunākais laidiens", "Rādīt vai paslēpt informāciju",
     "Kārtošana", "Vispirms sekotās", "Nosaukums", "Zvaigznes", "Atvērtās problēmas", "Atvērtie pull pieprasījumi",
     "Mēģināt vēlreiz",
+    "Sekot atlasītajām ({n})", "Atlasīt {repo}",
   ],
   el: [
     "GitHub", "Αποθετήρια", "Δραστηριότητα", "Ρυθμίσεις", "Ενσωμάτωση GitHub", "Φόρτωση…",
@@ -502,6 +525,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Αστέρια", "Τελευταία έκδοση", "Εμφάνιση ή απόκρυψη λεπτομερειών",
     "Ταξινόμηση", "Πρώτα τα παρακολουθούμενα", "Όνομα", "Αστέρια", "Ανοιχτά ζητήματα", "Ανοιχτά pull requests",
     "Δοκιμή ξανά",
+    "Παρακολούθηση επιλεγμένων ({n})", "Επιλογή {repo}",
   ],
 };
 
@@ -582,6 +606,11 @@ class GitHubPanel extends HTMLElement {
     /* Same width for Follow and Stop following, so the links line up */
     .row > .act { min-width:9.5em; justify-content:center; }
     .row .chip .i { width:12px; height:12px; }
+    .row .pick-repo { appearance:none; width:18px; height:18px; margin:0; flex:none; cursor:pointer; border-radius:4px; display:grid; place-items:center;
+           border:2px solid var(--secondary-text-color); background:none; }
+    .row .pick-repo:checked { border-color:var(--gh-accent); background:var(--gh-accent); }
+    .row .pick-repo:checked::after { content:""; width:5px; height:9px; margin-top:-2px; border:solid var(--card-background-color, #fff); border-width:0 2px 2px 0; transform:rotate(45deg); }
+    .row .pick-repo[disabled] { opacity:.5; cursor:default; }
     .row .link { display:grid; place-items:center; width:28px; height:28px; border-radius:50%; color:var(--secondary-text-color); flex:none; }
     .row .link:hover { background:color-mix(in srgb, var(--secondary-text-color) 15%, transparent); }
     .row .link .i { width:16px; height:16px; }
@@ -651,6 +680,7 @@ class GitHubPanel extends HTMLElement {
     this._busy = false;
     this._message = null; // { tone, text }
     this._confirm = null; // repository whose unfollowing is being confirmed
+    this._selected = new Set(); // repositories not followed yet, ticked to follow them together
     this._items = null; // open issues and pull requests, loaded with the first of their tabs
     this._itemsBusy = false;
     this._itemRepo = ""; // repository filter of the Issues and Pull requests tabs
@@ -926,6 +956,9 @@ class GitHubPanel extends HTMLElement {
     }
     const rows = this._rows();
     const toFollow = rows.filter((r) => !r.followed).map((r) => r.name);
+    // The selection keeps only repositories still offered (a follow, other settings, another panel)
+    for (const name of this._selected) if (!o.offered.includes(name)) this._selected.delete(name);
+    const selected = [...this._selected];
     const notes = [];
     if (o.state && o.state !== "loaded") notes.push(`<div class="note warn">${esc(this._t("not_loaded", { state: o.state }))}</div>`);
     if (o.offered_error && o.state === "loaded") notes.push(`<div class="note warn">${esc(this._t("offered_error"))}</div>`);
@@ -945,8 +978,11 @@ class GitHubPanel extends HTMLElement {
       const action = r.followed
         ? `<button class="act quiet" data-action="unfollow" data-repo="${esc(r.name)}"${disabled}>${esc(this._t("unfollow"))}</button>`
         : `<button class="act" data-action="follow" data-repo="${esc(r.name)}"${disabled}>${githubPanelIcon("plus")}${esc(this._t("follow"))}</button>`;
-      if (!r.followed)
-        return `<div class="row">${githubPanelIcon("code")}<span class="n" title="${esc(r.name)}">${esc(r.name)}</span>${link}${action}</div>`;
+      if (!r.followed) {
+        const label = esc(this._t("select_repo", { repo: r.name }));
+        const box = `<input type="checkbox" class="pick-repo" data-repo="${esc(r.name)}" aria-label="${label}" title="${label}"${this._selected.has(r.name) ? " checked" : ""}${disabled}>`;
+        return `<div class="row">${box}${githubPanelIcon("code")}<span class="n" title="${esc(r.name)}">${esc(r.name)}</span>${link}${action}</div>`;
+      }
       // A followed repository: its name unfolds the GitHub Card's counters and latest activity under the row
       const open = this._expanded === r.name;
       return `<div class="row${open ? " open" : ""}">
@@ -962,6 +998,7 @@ class GitHubPanel extends HTMLElement {
             (v) => `<option value="${v}"${v === this._sort ? " selected" : ""}>${esc(this._t(`sort_${v}`))}</option>`,
           ).join("")}</select>
           <label class="search"><input type="search" placeholder="${esc(this._t("search"))}" aria-label="${esc(this._t("search"))}" value="${esc(this._query)}"></label>
+          ${selected.length ? `<button class="act" data-action="follow-selected"${disabled}>${githubPanelIcon("plus")}${esc(this._t("follow_selected", { n: selected.length }))}</button>` : ""}
           ${toFollow.length > 1 ? `<button class="act" data-action="follow-all"${disabled}>${githubPanelIcon("plus")}${esc(this._t("follow_all", { n: toFollow.length }))}</button>` : ""}
         </div>
         ${notes.join("")}
@@ -1089,6 +1126,12 @@ class GitHubPanel extends HTMLElement {
       again?.focus();
       again?.setSelectionRange(at, at);
     });
+    for (const box of host.querySelectorAll("input.pick-repo"))
+      box.addEventListener("change", () => {
+        if (box.checked) this._selected.add(box.dataset.repo);
+        else this._selected.delete(box.dataset.repo);
+        this._renderRepos();
+      });
     for (const button of host.querySelectorAll("[data-action]"))
       button.addEventListener("click", () => this._repoAction(button.dataset.action, button.dataset.repo));
   }
@@ -1097,6 +1140,8 @@ class GitHubPanel extends HTMLElement {
     if (action === "add-github") return this._navigate("/config/integrations/dashboard/add?domain=github");
     if (action === "retry") return this._reload();
     if (action === "follow") return this._follow([repo], []);
+    // The ticked repositories, hidden by the search or not, in one command
+    if (action === "follow-selected") return this._follow([...this._selected], []);
     if (action === "follow-all")
       return this._follow(
         this._rows()
@@ -1125,6 +1170,7 @@ class GitHubPanel extends HTMLElement {
       const res = await this._hass.callWS({ type: "github_card/follow", add, remove });
       if (!res.ok) this._message = { tone: "bad", text: this._t("error", { error: res.error }) };
       else {
+        this._selected.clear();
         const text = [this._t("done", { added: res.added.length, removed: res.removed.length })];
         if (res.skipped.length) text.push(this._t("skipped", { names: res.skipped.join(", ") }));
         this._message = { tone: res.skipped.length ? "warn" : "good", text: text.join(" · ") };

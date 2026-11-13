@@ -8,7 +8,7 @@
  * entity registry (platform "github", translation key, device), whatever the language.
  */
 
-const VERSION = "2.6.0";
+const VERSION = "2.7.0";
 
 // Material Design Icons paths.
 const ICONS = {

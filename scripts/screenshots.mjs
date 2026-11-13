@@ -110,13 +110,15 @@ async function openCard(s) {
   await page.addScriptTag({ content: cardJs });
   if (s.panel) await page.addScriptTag({ content: panelJs });
   await page.evaluate(
-    ({ type, config, states, entities, devices, open, zoom, panel, mock, expand }) => {
+    ({ type, config, states, entities, devices, open, zoom, panel, mock, expand, select }) => {
       if (panel) {
         // The sidebar panel, its WebSocket commands answered with the mock repositories and settings.
         const el = document.createElement("github-panel");
         el.panel = { url_path: "github-config", config: { version: "test" } };
         el.route = { path: `/${panel}` };
         el._expanded = expand || null;
+        // Repositories ticked to follow them together
+        if (select) el._selected = new Set(select);
         el.hass = {
           states, entities, devices, language: "en", locale: { language: "en" },
           connection: { subscribeMessage: () => Promise.resolve(() => {}) },
@@ -136,7 +138,7 @@ async function openCard(s) {
         el._update();
       }
     },
-    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, panel: s.panel, mock: panelMock, expand: s.expand }
+    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, panel: s.panel, mock: panelMock, expand: s.expand, select: s.select }
   );
   await page.waitForTimeout(800);
   return page;

@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - "src/**"
+      - "custom_components/**/frontend/**"
       - "scripts/**"
       - ".github/workflows/screenshots.yml"
 
