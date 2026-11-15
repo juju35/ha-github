@@ -65,7 +65,7 @@ const panelMock = {
       ["home-assistant/core", "juju35/ha-parcel", "juju35/ha-weather-card"].map((repo) => [
         repo,
         Object.fromEntries(
-          ["stargazers_count", "forks_count", "issues_count", "pulls_count", "latest_release"]
+          ["stargazers_count", "forks_count", "issues_count", "pulls_count", "latest_release", "latest_release_downloads"]
             .map((key) => [key, `sensor.${repo.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_${key}`])
             .filter(([, id]) => states[id]),
         ),
