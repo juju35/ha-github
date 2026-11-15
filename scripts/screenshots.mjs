@@ -12,6 +12,8 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const NOW = Date.now();
 const cardJs = readFileSync(`${root}custom_components/github_card/frontend/github-card.js`, "utf8");
 const panelJs = readFileSync(`${root}custom_components/github_card/frontend/github-panel.js`, "utf8");
+// The English strings (the screenshots are in English): set on the page directly, which has no server to load them from
+const en = JSON.parse(readFileSync(`${root}custom_components/github_card/frontend/i18n/en.json`, "utf8"));
 
 const THEMES = {
   light: {
@@ -121,6 +123,10 @@ async function openCard(s) {
   await page.addScriptTag({ content: HA_CARD });
   await page.addScriptTag({ content: cardJs });
   if (s.panel) await page.addScriptTag({ content: panelJs });
+  await page.evaluate((strings) => {
+    addStrings("en", strings.card);
+    if (typeof githubPanelAddStrings === "function") githubPanelAddStrings("en", strings.panel);
+  }, en);
   await page.evaluate(
     ({ type, config, states, entities, devices, open, zoom, panel, mock, expand, select, sidebar }) => {
       if (sidebar) {

@@ -15,7 +15,7 @@ from homeassistant.core import CoreState, Event, HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
-from .const import BADGE_URL, CARD_URL, DEFAULTS, DOMAIN, LEGACY_CARD_PATH, PANEL_PATH, PANEL_URL, VERSION
+from .const import BADGE_URL, CARD_URL, DEFAULTS, DOMAIN, I18N_URL, LEGACY_CARD_PATH, PANEL_PATH, PANEL_URL, VERSION
 from .items import ItemsPoller
 from .notify import NewItemNotifier
 from .panel import async_register_panel
@@ -30,13 +30,15 @@ BADGE_LOADED = f"{DOMAIN}_badge_loaded"
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Serve the card and the panel files."""
+    """Serve the card and the panel files, and their translations."""
     base = Path(__file__).parent / "frontend"
     await hass.http.async_register_static_paths(
         [
             StaticPathConfig(CARD_URL, str(base / "github-card.js"), True),
             StaticPathConfig(PANEL_URL, str(base / "github-panel.js"), True),
             StaticPathConfig(BADGE_URL, str(base / "github-badge.js"), True),
+            # One file per language, fetched with ?v=<version> so that an update is never served from the cache
+            StaticPathConfig(I18N_URL, str(base / "i18n"), True),
         ]
     )
     return True

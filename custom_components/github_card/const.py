@@ -15,6 +15,8 @@ CARD_URL = f"{URL_BASE}/github-card.js"
 PANEL_URL = f"{URL_BASE}/github-panel.js"
 # Loaded on every page: the sidebar badge (open issues and pull requests count on the GitHub panel item)
 BADGE_URL = f"{URL_BASE}/github-badge.js"
+# The translations of the card and the panel, one file per language (frontend/i18n/<lang>.json)
+I18N_URL = f"{URL_BASE}/i18n"
 PANEL_PATH = "github-config"
 # Resource of the card installed as a dashboard plugin before 2.0, replaced by the integration's
 LEGACY_CARD_PATH = "/ha-github-card/github-card.js"

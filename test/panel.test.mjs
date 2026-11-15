@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import vm from "node:vm";
+import { I18N } from "./load.mjs";
 
 const timers = [];
 const load = () => {
@@ -25,18 +26,24 @@ const load = () => {
     CustomEvent: class {},
   };
   vm.createContext(context);
-  return vm.runInContext(`${src}\n;({ GITHUB_PANEL_KEYS, GITHUB_PANEL_TRANSLATIONS, GITHUB_PANEL_STRINGS, GitHubPanel })`, context);
+  return vm.runInContext(
+    `${src}\n;({ GITHUB_PANEL_LANGUAGES, GITHUB_PANEL_STRINGS, githubPanelAddStrings, githubPanelLoadStrings, GitHubPanel })`,
+    context,
+  );
 };
 
 const lib = load();
+// The strings from the files (no fetch in the sandbox)
+for (const [l, file] of Object.entries(I18N)) lib.githubPanelAddStrings(l, file.panel);
+const KEYS = Object.keys(I18N.en.panel);
 const LANGS = ["en", "fr", "de", "es", "sr", "sr-Latn", "it", "nl", "pt", "pl", "ro", "da", "sv", "bg", "ru", "uk", "hu", "sk", "cs", "sl", "lv", "el"];
 const placeholders = (s) => (String(s).match(/\{\w+\}/g) || []).sort();
 
 test("every language has one string per key, with the English placeholders", () => {
-  assert.deepEqual([...Object.keys(lib.GITHUB_PANEL_TRANSLATIONS)].sort(), [...LANGS].sort());
+  assert.deepEqual([...lib.GITHUB_PANEL_LANGUAGES].sort(), [...LANGS].sort());
   for (const l of LANGS) {
-    assert.equal(lib.GITHUB_PANEL_TRANSLATIONS[l].length, lib.GITHUB_PANEL_KEYS.length, l);
-    for (const k of lib.GITHUB_PANEL_KEYS) {
+    assert.deepEqual(Object.keys(I18N[l].panel).sort(), [...KEYS].sort(), `panel keys of ${l}.json`);
+    for (const k of KEYS) {
       assert.ok(String(lib.GITHUB_PANEL_STRINGS[l][k]).trim(), `${l}.${k}`);
       assert.deepEqual(placeholders(lib.GITHUB_PANEL_STRINGS[l][k]), placeholders(lib.GITHUB_PANEL_STRINGS.en[k]), `${l}.${k}`);
     }
@@ -274,4 +281,43 @@ test("My pull requests: any repository (none followed), its own filter, the badg
   p._items = { ...p._items, mine: [], mine_total: 0 };
   p._renderItems("mine");
   assert.match(hosts.mine.innerHTML, /Vous n’avez aucune pull request ouverte\./);
+});
+
+test("the panel loads its language file (and English) before drawing", async () => {
+  const urls = [];
+  const fresh = (() => {
+    const src = readFileSync(new URL("../custom_components/github_card/frontend/github-panel.js", import.meta.url), "utf8");
+    const context = {
+      HTMLElement: class {
+        attachShadow() {
+          this.shadowRoot = { innerHTML: "", querySelector: () => null, querySelectorAll: () => [], getElementById: () => null };
+          return this.shadowRoot;
+        }
+      },
+      customElements: { get() {}, define() {} },
+      console: { error() {} },
+      fetch: async (url) => {
+        urls.push(url);
+        const l = url.match(/\/i18n\/([\w-]+)\.json\?v=/)[1];
+        return { ok: true, json: async () => I18N[l] };
+      },
+    };
+    vm.createContext(context);
+    return vm.runInContext(`${src}\n;({ GITHUB_PANEL_STRINGS, GitHubPanel })`, context);
+  })();
+  const p = new fresh.GitHubPanel();
+  let renders = 0;
+  p._render = () => renders++;
+  p._hass = { language: "sr-Latn" };
+  p._withStrings();
+  assert.equal(renders, 0); // not drawn before its strings are in
+  await new Promise((r) => setTimeout(r, 0));
+  await new Promise((r) => setTimeout(r, 0));
+  assert.equal(renders, 1);
+  assert.equal(p._t("retry"), I18N["sr-Latn"].panel.retry);
+  assert.deepEqual(urls.map((u) => u.split("?")[0]).sort(), ["/github_card/i18n/en.json", "/github_card/i18n/sr-Latn.json"]);
+  // Loaded: drawn at once, without loading again
+  p._withStrings();
+  assert.equal(renders, 2);
+  assert.equal(urls.length, 2);
 });

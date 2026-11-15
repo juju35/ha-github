@@ -10,7 +10,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.github_card.const import CARD_URL, DOMAIN, PANEL_PATH, PANEL_URL, VERSION
+from custom_components.github_card.const import CARD_URL, DOMAIN, I18N_URL, PANEL_PATH, PANEL_URL, VERSION
 
 OWN = ["juju35/ha-parcel", "juju35/ha-weather-card", "juju35/aaos-parcel"]
 STARRED = ["home-assistant/core"]
@@ -88,6 +88,13 @@ async def test_panel_for_admins_and_files_served(hass, entry, hass_client):
         resp = await client.get(url)
         assert resp.status == 200
         assert marker in await resp.text()
+    # The translations, one file per language with the card's and the panel's strings
+    resp = await client.get(f"{I18N_URL}/fr.json?v={VERSION}")
+    assert resp.status == 200
+    strings = await resp.json(content_type=None)
+    assert strings["card"]["stars"] == "Étoiles"
+    assert strings["panel"]["retry"] == "Réessayer"
+    assert (await client.get(f"{I18N_URL}/xx.json")).status == 404
 
 
 async def test_unload_removes_panel(hass, entry):

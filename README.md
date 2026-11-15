@@ -250,7 +250,7 @@ The cards and the panel auto-detect the language from your Home Assistant settin
 
 Regional variants fall back to the base language (`it-IT` → `it`, `nl-BE` → `nl`); Brazilian Portuguese (`pt-BR`) uses the European Portuguese translation. Counts read "label: {n}" in every language (`Repositories: 3`, `Open: 12`), so that no plural form is ever wrong.
 
-Contributions for additional languages are welcome!
+Contributions for additional languages are welcome! Each language is one file, `custom_components/github_card/frontend/i18n/<code>.json`, with the strings of the cards (`card`) and of the panel (`panel`) by key: copy `en.json`, translate the values, and add the code to the language lists of `github-card.js` (`LANGUAGES`, with its name for the card editor) and `github-panel.js` (`GITHUB_PANEL_LANGUAGES`). The tests check that every file has the keys of `en.json`, non-empty, with the same `{placeholders}`.
 
 ## License
 

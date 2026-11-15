@@ -68,6 +68,8 @@ This builds on other Home Assistant integrations, so keep the `## Supported inte
 - English is the source. Keep every language in sync when a user-facing string changes.
 - Languages to keep in sync: en, fr, de, es, it, nl, pt, pl, sr, sr-Latn, ro, da, sv, bg, ru, uk, hu, sk, cs, sl, lv, el (no Irish or Maltese).
 - Integration strings: `custom_components/github_card/translations/*.json` (all languages).
+- Card and panel strings: `custom_components/github_card/frontend/i18n/<lang>.json`, one file per language with a
+  `card` and a `panel` section, by key (served under `/github_card/i18n/`, loaded by the scripts on demand).
 
 ## Screenshots — do not edit or commit them by hand
 The Screenshots workflow regenerates them on the PR branch and commits them with `[skip ci]`.

@@ -24,7 +24,9 @@ custom_components/github_card/
 ├── notify.py        # Persistent notification when a github latest_issue / latest_pull_request number grows
 ├── translations/    # Config flow strings, 22 languages
 ├── brand/           # Integration icon
-└── frontend/        # github-card.js (cards), github-panel.js (panel, 5 tabs, 22 languages)
+└── frontend/        # github-card.js (cards), github-panel.js (panel, 5 tabs), github-badge.js (sidebar badge)
+    └── i18n/        # Card and panel strings, one file per language ({"card": {...}, "panel": {...}}), 22 languages,
+                     # served under /github_card/i18n/ and fetched on demand (English as the fallback)
 ```
 
 ## Rules
