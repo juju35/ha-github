@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.11.0 - 2026-11-15
+
+### Features
+- **Downloads on the Repositories tab.** Each followed repository now shows its latest-release download count on its row, visible without unfolding it, next to the stars, open issues and pull requests. The foot of the tab adds the total downloads across all followed repositories.
+
 ## 2.10.0 - 2026-11-15
 
 ### Features

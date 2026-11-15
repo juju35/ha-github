@@ -62,7 +62,7 @@ def followed(entry: ConfigEntry) -> dict[str, str]:
 
 
 # Sensors of a followed repository shown on its row in the panel (the panel reads their live states)
-ROW_KEYS = ("stargazers_count", "forks_count", "issues_count", "pulls_count", "latest_release")
+ROW_KEYS = ("stargazers_count", "forks_count", "issues_count", "pulls_count", "latest_release", "latest_release_downloads")
 
 
 def sensors(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, dict[str, str]]:

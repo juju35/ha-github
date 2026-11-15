@@ -17,7 +17,7 @@
  *   notifications.
  */
 
-const GITHUB_PANEL_VERSION = "2.10.0";
+const GITHUB_PANEL_VERSION = "2.11.0";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
@@ -49,6 +49,8 @@ const GITHUB_PANEL_KEYS = [
   "s_refresh", "s_refresh_hint",
   // My pull requests tab (open pull requests I authored, in any repository) and the checks state of a pull request
   "mine", "no_mine", "checks_passing", "checks_failing", "checks_pending",
+  // Downloads of the followed repositories: a row counter and the page total
+  "downloads", "total_downloads",
 ];
 
 const GITHUB_PANEL_TRANSLATIONS = {
@@ -76,6 +78,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Refresh interval (minutes)", "How often the open issues and pull requests are fetched from GitHub.",
     // My pull requests
     "My pull requests", "You have no open pull request.", "Checks passing", "Checks failing", "Checks running",
+    // Downloads: row counter + page total
+    "Downloads", "Total downloads: {n}",
   ],
   fr: [
     "GitHub", "Dépôts", "Activité", "Réglages", "Intégration GitHub", "Chargement…",
@@ -101,6 +105,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Intervalle d’actualisation (minutes)", "Fréquence de récupération des issues et pull requests ouvertes depuis GitHub.",
     // My pull requests
     "Mes pull requests", "Vous n’avez aucune pull request ouverte.", "Tests réussis", "Tests en échec", "Tests en cours",
+    // Downloads: row counter + page total
+    "Téléchargements", "Total des téléchargements : {n}",
   ],
   de: [
     "GitHub", "Repositorys", "Aktivität", "Einstellungen", "GitHub-Integration", "Wird geladen…",
@@ -126,6 +132,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Aktualisierungsintervall (Minuten)", "Wie oft die offenen Issues und Pull Requests von GitHub abgerufen werden.",
     // My pull requests
     "Meine Pull Requests", "Du hast keinen offenen Pull Request.", "Prüfungen bestanden", "Prüfungen fehlgeschlagen", "Prüfungen laufen",
+    // Downloads: row counter + page total
+    "Downloads", "Downloads insgesamt: {n}",
   ],
   es: [
     "GitHub", "Repositorios", "Actividad", "Ajustes", "Integración GitHub", "Cargando…",
@@ -151,6 +159,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Intervalo de actualización (minutos)", "Con qué frecuencia se obtienen de GitHub las issues y pull requests abiertas.",
     // My pull requests
     "Mis pull requests", "No tienes ninguna pull request abierta.", "Comprobaciones correctas", "Comprobaciones fallidas", "Comprobaciones en curso",
+    // Downloads: row counter + page total
+    "Descargas", "Descargas totales: {n}",
   ],
   sr: [
     "GitHub", "Репозиторијуми", "Активност", "Подешавања", "Интеграција GitHub", "Учитавање…",
@@ -176,6 +186,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Интервал освежавања (минути)", "Колико често се отворени проблеми и pull захтеви преузимају са GitHub-а.",
     // My pull requests
     "Моји pull захтеви", "Немате отворених pull захтева.", "Провере успешне", "Провере неуспешне", "Провере у току",
+    // Downloads: row counter + page total
+    "Преузимања", "Укупно преузимања: {n}",
   ],
   "sr-Latn": [
     "GitHub", "Repozitorijumi", "Aktivnost", "Podešavanja", "Integracija GitHub", "Učitavanje…",
@@ -201,6 +213,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Interval osvežavanja (minuti)", "Koliko često se otvoreni problemi i pull zahtevi preuzimaju sa GitHub-a.",
     // My pull requests
     "Moji pull zahtevi", "Nemate otvorenih pull zahteva.", "Provere uspešne", "Provere neuspešne", "Provere u toku",
+    // Downloads: row counter + page total
+    "Preuzimanja", "Ukupno preuzimanja: {n}",
   ],
   it: [
     "GitHub", "Repository", "Attività", "Impostazioni", "Integrazione GitHub", "Caricamento…",
@@ -226,6 +240,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Intervallo di aggiornamento (minuti)", "Con quale frequenza le issue e le pull request aperte vengono recuperate da GitHub.",
     // My pull requests
     "Le mie pull request", "Non hai nessuna pull request aperta.", "Controlli superati", "Controlli falliti", "Controlli in corso",
+    // Downloads: row counter + page total
+    "Download", "Download totali: {n}",
   ],
   nl: [
     "GitHub", "Repositories", "Activiteit", "Instellingen", "GitHub-integratie", "Laden…",
@@ -251,6 +267,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Vernieuwingsinterval (minuten)", "Hoe vaak de open issues en pull requests van GitHub worden opgehaald.",
     // My pull requests
     "Mijn pull requests", "Je hebt geen open pull request.", "Controles geslaagd", "Controles mislukt", "Controles bezig",
+    // Downloads: row counter + page total
+    "Downloads", "Totaal aantal downloads: {n}",
   ],
   pt: [
     "GitHub", "Repositórios", "Atividade", "Definições", "Integração GitHub", "A carregar…",
@@ -276,6 +294,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Intervalo de atualização (minutos)", "Com que frequência as issues e pull requests em aberto são obtidas do GitHub.",
     // My pull requests
     "Os meus pull requests", "Não tem nenhum pull request em aberto.", "Verificações aprovadas", "Verificações falhadas", "Verificações em curso",
+    // Downloads: row counter + page total
+    "Transferências", "Total de transferências: {n}",
   ],
   pl: [
     "GitHub", "Repozytoria", "Aktywność", "Ustawienia", "Integracja GitHub", "Ładowanie…",
@@ -301,6 +321,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Interwał odświeżania (minuty)", "Jak często otwarte zgłoszenia i pull requesty są pobierane z GitHub.",
     // My pull requests
     "Moje pull requesty", "Nie masz żadnego otwartego pull requesta.", "Testy zaliczone", "Testy nieudane", "Testy w toku",
+    // Downloads: row counter + page total
+    "Pobrania", "Łączna liczba pobrań: {n}",
   ],
   ro: [
     "GitHub", "Depozite", "Activitate", "Setări", "Integrarea GitHub", "Se încarcă…",
@@ -326,6 +348,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Interval de actualizare (minute)", "Cât de des sunt preluate de la GitHub issue-urile și pull request-urile deschise.",
     // My pull requests
     "Pull request-urile mele", "Nu ai niciun pull request deschis.", "Verificări reușite", "Verificări eșuate", "Verificări în curs",
+    // Downloads: row counter + page total
+    "Descărcări", "Total descărcări: {n}",
   ],
   da: [
     "GitHub", "Repositories", "Aktivitet", "Indstillinger", "GitHub-integration", "Indlæser…",
@@ -351,6 +375,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Opdateringsinterval (minutter)", "Hvor ofte de åbne issues og pull requests hentes fra GitHub.",
     // My pull requests
     "Mine pull requests", "Du har ingen åbne pull requests.", "Tjek bestået", "Tjek mislykkedes", "Tjek i gang",
+    // Downloads: row counter + page total
+    "Downloads", "Downloads i alt: {n}",
   ],
   sv: [
     "GitHub", "Repon", "Aktivitet", "Inställningar", "GitHub-integration", "Laddar…",
@@ -376,6 +402,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Uppdateringsintervall (minuter)", "Hur ofta öppna ärenden och pull requests hämtas från GitHub.",
     // My pull requests
     "Mina pull requests", "Du har inga öppna pull requests.", "Kontroller godkända", "Kontroller misslyckades", "Kontroller pågår",
+    // Downloads: row counter + page total
+    "Nedladdningar", "Totalt antal nedladdningar: {n}",
   ],
   bg: [
     "GitHub", "Хранилища", "Активност", "Настройки", "Интеграция GitHub", "Зареждане…",
@@ -401,6 +429,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Интервал на опресняване (минути)", "Колко често отворените проблеми и pull заявки се извличат от GitHub.",
     // My pull requests
     "Моите pull заявки", "Нямате отворени pull заявки.", "Проверките успешни", "Проверките неуспешни", "Проверките текат",
+    // Downloads: row counter + page total
+    "Изтегляния", "Общо изтегляния: {n}",
   ],
   ru: [
     "GitHub", "Репозитории", "Активность", "Настройки", "Интеграция GitHub", "Загрузка…",
@@ -426,6 +456,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Интервал обновления (минуты)", "Как часто открытые задачи и pull-запросы запрашиваются с GitHub.",
     // My pull requests
     "Мои pull-запросы", "У вас нет открытых pull-запросов.", "Проверки пройдены", "Проверки не пройдены", "Проверки выполняются",
+    // Downloads: row counter + page total
+    "Загрузки", "Всего загрузок: {n}",
   ],
   uk: [
     "GitHub", "Репозиторії", "Активність", "Налаштування", "Інтеграція GitHub", "Завантаження…",
@@ -451,6 +483,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Інтервал оновлення (хвилини)", "Як часто відкриті задачі та pull-запити отримуються з GitHub.",
     // My pull requests
     "Мої pull-запити", "У вас немає відкритих pull-запитів.", "Перевірки пройдено", "Перевірки не пройдено", "Перевірки виконуються",
+    // Downloads: row counter + page total
+    "Завантаження", "Усього завантажень: {n}",
   ],
   hu: [
     "GitHub", "Tárolók", "Tevékenység", "Beállítások", "GitHub integráció", "Betöltés…",
@@ -476,6 +510,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Frissítési időköz (perc)", "Milyen gyakran töltődnek le a nyitott hibajegyek és pull requestek a GitHubról.",
     // My pull requests
     "Saját pull requestjeim", "Nincs nyitott pull requested.", "Ellenőrzések rendben", "Ellenőrzések sikertelenek", "Ellenőrzések folyamatban",
+    // Downloads: row counter + page total
+    "Letöltések", "Letöltések összesen: {n}",
   ],
   sk: [
     "GitHub", "Repozitáre", "Aktivita", "Nastavenia", "Integrácia GitHub", "Načítava sa…",
@@ -501,6 +537,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Interval obnovenia (minúty)", "Ako často sa otvorené problémy a pull requesty načítavajú z GitHubu.",
     // My pull requests
     "Moje pull requesty", "Nemáte žiadny otvorený pull request.", "Kontroly prešli", "Kontroly zlyhali", "Kontroly prebiehajú",
+    // Downloads: row counter + page total
+    "Stiahnutia", "Stiahnutí spolu: {n}",
   ],
   cs: [
     "GitHub", "Repozitáře", "Aktivita", "Nastavení", "Integrace GitHub", "Načítání…",
@@ -526,6 +564,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Interval obnovení (minuty)", "Jak často se otevřené problémy a pull requesty načítají z GitHubu.",
     // My pull requests
     "Moje pull requesty", "Nemáte žádný otevřený pull request.", "Kontroly prošly", "Kontroly selhaly", "Kontroly probíhají",
+    // Downloads: row counter + page total
+    "Stažení", "Stažení celkem: {n}",
   ],
   sl: [
     "GitHub", "Repozitoriji", "Dejavnost", "Nastavitve", "Integracija GitHub", "Nalaganje…",
@@ -551,6 +591,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Interval osveževanja (minute)", "Kako pogosto se odprte težave in pull requesti pridobijo z GitHuba.",
     // My pull requests
     "Moji pull requesti", "Nimate odprtega pull requesta.", "Preverjanja uspešna", "Preverjanja neuspešna", "Preverjanja potekajo",
+    // Downloads: row counter + page total
+    "Prenosi", "Skupaj prenosov: {n}",
   ],
   lv: [
     "GitHub", "Krātuves", "Aktivitāte", "Iestatījumi", "GitHub integrācija", "Ielādē…",
@@ -576,6 +618,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Atsvaidzināšanas intervāls (minūtes)", "Cik bieži atvērtās problēmas un pull pieprasījumi tiek iegūti no GitHub.",
     // My pull requests
     "Mani pull pieprasījumi", "Jums nav neviena atvērta pull pieprasījuma.", "Pārbaudes nokārtotas", "Pārbaudes neizdevās", "Pārbaudes norisinās",
+    // Downloads: row counter + page total
+    "Lejupielādes", "Lejupielādes kopā: {n}",
   ],
   el: [
     "GitHub", "Αποθετήρια", "Δραστηριότητα", "Ρυθμίσεις", "Ενσωμάτωση GitHub", "Φόρτωση…",
@@ -601,6 +645,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Διάστημα ανανέωσης (λεπτά)", "Πόσο συχνά ανακτώνται από το GitHub τα ανοιχτά ζητήματα και pull requests.",
     // My pull requests
     "Τα pull requests μου", "Δεν έχετε κανένα ανοιχτό pull request.", "Έλεγχοι επιτυχείς", "Έλεγχοι απέτυχαν", "Έλεγχοι σε εξέλιξη",
+    // Downloads: row counter + page total
+    "Λήψεις", "Σύνολο λήψεων: {n}",
   ],
 };
 
@@ -625,6 +671,7 @@ const GITHUB_PANEL_ICONS = {
   tag: "M5.5,7A1.5,1.5 0 0,1 4,5.5A1.5,1.5 0 0,1 5.5,4A1.5,1.5 0 0,1 7,5.5A1.5,1.5 0 0,1 5.5,7M21.41,11.58L12.41,2.58C12.05,2.22 11.55,2 11,2H4C2.89,2 2,2.89 2,4V11C2,11.55 2.22,12.05 2.59,12.41L11.58,21.41C11.95,21.77 12.45,22 13,22C13.55,22 14.05,21.77 14.41,21.41L21.41,14.41C21.78,14.05 22,13.55 22,13C22,12.44 21.77,11.94 21.41,11.58Z",
   comment: "M9,22A1,1 0 0,1 8,21V18H4A2,2 0 0,1 2,16V4C2,2.89 2.9,2 4,2H20A2,2 0 0,1 22,4V16A2,2 0 0,1 20,18H13.9L10.2,21.71C10,21.9 9.75,22 9.5,22V22H9Z",
   refresh: "M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z",
+  download: "M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z",
 };
 const githubPanelIcon = (name) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="${GITHUB_PANEL_ICONS[name]}"/></svg>`;
 
@@ -706,7 +753,12 @@ class GitHubPanel extends HTMLElement {
     .info { display:inline-flex; align-items:center; gap:10px; font-size:12px; color:var(--secondary-text-color); flex:none; }
     .info > span { display:inline-flex; align-items:center; gap:3px; }
     .info .i { width:14px; height:14px; }
-    .info .star .i { color:#e3a008; } .info .ok .i { color:var(--tone-good); } .info .tag .i { color:var(--gh-accent); }
+    .info .star .i { color:#e3a008; } .info .ok .i { color:var(--tone-good); } .info .tag .i { color:var(--gh-accent); } .info .dl .i { color:#3b82f6; }
+    /* Total downloads of the followed repositories, at the foot of the Repositories tab */
+    .dl-total { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--secondary-text-color); }
+    .dl-total:empty { display:none; }
+    .dl-total:not(:empty) { border-top:1px solid var(--divider-color, rgba(127,127,127,.15)); padding-top:10px; margin-top:2px; }
+    .dl-total .i { width:16px; height:16px; color:#3b82f6; }
     .detail { padding:4px 0 12px 26px; }
     @media (max-width: 600px) { .info .tag, .info .ok:nth-child(3) { display:none; } .detail { padding-left:0; } }
     /* Confirmation in place of the row, like the card popups (at the top of what they act on) */
@@ -1115,6 +1167,7 @@ class GitHubPanel extends HTMLElement {
         ${notes.join("")}
         <div class="list">${list.length ? list.join("") : this._message && this._message === this._loadError ? "" : `<div class="note">${esc(this._t("empty"))}</div>`}</div>
         <div class="account-slot"></div>
+        <div class="dl-total">${this._downloadsTotalHtml()}</div>
       </div>`;
     this._bindRepos(host);
     this._mountDetail(host);
@@ -1145,6 +1198,7 @@ class GitHubPanel extends HTMLElement {
       count("issues_count", "issue", "issues", "ok"),
       count("pulls_count", "pr", "pulls", "ok"),
       count("latest_release", "tag", "release", "tag"),
+      count("latest_release_downloads", "download", "downloads", "dl"),
     ].join("");
   }
 
@@ -1199,12 +1253,33 @@ class GitHubPanel extends HTMLElement {
     return parts.join("");
   }
 
+  /** Total downloads of the followed repositories, shown at the foot of the Repositories tab. */
+  _downloadsTotalHtml() {
+    const values = (this._overview?.followed || [])
+      .map((r) => this._number(r, "latest_release_downloads"))
+      .filter((v) => v !== null);
+    if (!values.length) return "";
+    const total = values.reduce((a, b) => a + b, 0);
+    let n = String(total);
+    try {
+      n = new Intl.NumberFormat(this._lang()).format(total);
+    } catch (_err) {
+      // unknown locale: the plain number
+    }
+    return `${githubPanelIcon("download")}<span>${githubPanelEsc(this._t("total_downloads", { n }))}</span>`;
+  }
+
   /** Counters of the rows follow the sensors without rebuilding the list (the search field keeps its focus). */
   _updateInfo() {
     const totals = this.shadowRoot.querySelector?.("#repos .totals");
     if (totals) {
       const html = this._totalsHtml();
       if (totals.innerHTML !== html) totals.innerHTML = html;
+    }
+    const dlTotal = this.shadowRoot.querySelector?.("#repos .dl-total");
+    if (dlTotal) {
+      const html = this._downloadsTotalHtml();
+      if (dlTotal.innerHTML !== html) dlTotal.innerHTML = html;
     }
     if (this._account) {
       this._account.hass = this._hass;
