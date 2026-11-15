@@ -1,11 +1,11 @@
 // GitHub Card sidebar badge, loaded on every page: the number of open issues and pull requests of the followed
-// repositories (github_card/items) on the sidebar item, like the notifications count. An administrator's page reads
-// the total every 5 minutes (from the 5-minute server cache, no extra GitHub call), and the browser keeps the last
-// one so the sidebar shows it at once. One badge with the total, its colour set by the open issues: amber (the
-// `warning` tone) when at least one issue is open, the accent otherwise (only pull requests open).
+// repositories on the sidebar item, like the notifications count. An administrator's page subscribes to
+// github_card/subscribe_items: the server pushes the current totals at once and after each background fetch (no
+// extra GitHub call), and the browser keeps the last one so the sidebar shows it at once. One badge with the total,
+// its colour set by the open issues: amber (the `warning` tone) when at least one issue is open, the accent
+// otherwise (only pull requests open).
 const GHB_COUNT_KEY = "github-card-badge-count";
 const GHB_TONE_KEY = "github-card-badge-tone";
-const GHB_EVERY_MS = 300000;
 // warn: at least one open issue; primary: only open pull requests.
 const GHB_COLORS = {
   warn: "var(--warning-color, #ffa600)",
@@ -141,29 +141,38 @@ window.ghCardSetBadge = (count, tone) => {
   ghbBadgeRedraw();
 };
 
-// Reads the open issues and pull requests of the followed repositories (github_card/items) for an administrator, and
-// reports their total with a tone set by the open issues. The counts come from the per-repository totals (the open
-// counts), not the lists, which are capped. GitHub not configured, or no repository followed: nothing is shown.
-async function ghbFollow() {
+// A pushed items snapshot → the badge total, its tone set by the open issues. The counts come from the per-repository
+// totals (the open counts), not the lists, which are capped. An error or a pending snapshot (not fetched yet) keeps
+// the last value. GitHub not configured, or no repository followed: nothing is shown.
+function ghbApplyItems(items) {
+  if (!items || items.error || items.pending) return;
+  const totals = Object.values(items.totals || {});
+  const issues = totals.reduce((sum, t) => sum + (t.issues || 0), 0);
+  const pulls = totals.reduce((sum, t) => sum + (t.pulls || 0), 0);
+  window.ghCardSetBadge(issues + pulls, issues > 0 ? "warn" : "primary");
+}
+
+// Subscribe to the open issues and pull requests pushed by the integration (administrators only): the current
+// snapshot at once, then after each background fetch. Home Assistant resubscribes it across reconnections. Retries
+// until Home Assistant and its connection are ready.
+function ghbSubscribe(tries = 60) {
+  if (window.__ghCardItemsSub) return;
   const hass = document.querySelector("home-assistant")?.hass;
-  if (!hass?.user?.is_admin || document.hidden) return;
-  try {
-    const items = await hass.callWS({ type: "github_card/items", refresh: false });
-    if (items?.error) return;
-    const totals = Object.values(items?.totals || {});
-    const issues = totals.reduce((sum, t) => sum + (t.issues || 0), 0);
-    const pulls = totals.reduce((sum, t) => sum + (t.pulls || 0), 0);
-    window.ghCardSetBadge(issues + pulls, issues > 0 ? "warn" : "primary");
-  } catch (_err) {
-    // read again next time
+  if (hass?.user && !hass.user.is_admin) return; // not an administrator: the command is admin-only, no badge
+  if (!hass?.user || !hass.connection) {
+    if (tries > 0) setTimeout(() => ghbSubscribe(tries - 1), 1000);
+    return;
   }
+  window.__ghCardItemsSub = hass.connection
+    .subscribeMessage((items) => ghbApplyItems(items), { type: "github_card/subscribe_items" })
+    .catch(() => {
+      window.__ghCardItemsSub = null;
+    });
 }
 
 if (!window.__ghCardBadgeStarted) {
   window.__ghCardBadgeStarted = true;
   ghbBadgeRedrawSoon();
   ghbBadgeObserve();
-  // The total read a few seconds after the page, once Home Assistant has drawn it, then every 5 minutes
-  setTimeout(ghbFollow, 5000);
-  setInterval(ghbFollow, GHB_EVERY_MS);
+  ghbSubscribe();
 }

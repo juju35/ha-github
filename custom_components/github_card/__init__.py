@@ -16,6 +16,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
 from .const import BADGE_URL, CARD_URL, DEFAULTS, DOMAIN, LEGACY_CARD_PATH, PANEL_PATH, PANEL_URL, VERSION
+from .items import ItemsPoller
 from .notify import NewItemNotifier
 from .panel import async_register_panel
 
@@ -62,7 +63,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     notifier = NewItemNotifier(hass, lambda: {**DEFAULTS, **entry.options})
     entry.async_on_unload(notifier.async_start())
+
+    # Fetch the open issues and pull requests in the background, on the configured interval, so the panel reads
+    # them from the cache instead of querying GitHub each time a tab opens.
+    poller = ItemsPoller(hass, lambda: {**DEFAULTS, **entry.options})
+    hass.data.setdefault(DOMAIN, {})["poller"] = poller
+    entry.async_on_unload(poller.async_start())
+
+    def _forget_poller() -> None:
+        hass.data.get(DOMAIN, {}).pop("poller", None)
+
+    entry.async_on_unload(_forget_poller)
+    entry.async_on_unload(entry.add_update_listener(_async_options_updated))
     return True
+
+
+async def _async_options_updated(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Re-arm the background poller when the refresh interval changes."""
+    if poller := hass.data.get(DOMAIN, {}).get("poller"):
+        poller.async_reschedule()
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

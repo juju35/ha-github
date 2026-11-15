@@ -69,6 +69,7 @@ async def test_config_flow_single_entry(hass):
         "notify_issues": False,
         "notify_pulls": False,
         "notify_releases": False,
+        "refresh_minutes": 15,
     }
     again = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
     assert again["type"] is FlowResultType.ABORT
@@ -158,6 +159,23 @@ async def test_repositories_own_then_starred_then_filter(hass, entry, github, ha
             archived.return_value = None
             msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/repositories"})
             assert msg["result"]["offered"] == ["home-assistant/core", "juju35/ha-weather-card"]
+
+
+async def test_refresh_minutes_setting(hass, entry, hass_ws_client):
+    await _setup(hass, entry)
+    # Default in the settings
+    msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/settings"})
+    assert msg["result"]["settings"]["refresh_minutes"] == 15
+    # A valid value is stored
+    msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/update_settings", "refresh_minutes": 30})
+    assert msg["result"]["settings"]["refresh_minutes"] == 30
+    assert entry.options["refresh_minutes"] == 30
+    # Out of range is rejected by the schema
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": f"{DOMAIN}/update_settings", "refresh_minutes": 0})
+    res = await client.receive_json()
+    assert res["success"] is False
+    assert entry.options["refresh_minutes"] == 30
 
 
 async def test_repositories_not_loaded(hass, entry, github, hass_ws_client):

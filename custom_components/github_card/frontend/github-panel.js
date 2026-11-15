@@ -15,9 +15,12 @@
  *   notifications.
  */
 
-const GITHUB_PANEL_VERSION = "2.8.1";
+const GITHUB_PANEL_VERSION = "2.9.0";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "settings"];
+// Bounds of the items refresh interval, in minutes (kept in step with const.py)
+const GITHUB_PANEL_MIN_REFRESH = 1;
+const GITHUB_PANEL_MAX_REFRESH = 1440;
 // Orders of the Repositories tab (see GitHubPanel._rows)
 const GITHUB_PANEL_SORTS = ["followed", "name", "stars", "issues", "pulls"];
 
@@ -40,6 +43,8 @@ const GITHUB_PANEL_KEYS = [
   "retry",
   // Several repositories followed at once
   "follow_selected", "select_repo",
+  // Refresh interval of the Issues and Pull requests
+  "s_refresh", "s_refresh_hint",
 ];
 
 const GITHUB_PANEL_TRANSLATIONS = {
@@ -64,6 +69,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sort", "Followed first", "Name", "Stars", "Open issues", "Open pull requests",
     "Retry",
     "Follow selected ({n})", "Select {repo}",
+    "Refresh interval (minutes)", "How often the open issues and pull requests are fetched from GitHub.",
   ],
   fr: [
     "GitHub", "Dépôts", "Activité", "Réglages", "Intégration GitHub", "Chargement…",
@@ -86,6 +92,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Tri", "Suivis d’abord", "Nom", "Étoiles", "Issues ouvertes", "Pull requests ouvertes",
     "Réessayer",
     "Suivre la sélection ({n})", "Sélectionner {repo}",
+    "Intervalle d’actualisation (minutes)", "Fréquence de récupération des issues et pull requests ouvertes depuis GitHub.",
   ],
   de: [
     "GitHub", "Repositorys", "Aktivität", "Einstellungen", "GitHub-Integration", "Wird geladen…",
@@ -108,6 +115,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sortierung", "Verfolgte zuerst", "Name", "Sterne", "Offene Issues", "Offene Pull Requests",
     "Erneut versuchen",
     "Auswahl verfolgen ({n})", "{repo} auswählen",
+    "Aktualisierungsintervall (Minuten)", "Wie oft die offenen Issues und Pull Requests von GitHub abgerufen werden.",
   ],
   es: [
     "GitHub", "Repositorios", "Actividad", "Ajustes", "Integración GitHub", "Cargando…",
@@ -130,6 +138,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Orden", "Seguidos primero", "Nombre", "Estrellas", "Issues abiertas", "Pull requests abiertas",
     "Reintentar",
     "Seguir la selección ({n})", "Seleccionar {repo}",
+    "Intervalo de actualización (minutos)", "Con qué frecuencia se obtienen de GitHub las issues y pull requests abiertas.",
   ],
   sr: [
     "GitHub", "Репозиторијуми", "Активност", "Подешавања", "Интеграција GitHub", "Учитавање…",
@@ -152,6 +161,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Редослед", "Прво праћени", "Име", "Звездице", "Отворени проблеми", "Отворени pull захтеви",
     "Покушај поново",
     "Прати изабране ({n})", "Изабери {repo}",
+    "Интервал освежавања (минути)", "Колико често се отворени проблеми и pull захтеви преузимају са GitHub-а.",
   ],
   "sr-Latn": [
     "GitHub", "Repozitorijumi", "Aktivnost", "Podešavanja", "Integracija GitHub", "Učitavanje…",
@@ -174,6 +184,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Redosled", "Prvo praćeni", "Ime", "Zvezdice", "Otvoreni problemi", "Otvoreni pull zahtevi",
     "Pokušaj ponovo",
     "Prati izabrane ({n})", "Izaberi {repo}",
+    "Interval osvežavanja (minuti)", "Koliko često se otvoreni problemi i pull zahtevi preuzimaju sa GitHub-a.",
   ],
   it: [
     "GitHub", "Repository", "Attività", "Impostazioni", "Integrazione GitHub", "Caricamento…",
@@ -196,6 +207,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Ordinamento", "Prima i seguiti", "Nome", "Stelle", "Issue aperte", "Pull request aperte",
     "Riprova",
     "Segui la selezione ({n})", "Seleziona {repo}",
+    "Intervallo di aggiornamento (minuti)", "Con quale frequenza le issue e le pull request aperte vengono recuperate da GitHub.",
   ],
   nl: [
     "GitHub", "Repositories", "Activiteit", "Instellingen", "GitHub-integratie", "Laden…",
@@ -218,6 +230,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sortering", "Gevolgde eerst", "Naam", "Sterren", "Open issues", "Open pull requests",
     "Opnieuw proberen",
     "Selectie volgen ({n})", "{repo} selecteren",
+    "Vernieuwingsinterval (minuten)", "Hoe vaak de open issues en pull requests van GitHub worden opgehaald.",
   ],
   pt: [
     "GitHub", "Repositórios", "Atividade", "Definições", "Integração GitHub", "A carregar…",
@@ -240,6 +253,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Ordenação", "Seguidos primeiro", "Nome", "Estrelas", "Issues em aberto", "Pull requests em aberto",
     "Tentar novamente",
     "Seguir a seleção ({n})", "Selecionar {repo}",
+    "Intervalo de atualização (minutos)", "Com que frequência as issues e pull requests em aberto são obtidas do GitHub.",
   ],
   pl: [
     "GitHub", "Repozytoria", "Aktywność", "Ustawienia", "Integracja GitHub", "Ładowanie…",
@@ -262,6 +276,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sortowanie", "Najpierw śledzone", "Nazwa", "Gwiazdki", "Otwarte zgłoszenia", "Otwarte pull requesty",
     "Spróbuj ponownie",
     "Obserwuj zaznaczone ({n})", "Zaznacz {repo}",
+    "Interwał odświeżania (minuty)", "Jak często otwarte zgłoszenia i pull requesty są pobierane z GitHub.",
   ],
   ro: [
     "GitHub", "Depozite", "Activitate", "Setări", "Integrarea GitHub", "Se încarcă…",
@@ -284,6 +299,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sortare", "Mai întâi cele urmărite", "Nume", "Stele", "Issue-uri deschise", "Pull request-uri deschise",
     "Reîncearcă",
     "Urmărește selecția ({n})", "Selectează {repo}",
+    "Interval de actualizare (minute)", "Cât de des sunt preluate de la GitHub issue-urile și pull request-urile deschise.",
   ],
   da: [
     "GitHub", "Repositories", "Aktivitet", "Indstillinger", "GitHub-integration", "Indlæser…",
@@ -306,6 +322,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sortering", "Fulgte først", "Navn", "Stjerner", "Åbne issues", "Åbne pull requests",
     "Prøv igen",
     "Følg valgte ({n})", "Vælg {repo}",
+    "Opdateringsinterval (minutter)", "Hvor ofte de åbne issues og pull requests hentes fra GitHub.",
   ],
   sv: [
     "GitHub", "Repon", "Aktivitet", "Inställningar", "GitHub-integration", "Laddar…",
@@ -328,6 +345,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sortering", "Följda först", "Namn", "Stjärnor", "Öppna ärenden", "Öppna pull requests",
     "Försök igen",
     "Följ valda ({n})", "Välj {repo}",
+    "Uppdateringsintervall (minuter)", "Hur ofta öppna ärenden och pull requests hämtas från GitHub.",
   ],
   bg: [
     "GitHub", "Хранилища", "Активност", "Настройки", "Интеграция GitHub", "Зареждане…",
@@ -350,6 +368,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Подреждане", "Първо следените", "Име", "Звезди", "Отворени проблеми", "Отворени pull заявки",
     "Опитай отново",
     "Следи избраните ({n})", "Избери {repo}",
+    "Интервал на опресняване (минути)", "Колко често отворените проблеми и pull заявки се извличат от GitHub.",
   ],
   ru: [
     "GitHub", "Репозитории", "Активность", "Настройки", "Интеграция GitHub", "Загрузка…",
@@ -372,6 +391,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Сортировка", "Сначала отслеживаемые", "Имя", "Звёзды", "Открытые задачи", "Открытые pull-запросы",
     "Повторить",
     "Отслеживать выбранные ({n})", "Выбрать {repo}",
+    "Интервал обновления (минуты)", "Как часто открытые задачи и pull-запросы запрашиваются с GitHub.",
   ],
   uk: [
     "GitHub", "Репозиторії", "Активність", "Налаштування", "Інтеграція GitHub", "Завантаження…",
@@ -394,6 +414,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Сортування", "Спершу відстежувані", "Назва", "Зірки", "Відкриті задачі", "Відкриті pull-запити",
     "Повторити",
     "Відстежувати вибрані ({n})", "Вибрати {repo}",
+    "Інтервал оновлення (хвилини)", "Як часто відкриті задачі та pull-запити отримуються з GitHub.",
   ],
   hu: [
     "GitHub", "Tárolók", "Tevékenység", "Beállítások", "GitHub integráció", "Betöltés…",
@@ -416,6 +437,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Rendezés", "Követettek elöl", "Név", "Csillagok", "Nyitott hibajegyek", "Nyitott pull requestek",
     "Újra",
     "Kijelöltek követése ({n})", "{repo} kijelölése",
+    "Frissítési időköz (perc)", "Milyen gyakran töltődnek le a nyitott hibajegyek és pull requestek a GitHubról.",
   ],
   sk: [
     "GitHub", "Repozitáre", "Aktivita", "Nastavenia", "Integrácia GitHub", "Načítava sa…",
@@ -438,6 +460,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Zoradenie", "Najprv sledované", "Názov", "Hviezdičky", "Otvorené problémy", "Otvorené pull requesty",
     "Skúsiť znova",
     "Sledovať vybrané ({n})", "Vybrať {repo}",
+    "Interval obnovenia (minúty)", "Ako často sa otvorené problémy a pull requesty načítavajú z GitHubu.",
   ],
   cs: [
     "GitHub", "Repozitáře", "Aktivita", "Nastavení", "Integrace GitHub", "Načítání…",
@@ -460,6 +483,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Řazení", "Nejdřív sledované", "Název", "Hvězdičky", "Otevřené problémy", "Otevřené pull requesty",
     "Zkusit znovu",
     "Sledovat vybrané ({n})", "Vybrat {repo}",
+    "Interval obnovení (minuty)", "Jak často se otevřené problémy a pull requesty načítají z GitHubu.",
   ],
   sl: [
     "GitHub", "Repozitoriji", "Dejavnost", "Nastavitve", "Integracija GitHub", "Nalaganje…",
@@ -482,6 +506,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Razvrščanje", "Najprej spremljani", "Ime", "Zvezdice", "Odprte težave", "Odprti pull requesti",
     "Poskusi znova",
     "Spremljaj izbrane ({n})", "Izberi {repo}",
+    "Interval osveževanja (minute)", "Kako pogosto se odprte težave in pull requesti pridobijo z GitHuba.",
   ],
   lv: [
     "GitHub", "Krātuves", "Aktivitāte", "Iestatījumi", "GitHub integrācija", "Ielādē…",
@@ -504,6 +529,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Kārtošana", "Vispirms sekotās", "Nosaukums", "Zvaigznes", "Atvērtās problēmas", "Atvērtie pull pieprasījumi",
     "Mēģināt vēlreiz",
     "Sekot atlasītajām ({n})", "Atlasīt {repo}",
+    "Atsvaidzināšanas intervāls (minūtes)", "Cik bieži atvērtās problēmas un pull pieprasījumi tiek iegūti no GitHub.",
   ],
   el: [
     "GitHub", "Αποθετήρια", "Δραστηριότητα", "Ρυθμίσεις", "Ενσωμάτωση GitHub", "Φόρτωση…",
@@ -526,6 +552,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Ταξινόμηση", "Πρώτα τα παρακολουθούμενα", "Όνομα", "Αστέρια", "Ανοιχτά ζητήματα", "Ανοιχτά pull requests",
     "Δοκιμή ξανά",
     "Παρακολούθηση επιλεγμένων ({n})", "Επιλογή {repo}",
+    "Διάστημα ανανέωσης (λεπτά)", "Πόσο συχνά ανακτώνται από το GitHub τα ανοιχτά ζητήματα και pull requests.",
   ],
 };
 
@@ -572,6 +599,10 @@ class GitHubPanel extends HTMLElement {
            padding:12px 14px; font:inherit; font-size:14px; cursor:pointer; white-space:nowrap; }
     .tab:hover, .tab:focus-visible { opacity:1; outline:none; }
     .tab.active { opacity:1; border-bottom-color:var(--app-header-text-color, #fff); }
+    /* Count badge on the Issues and Pull requests tabs */
+    .tab .badge { display:inline-block; margin-inline-start:6px; min-width:18px; padding:0 5px; border-radius:9px; font-size:12px;
+                  line-height:18px; text-align:center; font-weight:600; vertical-align:middle;
+                  background:var(--app-header-text-color, #fff); color:var(--app-header-background-color, var(--primary-color)); }
     main { max-width:1040px; margin:0 auto; padding:16px; box-sizing:border-box; }
     section[hidden] { display:none; }
     .box { background:var(--card-background-color, #fff); border-radius:var(--ha-card-border-radius, 12px);
@@ -733,6 +764,10 @@ class GitHubPanel extends HTMLElement {
       this._unsub.then((off) => off()).catch(() => {});
       this._unsub = null;
     }
+    if (this._itemsUnsub) {
+      this._itemsUnsub.then((off) => off()).catch(() => {});
+      this._itemsUnsub = null;
+    }
   }
 
 
@@ -763,7 +798,7 @@ class GitHubPanel extends HTMLElement {
 
   async _reload() {
     this._loadFailed = false;
-    await Promise.all([this._loadSettings(), this._load(), this._needsItems() ? this._loadItems() : null]);
+    await Promise.all([this._loadSettings(), this._load()]);
     // One retry for the lot, whichever failed
     this._retry(this._loadFailed);
   }
@@ -810,6 +845,25 @@ class GitHubPanel extends HTMLElement {
         { type: "config_entries/subscribe" },
       )
       .catch(() => () => {});
+    this._subscribeItems();
+  }
+
+  // The open issues and pull requests: pushed by the background poller (the current snapshot at once, then after
+  // each fetch), so the panel shows them without ever querying GitHub when a tab opens.
+  _subscribeItems() {
+    if (this._itemsUnsub || !this._hass?.connection) return;
+    this._itemsUnsub = this._hass.connection
+      .subscribeMessage(
+        (items) => {
+          this._items = items;
+          this._itemsBusy = false;
+          this._renderItems("issues");
+          this._renderItems("pulls");
+          this._updateTabBadges();
+        },
+        { type: "github_card/subscribe_items" },
+      )
+      .catch(() => () => {});
   }
 
   async _load() {
@@ -830,7 +884,7 @@ class GitHubPanel extends HTMLElement {
     try {
       this._settings = (await this._hass.callWS({ type: "github_card/settings" })).settings;
     } catch (_err) {
-      this._settings = this._settings || { filter: "", include_starred: false, ignore_archived: false, notify_issues: false, notify_pulls: false, notify_releases: false };
+      this._settings = this._settings || { filter: "", include_starred: false, ignore_archived: false, notify_issues: false, notify_pulls: false, notify_releases: false, refresh_minutes: 15 };
       this._loadFailed = true;
     }
     this._renderSettings();
@@ -863,14 +917,17 @@ class GitHubPanel extends HTMLElement {
       const section = root.getElementById?.(`tab-${name}`);
       if (section) section.hidden = name !== tab;
     }
-    if (this._hass && this._needsItems() && !this._items && !this._itemsBusy) this._loadItems();
+    // The issues and pull requests are not fetched when their tab opens: a background poller fetches them on its
+    // interval and pushes them here (see _subscribeItems).
   }
 
   _render() {
     const root = this.shadowRoot;
     const tabs = GITHUB_PANEL_TABS.map((tab) => {
       const selected = tab === this._tab;
-      return `<button class="tab${selected ? " active" : ""}" role="tab" id="tabbtn-${tab}" data-tab="${tab}" aria-selected="${selected}" aria-controls="tab-${tab}" tabindex="${selected ? 0 : -1}">${githubPanelEsc(this._t(tab))}</button>`;
+      const count = this._tabCount(tab);
+      const badge = count ? `<span class="badge" aria-hidden="true">${count}</span>` : "";
+      return `<button class="tab${selected ? " active" : ""}" role="tab" id="tabbtn-${tab}" data-tab="${tab}" aria-selected="${selected}" aria-controls="tab-${tab}" tabindex="${selected ? 0 : -1}">${githubPanelEsc(this._t(tab))}${badge}</button>`;
     }).join("");
     root.innerHTML = `
       <style>${GitHubPanel.STYLE}</style>
@@ -1179,10 +1236,13 @@ class GitHubPanel extends HTMLElement {
       this._message = { tone: "bad", text: this._t("error", { error: err?.message || err }) };
     }
     this._busy = false;
-    // Other repositories followed: their issues and pull requests next time a tab shows them
+    // The followed repositories changed: show the items as loading until the background poller (triggered by the
+    // follow on the server) pushes the new ones.
     this._items = null;
+    this._renderItems("issues");
+    this._renderItems("pulls");
+    this._updateTabBadges();
     await this._load();
-    if (this._needsItems()) this._loadItems();
   }
 
   _navigate(path) {
@@ -1192,22 +1252,50 @@ class GitHubPanel extends HTMLElement {
 
   // ── Issues and Pull requests tabs ──
 
-  _needsItems() {
-    return this._tab === "issues" || this._tab === "pulls";
+  /** Open issues or pull requests across the followed repositories, for the tab badge; null for other tabs or before loading. */
+  _tabCount(tab) {
+    if (tab !== "issues" && tab !== "pulls") return null;
+    if (!this._items || this._items.error) return null;
+    return Object.values(this._items.totals || {}).reduce((n, t) => n + (t[tab] || 0), 0);
   }
 
-  async _loadItems(refresh = false) {
+  /** Refresh the open-count badge on the Issues and Pull requests tabs, after their items load. */
+  _updateTabBadges() {
+    const root = this.shadowRoot;
+    for (const tab of ["issues", "pulls"]) {
+      const button = root.getElementById?.(`tabbtn-${tab}`);
+      if (!button) continue;
+      const count = this._tabCount(tab);
+      let badge = button.querySelector(".badge");
+      if (count) {
+        if (!badge) {
+          badge = document.createElement("span");
+          badge.className = "badge";
+          badge.setAttribute("aria-hidden", "true");
+          button.appendChild(badge);
+        }
+        badge.textContent = String(count);
+      } else if (badge) {
+        badge.remove();
+      }
+    }
+  }
+
+  // The Refresh button: query GitHub now (out of the poller's cycle). The fresh items come back both as the
+  // result and, because the server dispatches an update, through the items subscription.
+  async _refreshItems() {
     this._itemsBusy = true;
     this._renderItems("issues");
     this._renderItems("pulls");
     try {
-      this._items = await this._hass.callWS({ type: "github_card/items", refresh });
+      this._items = await this._hass.callWS({ type: "github_card/items", refresh: true });
     } catch (err) {
       this._items = { issues: [], pulls: [], totals: {}, error: err?.message || String(err) };
     }
     this._itemsBusy = false;
     this._renderItems("issues");
     this._renderItems("pulls");
+    this._updateTabBadges();
   }
 
   /** "3 days ago" in the panel's language. */
@@ -1253,7 +1341,8 @@ class GitHubPanel extends HTMLElement {
     if (!host) return;
     const esc = githubPanelEsc;
     const followed = this._overview?.followed || [];
-    if (!this._items) {
+    // Never fetched yet (pending): the background poller has not delivered the first items.
+    if (!this._items || this._items.pending) {
       host.innerHTML = `<div class="box"><div class="note">${esc(this._t("loading"))}</div></div>`;
       return;
     }
@@ -1285,7 +1374,7 @@ class GitHubPanel extends HTMLElement {
       this._renderItems("issues");
       this._renderItems("pulls");
     });
-    host.querySelector("[data-action=refresh]")?.addEventListener("click", () => this._loadItems(true));
+    host.querySelector("[data-action=refresh]")?.addEventListener("click", () => this._refreshItems());
   }
 
   // ── Settings tab ──
@@ -1314,12 +1403,16 @@ class GitHubPanel extends HTMLElement {
         ${toggle("notify_issues", "s_notify_issues", "s_notify_hint")}
         ${toggle("notify_pulls", "s_notify_pulls", "")}
         ${toggle("notify_releases", "s_notify_releases", "")}
+        <label class="ctl"><span>${esc(this._t("s_refresh"))}</span>
+          <div class="field"><input type="number" inputmode="numeric" data-key="refresh_minutes" min="${GITHUB_PANEL_MIN_REFRESH}" max="${GITHUB_PANEL_MAX_REFRESH}" step="1" value="${esc(String(this._value("refresh_minutes")))}"></div>
+          <small>${esc(this._t("s_refresh_hint"))}</small></label>
         <div class="bar"><button class="act" data-action="save"${changed ? "" : " disabled"}>${esc(this._t("save"))}</button>
           ${this._saved ? `<span class="note good" role="status">${esc(this._t("saved"))}</span>` : ""}</div>
       </div>`;
     for (const input of host.querySelectorAll("input[data-key]")) {
       input.addEventListener(input.type === "checkbox" ? "change" : "input", () => {
-        this._draft[input.dataset.key] = input.type === "checkbox" ? input.checked : input.value;
+        this._draft[input.dataset.key] =
+          input.type === "checkbox" ? input.checked : input.type === "number" ? Number(input.value) : input.value;
         this._saved = false;
         // Typing only refreshes the button, so the field keeps its focus
         const save = host.querySelector("[data-action=save]");
@@ -1331,8 +1424,15 @@ class GitHubPanel extends HTMLElement {
   }
 
   async _save() {
+    const draft = { ...this._draft };
+    if ("refresh_minutes" in draft) {
+      const n = Math.round(Number(draft.refresh_minutes));
+      draft.refresh_minutes = Number.isFinite(n)
+        ? Math.min(GITHUB_PANEL_MAX_REFRESH, Math.max(GITHUB_PANEL_MIN_REFRESH, n))
+        : this._settings.refresh_minutes;
+    }
     try {
-      const res = await this._hass.callWS({ type: "github_card/update_settings", ...this._draft });
+      const res = await this._hass.callWS({ type: "github_card/update_settings", ...draft });
       if (res.ok) {
         this._settings = res.settings;
         this._draft = {};

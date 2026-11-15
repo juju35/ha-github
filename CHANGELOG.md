@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.9.0 - 2026-11-15
+
+### Features
+- **Open issues and pull requests are fetched on a schedule, not when a tab opens.** A background poller queries GitHub on a configurable interval and the panel reads the result from the cache, so opening the Issues or Pull requests tab no longer triggers a GitHub query. The panel and the sidebar badge subscribe to the integration and receive each new batch as it is fetched, and the Refresh button still queries GitHub on demand.
+- **Refresh interval setting.** A new "Refresh interval (minutes)" field in the panel's Settings tab sets how often the open issues and pull requests are fetched (1–1440 minutes, default 15).
+- **Count badges on the Issues and Pull requests tabs.** Each tab now shows the number of open items of the followed repositories.
+
 ## 2.8.1 - 2026-11-15
 
 ### Fixed

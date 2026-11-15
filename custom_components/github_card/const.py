@@ -1,7 +1,7 @@
 """Constants for the GitHub Card integration."""
 
 DOMAIN = "github_card"
-VERSION = "2.8.1"
+VERSION = "2.9.0"
 
 # The core GitHub integration, whose repositories the panel follows and unfollows
 GITHUB_DOMAIN = "github"
@@ -26,6 +26,12 @@ CONF_IGNORE_ARCHIVED = "ignore_archived"
 CONF_NOTIFY_ISSUES = "notify_issues"
 CONF_NOTIFY_PULLS = "notify_pulls"
 CONF_NOTIFY_RELEASES = "notify_releases"
+# How often the open issues and pull requests are fetched from GitHub, in minutes (the panel no longer fetches
+# them when a tab opens; a background poller does, on this interval)
+CONF_REFRESH_MINUTES = "refresh_minutes"
+DEFAULT_REFRESH_MINUTES = 15
+MIN_REFRESH_MINUTES = 1
+MAX_REFRESH_MINUTES = 1440
 DEFAULTS = {
     CONF_FILTER: "",
     CONF_INCLUDE_STARRED: False,
@@ -33,5 +39,9 @@ DEFAULTS = {
     CONF_NOTIFY_ISSUES: False,
     CONF_NOTIFY_PULLS: False,
     CONF_NOTIFY_RELEASES: False,
+    CONF_REFRESH_MINUTES: DEFAULT_REFRESH_MINUTES,
 }
 MAX_FILTER_LENGTH = 500
+
+# Dispatcher signal sent after the background poller refreshes the items, so open panels update
+SIGNAL_ITEMS_UPDATED = f"{DOMAIN}_items_updated"

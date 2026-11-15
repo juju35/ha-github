@@ -110,7 +110,7 @@ The list is sorted with the menu next to the search field: followed first (defau
 
 ### Issues and pull requests
 
-The GitHub integration only has counts and the latest issue and pull request of a repository. The full lists come from the GitHub GraphQL API, with the **access token of the GitHub integration** (sent to `api.github.com` only, never to the browser): one query for 20 followed repositories at a time, at most 50 open issues and 50 open pull requests per repository, kept for 5 minutes. **Refresh** asks GitHub again.
+The GitHub integration only has counts and the latest issue and pull request of a repository. The full lists come from the GitHub GraphQL API, with the **access token of the GitHub integration** (sent to `api.github.com` only, never to the browser): one query for 20 followed repositories at a time, at most 50 open issues and 50 open pull requests per repository. They are fetched in the background on a schedule, not when a tab opens: a poller queries GitHub every **Refresh interval (minutes)** (set in **Settings**, 1–1440, default 15) and the panel shows the result as it arrives. The Issues and Pull requests tabs each carry a badge with the number of open items. **Refresh** asks GitHub again right away.
 
 ### Notifications
 

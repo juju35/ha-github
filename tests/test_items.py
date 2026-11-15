@@ -1,13 +1,22 @@
 """Open issues and pull requests of the followed repositories (GitHub GraphQL API, cached)."""
 
+from datetime import timedelta
+
 import pytest
 from homeassistant.config_entries import ConfigEntryState
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from homeassistant.util import dt as dt_util
+from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 
 from custom_components.github_card.const import DOMAIN
 from custom_components.github_card.items import GRAPHQL_URL, async_items, build_query, parse
 
 from .test_init import _setup, _ws
+
+
+async def _poll_once(hass):
+    """Let the background poller's deferred first fetch run."""
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=30))
+    await hass.async_block_till_done()
 
 NODE = {
     "number": 97,
@@ -95,15 +104,52 @@ async def test_items_without_github_or_repositories(hass):
     assert items.error is None and items.issues == [] and items.pulls == []
 
 
-async def test_items_command(hass, aioclient_mock, github, hass_ws_client):
+async def test_items_command_reads_the_cache(hass, aioclient_mock, github, hass_ws_client):
+    """A tab read returns the cache the background poller filled, without querying GitHub again."""
+    aioclient_mock.post(GRAPHQL_URL, json=_answer())
     entry = MockConfigEntry(domain=DOMAIN, data={}, options={})
     entry.add_to_hass(hass)
     await _setup(hass, entry)
-    aioclient_mock.post(GRAPHQL_URL, json=_answer())
+    # A tab read before the first poll is pending, with no GitHub query.
     msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/items"})
+    assert aioclient_mock.call_count == 0
+    assert msg["result"]["pending"] is True
+    # The background poll fills the cache; the next read serves it, still without a query.
+    await _poll_once(hass)
+    assert aioclient_mock.call_count == 1
+    msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/items"})
+    assert aioclient_mock.call_count == 1
     assert msg["result"]["issues"][0]["title"] == "Logo missing"
     assert msg["result"]["pulls"][0]["url"] == "https://github.com/juju35/ha-parcel/pull/97"
+    assert msg["result"]["pending"] is False
     assert "tok" not in str(msg)
+
+
+async def test_items_command_refresh_queries_github(hass, aioclient_mock, github, hass_ws_client):
+    """The Refresh button (refresh=True) queries GitHub now."""
+    aioclient_mock.post(GRAPHQL_URL, json=_answer())
+    entry = MockConfigEntry(domain=DOMAIN, data={}, options={})
+    entry.add_to_hass(hass)
+    await _setup(hass, entry)
+    await _poll_once(hass)
+    assert aioclient_mock.call_count == 1
+    msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/items", "refresh": True})
+    assert aioclient_mock.call_count == 2
+    assert msg["result"]["issues"][0]["title"] == "Logo missing"
+
+
+async def test_subscribe_items_pushes_the_cache(hass, aioclient_mock, github, hass_ws_client):
+    """Subscribing sends the current snapshot at once."""
+    aioclient_mock.post(GRAPHQL_URL, json=_answer())
+    entry = MockConfigEntry(domain=DOMAIN, data={}, options={})
+    entry.add_to_hass(hass)
+    await _setup(hass, entry)
+    await _poll_once(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": f"{DOMAIN}/subscribe_items"})
+    assert (await client.receive_json())["success"] is True
+    event = await client.receive_json()
+    assert event["event"]["issues"][0]["title"] == "Logo missing"
 
 
 def test_a_repository_followed_under_two_names_is_counted_once():

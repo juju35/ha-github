@@ -19,7 +19,8 @@ from typing import Any
 import voluptuous as vol
 from homeassistant.components import panel_custom, websocket_api
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.dispatcher import async_dispatcher_connect, async_dispatcher_send
 
 from .const import (
     CONF_FILTER,
@@ -28,14 +29,18 @@ from .const import (
     CONF_NOTIFY_ISSUES,
     CONF_NOTIFY_PULLS,
     CONF_NOTIFY_RELEASES,
+    CONF_REFRESH_MINUTES,
     DEFAULTS,
     DOMAIN,
     MAX_FILTER_LENGTH,
+    MAX_REFRESH_MINUTES,
+    MIN_REFRESH_MINUTES,
     PANEL_PATH,
     PANEL_URL,
+    SIGNAL_ITEMS_UPDATED,
     VERSION,
 )
-from .items import async_items
+from .items import async_items, current_items
 from .repositories import async_apply, async_overview
 
 MAX_REPOSITORIES = 500
@@ -53,7 +58,7 @@ async def async_register_panel(hass: HomeAssistant) -> None:
         require_admin=True,
         config={"version": VERSION},
     )
-    for command in (_ws_repositories, _ws_follow, _ws_items, _ws_settings, _ws_update_settings):
+    for command in (_ws_repositories, _ws_follow, _ws_items, _ws_subscribe_items, _ws_settings, _ws_update_settings):
         websocket_api.async_register_command(hass, command)
 
 
@@ -95,6 +100,9 @@ async def _ws_follow(hass: HomeAssistant, connection: websocket_api.ActiveConnec
     except ValueError as err:
         connection.send_result(msg["id"], {"ok": False, "error": str(err)})
         return
+    # The followed repositories changed: fetch their issues and pull requests now, out of the poller's cycle.
+    if poller := hass.data.get(DOMAIN, {}).get("poller"):
+        poller.async_refresh_soon()
     connection.send_result(msg["id"], {"ok": True, **result})
 
 
@@ -104,8 +112,29 @@ async def _ws_follow(hass: HomeAssistant, connection: websocket_api.ActiveConnec
 @websocket_api.require_admin
 @websocket_api.async_response
 async def _ws_items(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
-    items = await async_items(hass, refresh=msg["refresh"])
+    """The open issues and pull requests. ``refresh`` queries GitHub now (the panel's Refresh button); otherwise
+    the cache the background poller fills is returned, without any GitHub query."""
+    if msg["refresh"]:
+        items = await async_items(hass, refresh=True)
+        async_dispatcher_send(hass, SIGNAL_ITEMS_UPDATED)
+    else:
+        items = current_items(hass)
     connection.send_result(msg["id"], items.as_dict())
+
+
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/subscribe_items"})
+@websocket_api.require_admin
+@websocket_api.async_response
+async def _ws_subscribe_items(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Push the cached issues and pull requests to the panel: the current snapshot now, then after each poll."""
+
+    @callback
+    def _forward() -> None:
+        connection.send_message(websocket_api.event_message(msg["id"], current_items(hass).as_dict()))
+
+    connection.subscriptions[msg["id"]] = async_dispatcher_connect(hass, SIGNAL_ITEMS_UPDATED, _forward)
+    connection.send_result(msg["id"])
+    _forward()
 
 
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/settings"})
@@ -124,6 +153,9 @@ async def _ws_settings(hass: HomeAssistant, connection: websocket_api.ActiveConn
         vol.Optional(CONF_NOTIFY_ISSUES): bool,
         vol.Optional(CONF_NOTIFY_PULLS): bool,
         vol.Optional(CONF_NOTIFY_RELEASES): bool,
+        vol.Optional(CONF_REFRESH_MINUTES): vol.All(
+            vol.Coerce(int), vol.Range(min=MIN_REFRESH_MINUTES, max=MAX_REFRESH_MINUTES)
+        ),
     }
 )
 @websocket_api.require_admin

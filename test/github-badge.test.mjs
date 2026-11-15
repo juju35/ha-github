@@ -17,7 +17,7 @@ function load() {
   };
   context.window = context;
   vm.createContext(context);
-  vm.runInContext(`${source}\nthis.follow = ghbFollow;\nthis.redraw = ghbBadgeRedraw;`, context);
+  vm.runInContext(`${source}\nthis.applyItems = ghbApplyItems;\nthis.redraw = ghbBadgeRedraw;`, context);
   return context;
 }
 
@@ -134,34 +134,31 @@ test("the sidebar badge: two slots on a new ha-list-item-button, mirroring the n
   assert.equal(badgesOf(item)[0].dataset.key, key);
 });
 
-test("the tone follows the open issues: amber with an issue, the accent with only pull requests", async () => {
+test("the tone follows the open issues: amber with an issue, the accent with only pull requests", () => {
   const context = load();
   const item = makeEl("ha-list-item-button", { id: "sidebar-panel-github-config" });
   item.appendChild(makeEl("ha-icon", { slot: "start" }));
   withSidebar(context, item);
-  const result = { totals: {} };
-  const hass = { user: { is_admin: true }, callWS: async () => result };
-  context.document.querySelector = ((orig) => (s) => (s === "home-assistant" ? { ...orig(s), hass } : orig(s)))(
-    context.document.querySelector,
-  );
 
   // Open issues and pull requests: the total is their sum, in the amber tone
-  result.totals = { "a/b": { issues: 2, pulls: 1 }, "c/d": { issues: 3, pulls: 0 } };
-  await context.follow();
+  context.applyItems({ totals: { "a/b": { issues: 2, pulls: 1 }, "c/d": { issues: 3, pulls: 0 } } });
   assert.equal(context.window.__ghCardBadge.count, 6);
   assert.equal(context.window.__ghCardBadge.tone, "warn");
   assert.match(badgesOf(item)[0].style.cssText, /--warning-color/);
 
   // Only pull requests (no open issue): the accent tone
-  result.totals = { "a/b": { issues: 0, pulls: 4 } };
-  await context.follow();
+  context.applyItems({ totals: { "a/b": { issues: 0, pulls: 4 } } });
   assert.equal(context.window.__ghCardBadge.count, 4);
   assert.equal(context.window.__ghCardBadge.tone, "primary");
   assert.match(badgesOf(item)[0].style.cssText, /--primary-color/);
 
-  // Not an administrator, or GitHub not configured: nothing read
-  hass.user.is_admin = false;
-  context.window.ghCardSetBadge(0, "primary");
-  await context.follow();
+  // An error or a pending snapshot (not fetched yet) keeps the last value
+  context.applyItems({ error: "http_401" });
+  assert.equal(context.window.__ghCardBadge.count, 4);
+  context.applyItems({ totals: {}, pending: true });
+  assert.equal(context.window.__ghCardBadge.count, 4);
+
+  // A real empty snapshot (nothing open): the badge goes away
+  context.applyItems({ totals: {} });
   assert.equal(context.window.__ghCardBadge.count, 0);
 });

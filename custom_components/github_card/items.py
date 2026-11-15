@@ -9,18 +9,32 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import re
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import timedelta
 from typing import Any
 
 import aiohttp
 from homeassistant.const import CONF_ACCESS_TOKEN
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.dispatcher import async_dispatcher_send
+from homeassistant.helpers.event import async_call_later, async_track_time_interval
 
-from .const import DOMAIN
+from .const import (
+    CONF_REFRESH_MINUTES,
+    DEFAULT_REFRESH_MINUTES,
+    DOMAIN,
+    MAX_REFRESH_MINUTES,
+    MIN_REFRESH_MINUTES,
+    SIGNAL_ITEMS_UPDATED,
+)
 from .repositories import followed, github_entry
+
+_LOGGER = logging.getLogger(__name__)
 
 GRAPHQL_URL = "https://api.github.com/graphql"
 CACHE_SECONDS = 300
@@ -109,6 +123,8 @@ class Items:
             "totals": self.totals,
             "fetched_at": self.fetched_at,
             "error": self.error,
+            # Never fetched yet (the first background poll has not landed): the panel keeps showing "loading"
+            "pending": self.fetched_at is None and self.error is None,
         }
 
 
@@ -159,3 +175,99 @@ async def async_items(hass: HomeAssistant, refresh: bool = False) -> Items:
     items = Items(sorted(issues, key=_newest, reverse=True), sorted(pulls, key=_newest, reverse=True), totals, now)
     cache["items"] = (repos, items)
     return items
+
+
+def _followed_repos(hass: HomeAssistant) -> list[str] | None:
+    """The followed repositories (valid names), or None when the GitHub integration is not configured."""
+    entry = github_entry(hass)
+    if entry is None:
+        return None
+    return sorted((r for r in followed(entry) if _NAME.match(r)), key=str.casefold)
+
+
+def current_items(hass: HomeAssistant) -> Items:
+    """The last fetched issues and pull requests from the cache, without querying GitHub.
+
+    The panel reads this when a tab opens: the background poller is what queries GitHub, on its interval.
+    """
+    repos = _followed_repos(hass)
+    if repos is None:
+        return Items(error="github_not_configured")
+    cached = hass.data.get(DOMAIN, {}).get("items")
+    if cached and cached[0] == repos:
+        return cached[1]
+    # Nothing cached for the current repositories yet: pending until the next poll.
+    return Items()
+
+
+# The first fetch after Home Assistant starts, and a fetch after the followed repositories change, are deferred
+# by a few seconds rather than run at once, so startup is not blocked and bursts of follows coalesce.
+FIRST_FETCH_DELAY = 8
+
+
+class ItemsPoller:
+    """Fetches the open issues and pull requests in the background, on the configured interval.
+
+    The panel no longer queries GitHub when its Issues or Pull requests tab opens; it reads the cache this poller
+    fills (``current_items``) and listens for ``SIGNAL_ITEMS_UPDATED`` to refresh what it shows.
+    """
+
+    def __init__(self, hass: HomeAssistant, options: Callable[[], dict[str, Any]]) -> None:
+        self._hass = hass
+        self._options = options
+        self._unsub: Callable[[], None] | None = None  # the recurring interval
+        self._soon: Callable[[], None] | None = None  # a one-shot fetch scheduled soon
+        self._minutes: int | None = None
+
+    def _interval(self) -> int:
+        try:
+            minutes = int(self._options().get(CONF_REFRESH_MINUTES, DEFAULT_REFRESH_MINUTES))
+        except (TypeError, ValueError):
+            minutes = DEFAULT_REFRESH_MINUTES
+        return max(MIN_REFRESH_MINUTES, min(MAX_REFRESH_MINUTES, minutes))
+
+    @callback
+    def async_start(self) -> Callable[[], None]:
+        """Schedule the recurring fetch and a first one shortly after startup; returns a callback that stops them."""
+        self._schedule()
+        self.async_refresh_soon()
+
+        @callback
+        def _stop() -> None:
+            if self._unsub:
+                self._unsub()
+                self._unsub = None
+            if self._soon:
+                self._soon()
+                self._soon = None
+
+        return _stop
+
+    @callback
+    def async_reschedule(self) -> None:
+        """Re-arm the timer when the interval setting changed (called after the settings are saved)."""
+        if self._interval() != self._minutes:
+            self._schedule()
+
+    @callback
+    def async_refresh_soon(self) -> None:
+        """Fetch a few seconds from now (startup, or the followed repositories changed); coalesces repeats."""
+        if self._soon:
+            self._soon()
+        self._soon = async_call_later(self._hass, FIRST_FETCH_DELAY, self._poll)
+
+    @callback
+    def _schedule(self) -> None:
+        if self._unsub:
+            self._unsub()
+        self._minutes = self._interval()
+        self._unsub = async_track_time_interval(self._hass, self._poll, timedelta(minutes=self._minutes))
+
+    async def _poll(self, _now: Any = None) -> None:
+        self._soon = None
+        try:
+            await async_items(self._hass, refresh=True)
+        except Exception:  # noqa: BLE001 - a scheduled fetch must never break the integration
+            _LOGGER.exception("GitHub Card: could not refresh the open issues and pull requests")
+            return
+        async_dispatcher_send(self._hass, SIGNAL_ITEMS_UPDATED)
