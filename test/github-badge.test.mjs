@@ -1,4 +1,5 @@
-// Unit tests for the sidebar badge module: the open issues / pull requests count on the GitHub panel item.
+// Unit tests for the sidebar badge module: the open issues / pull requests count on the GitHub panel item, and its
+// tone (amber when an issue is open, the accent when only pull requests are).
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
@@ -81,22 +82,29 @@ function withSidebar(context, item) {
   return saved;
 }
 
+function badgesOf(item) {
+  return item.children.filter((c) => (c.className || "").includes("github-card-badge"));
+}
+
 test("the sidebar badge: the count at the right of an older <a> item, removed at zero", () => {
   const context = load();
   const item = makeEl("a");
   const saved = withSidebar(context, item);
-  context.window.ghCardSetBadge(4);
+  // An open issue: the amber (warning) tone with dark text
+  context.window.ghCardSetBadge(4, "warn");
   const badge = item.children[0];
   assert.equal(badge.textContent, "4");
   assert.match(badge.style.cssText, /position:absolute/);
-  assert.match(badge.style.cssText, /--primary-color/);
+  assert.match(badge.style.cssText, /--warning-color/);
+  assert.match(badge.style.cssText, /rgba\(0,0,0,\.87\)/);
   assert.equal(item.style.position, "relative");
   assert.equal(saved["github-card-badge-count"], "4");
+  assert.equal(saved["github-card-badge-tone"], "warn");
   // Over 99 is capped
-  context.window.ghCardSetBadge(150);
+  context.window.ghCardSetBadge(150, "warn");
   assert.equal(item.children[0].textContent, "99+");
   // Nothing open: the badge is taken away
-  context.window.ghCardSetBadge(0);
+  context.window.ghCardSetBadge(0, "primary");
   assert.equal(item.children.length, 0);
 });
 
@@ -107,41 +115,53 @@ test("the sidebar badge: two slots on a new ha-list-item-button, mirroring the n
   item.appendChild(icon);
   item.appendChild(makeEl("span", { slot: "headline" }));
   withSidebar(context, item);
-  context.window.ghCardSetBadge(7);
-  const badges = item.children.filter((c) => (c.className || "").includes("github-card-badge"));
+  // Only pull requests open: the accent tone with white text
+  context.window.ghCardSetBadge(7, "primary");
+  const badges = badgesOf(item);
   assert.equal(badges.length, 2);
   assert.deepEqual(badges.map((b) => b.slot).sort(), ["end", "start"]);
   for (const b of badges) {
     assert.match(b.className, /\bbadge\b/);
     assert.equal(b.textContent, "7");
     assert.match(b.style.cssText, /--primary-color/);
+    assert.match(b.style.cssText, /color:#fff/);
   }
   // The start badge sits right after the icon (so `ha-svg-icon + .badge` positions it over the icon)
   assert.equal(item.children[item.children.indexOf(icon) + 1].slot, "start");
-  // The same count: nothing rewritten
+  // The same count and tone: nothing rewritten
   const key = badges[0].dataset.key;
-  context.window.ghCardSetBadge(7);
-  assert.equal(item.children.filter((c) => (c.className || "").includes("github-card-badge"))[0].dataset.key, key);
+  context.window.ghCardSetBadge(7, "primary");
+  assert.equal(badgesOf(item)[0].dataset.key, key);
 });
 
-test("the total is the open issues and pull requests of every repository, for an administrator", async () => {
+test("the tone follows the open issues: amber with an issue, the accent with only pull requests", async () => {
   const context = load();
   const item = makeEl("ha-list-item-button", { id: "sidebar-panel-github-config" });
   item.appendChild(makeEl("ha-icon", { slot: "start" }));
   withSidebar(context, item);
-  const hass = {
-    user: { is_admin: true },
-    callWS: async () => ({ totals: { "a/b": { issues: 2, pulls: 1 }, "c/d": { issues: 3, pulls: 0 } } }),
-  };
+  const result = { totals: {} };
+  const hass = { user: { is_admin: true }, callWS: async () => result };
   context.document.querySelector = ((orig) => (s) => (s === "home-assistant" ? { ...orig(s), hass } : orig(s)))(
     context.document.querySelector,
   );
+
+  // Open issues and pull requests: the total is their sum, in the amber tone
+  result.totals = { "a/b": { issues: 2, pulls: 1 }, "c/d": { issues: 3, pulls: 0 } };
   await context.follow();
-  assert.equal(context.window.__ghCardBadgeCount, 6);
-  assert.equal(item.children.filter((c) => (c.className || "").includes("github-card-badge"))[0].textContent, "6");
+  assert.equal(context.window.__ghCardBadge.count, 6);
+  assert.equal(context.window.__ghCardBadge.tone, "warn");
+  assert.match(badgesOf(item)[0].style.cssText, /--warning-color/);
+
+  // Only pull requests (no open issue): the accent tone
+  result.totals = { "a/b": { issues: 0, pulls: 4 } };
+  await context.follow();
+  assert.equal(context.window.__ghCardBadge.count, 4);
+  assert.equal(context.window.__ghCardBadge.tone, "primary");
+  assert.match(badgesOf(item)[0].style.cssText, /--primary-color/);
+
   // Not an administrator, or GitHub not configured: nothing read
   hass.user.is_admin = false;
-  context.window.ghCardSetBadge(0);
+  context.window.ghCardSetBadge(0, "primary");
   await context.follow();
-  assert.equal(context.window.__ghCardBadgeCount, 0);
+  assert.equal(context.window.__ghCardBadge.count, 0);
 });

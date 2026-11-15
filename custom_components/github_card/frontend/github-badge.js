@@ -1,20 +1,29 @@
 // GitHub Card sidebar badge, loaded on every page: the number of open issues and pull requests of the followed
 // repositories (github_card/items) on the sidebar item, like the notifications count. An administrator's page reads
 // the total every 5 minutes (from the 5-minute server cache, no extra GitHub call), and the browser keeps the last
-// one so the sidebar shows it at once. GitHub has no status or severity, so the badge is a single accent tone.
+// one so the sidebar shows it at once. One badge with the total, its colour set by the open issues: amber (the
+// `warning` tone) when at least one issue is open, the accent otherwise (only pull requests open).
 const GHB_COUNT_KEY = "github-card-badge-count";
-const GHB_COLOR = "var(--primary-color)";
+const GHB_TONE_KEY = "github-card-badge-tone";
 const GHB_EVERY_MS = 300000;
+// warn: at least one open issue; primary: only open pull requests.
+const GHB_COLORS = {
+  warn: "var(--warning-color, #ffa600)",
+  primary: "var(--primary-color)",
+};
+// Dark text reads on the amber badge, white on the accent.
+const GHB_TEXT = { warn: "rgba(0,0,0,.87)", primary: "#fff" };
 
-function ghbCountSaved() {
+function ghbBadgeSaved() {
   try {
     const n = Number.parseInt(localStorage.getItem(GHB_COUNT_KEY), 10);
-    return Number.isFinite(n) && n > 0 ? n : 0;
+    const tone = localStorage.getItem(GHB_TONE_KEY);
+    return { count: Number.isFinite(n) && n > 0 ? n : 0, tone: tone in GHB_COLORS ? tone : "primary" };
   } catch (_err) {
-    return 0;
+    return { count: 0, tone: "primary" };
   }
 }
-window.__ghCardBadgeCount ??= ghbCountSaved();
+window.__ghCardBadge ??= ghbBadgeSaved();
 
 // The GitHub item in Home Assistant's sidebar, or null until the sidebar is drawn. The recent sidebar gives each item
 // the id `sidebar-panel-<path>` and sets its href as a property (not an attribute), so the id is the reliable hook;
@@ -31,14 +40,14 @@ function ghbSidebarItem() {
 }
 
 // One badge span, styled as Home Assistant's own sidebar badge (class `badge`, so the sidebar's CSS places it and
-// shows or hides it by slot and expanded state).
-function ghbBadgeSpan(text, slot, key) {
+// shows or hides it by slot and expanded state), in the badge's tone.
+function ghbBadgeSpan(text, tone, slot, key) {
   const el = document.createElement("span");
   el.className = "badge github-card-badge";
   el.slot = slot;
   el.dataset.key = key;
   el.textContent = text;
-  el.style.cssText = `min-width:18px; height:18px; box-sizing:border-box; padding:0 5px; align-items:center; border-radius:9px; font-size:11px; font-weight:500; line-height:1; color:#fff; background:${GHB_COLOR};`;
+  el.style.cssText = `min-width:18px; height:18px; box-sizing:border-box; padding:0 5px; align-items:center; border-radius:9px; font-size:11px; font-weight:500; line-height:1; color:${GHB_TEXT[tone] || "#fff"}; background:${GHB_COLORS[tone]};`;
   return el;
 }
 
@@ -51,14 +60,15 @@ function ghbBadgeSpan(text, slot, key) {
 function ghbBadgeRedraw() {
   const item = ghbSidebarItem();
   if (!item) return false;
-  const count = window.__ghCardBadgeCount;
+  const count = window.__ghCardBadge.count;
+  const tone = window.__ghCardBadge.tone;
   const spans = item.querySelectorAll(":scope > .github-card-badge");
   if (!count) {
     for (const b of spans) b.remove();
     return true;
   }
   const text = count > 99 ? "99+" : String(count);
-  const key = text;
+  const key = `${tone}:${text}`;
   if (item.localName === "a") {
     let badge = spans[0];
     if (badge && badge.dataset.key === key) return true;
@@ -70,7 +80,7 @@ function ghbBadgeRedraw() {
     }
     badge.dataset.key = key;
     badge.textContent = text;
-    badge.style.cssText = `position:absolute; right:12px; top:50%; transform:translateY(-50%); min-width:18px; height:18px; box-sizing:border-box; padding:0 5px; display:inline-flex; align-items:center; justify-content:center; border-radius:9px; font-size:11px; font-weight:500; line-height:1; pointer-events:none; z-index:1; color:#fff; background:${GHB_COLOR};`;
+    badge.style.cssText = `position:absolute; right:12px; top:50%; transform:translateY(-50%); min-width:18px; height:18px; box-sizing:border-box; padding:0 5px; display:inline-flex; align-items:center; justify-content:center; border-radius:9px; font-size:11px; font-weight:500; line-height:1; pointer-events:none; z-index:1; color:${GHB_TEXT[tone] || "#fff"}; background:${GHB_COLORS[tone]};`;
     return true;
   }
   if (spans.length === 2 && spans[0].dataset.key === key) return true;
@@ -78,10 +88,10 @@ function ghbBadgeRedraw() {
   // The start badge goes right after the icon, so the sidebar's `ha-svg-icon + .badge` rule places it over the icon.
   const icon =
     item.querySelector(':scope > ha-svg-icon[slot="start"]') || item.querySelector(':scope > ha-icon[slot="start"]');
-  const start = ghbBadgeSpan(text, "start", key);
+  const start = ghbBadgeSpan(text, tone, "start", key);
   if (icon) item.insertBefore(start, icon.nextSibling);
   else item.appendChild(start);
-  item.appendChild(ghbBadgeSpan(text, "end", key));
+  item.appendChild(ghbBadgeSpan(text, tone, "end", key));
   return true;
 }
 
@@ -110,13 +120,15 @@ function ghbBadgeObserve() {
   }).observe(sidebar, { childList: true, subtree: true });
 }
 
-// The total, drawn again when it changes and kept for the next page
-window.ghCardSetBadge = (count) => {
+// The total and its tone, drawn again when either changes and kept for the next page
+window.ghCardSetBadge = (count, tone) => {
   const n = Math.max(0, Number.parseInt(count, 10) || 0);
-  if (window.__ghCardBadgeCount === n) return;
-  window.__ghCardBadgeCount = n;
+  const t = tone in GHB_COLORS ? tone : "primary";
+  if (window.__ghCardBadge.count === n && window.__ghCardBadge.tone === t) return;
+  window.__ghCardBadge = { count: n, tone: t };
   try {
     localStorage.setItem(GHB_COUNT_KEY, String(n));
+    localStorage.setItem(GHB_TONE_KEY, t);
   } catch (_err) {
     // drawn anyway, not kept
   }
@@ -124,23 +136,25 @@ window.ghCardSetBadge = (count) => {
 };
 
 // Reads the open issues and pull requests of the followed repositories (github_card/items) for an administrator, and
-// reports their total. The count comes from the per-repository totals (the open counts), not the lists, which are
-// capped. GitHub not configured, or no repository followed: nothing is shown.
+// reports their total with a tone set by the open issues. The counts come from the per-repository totals (the open
+// counts), not the lists, which are capped. GitHub not configured, or no repository followed: nothing is shown.
 async function ghbFollow() {
   const hass = document.querySelector("home-assistant")?.hass;
   if (!hass?.user?.is_admin || document.hidden) return;
   try {
     const items = await hass.callWS({ type: "github_card/items", refresh: false });
     if (items?.error) return;
-    const total = Object.values(items?.totals || {}).reduce((sum, t) => sum + (t.issues || 0) + (t.pulls || 0), 0);
-    window.ghCardSetBadge(total);
+    const totals = Object.values(items?.totals || {});
+    const issues = totals.reduce((sum, t) => sum + (t.issues || 0), 0);
+    const pulls = totals.reduce((sum, t) => sum + (t.pulls || 0), 0);
+    window.ghCardSetBadge(issues + pulls, issues > 0 ? "warn" : "primary");
   } catch (_err) {
     // read again next time
   }
 }
 
-if (!window.__ghCardBadge) {
-  window.__ghCardBadge = true;
+if (!window.__ghCardBadgeStarted) {
+  window.__ghCardBadgeStarted = true;
   ghbBadgeRedrawSoon();
   ghbBadgeObserve();
   // The total read a few seconds after the page, once Home Assistant has drawn it, then every 5 minutes
