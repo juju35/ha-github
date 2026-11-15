@@ -10,7 +10,7 @@
 
 <p align="center"><img src="https://raw.githubusercontent.com/juju35/ha-github/main/custom_components/github_card/brand/icon.png" alt="GitHub Card" width="120"></p>
 
-Home Assistant integration for your GitHub repositories: an **admin sidebar panel** to follow them in the GitHub integration and see their open issues and pull requests, and **Lovelace cards** with their stars, forks, open issues and pull requests, latest release and commit.
+Home Assistant integration for your GitHub repositories: an **admin sidebar panel** to follow them in the GitHub integration, see their open issues and pull requests and your own open pull requests across every repository, and **Lovelace cards** with their stars, forks, open issues and pull requests, latest release and commit.
 
 It works on top of the core [GitHub integration](https://www.home-assistant.io/integrations/github/): no token of its own, entities **discovered automatically**, whatever the language of your installation.
 
@@ -26,6 +26,7 @@ It works on top of the core [GitHub integration](https://www.home-assistant.io/i
 
 - **Repositories**: every repository of your GitHub account (and your starred ones, if you choose), followed or not by the GitHub integration. Each followed one shows its stars, open issues, open pull requests and latest release on its row, and unfolds the same details as the GitHub Card (counters, latest release, commit, pull request, issue…). The head gives the totals of the followed repositories, and your GitHub account (followers, following, public repositories and gists) closes the list. **Follow** or **Stop following** one, tick several and **Follow selected**, or **Follow all** at once: the whole change reloads the GitHub integration a single time
 - **Issues** and **Pull requests**: the open ones of all the followed repositories, most recently updated first, with their repository, number, author, age, comments and labels, and the review state of pull requests (approved, changes requested, review required, draft); filter by repository; each opens on GitHub
+- **My pull requests**: the open pull requests you authored, in any repository — not only the followed ones — with their repository, number, age, review state and the state of their checks; each opens on GitHub
 - **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories, archived repositories ignored), and a Home Assistant notification for each new issue, pull request or release
 - Tabs in the address (`/github-config/issues`), so a link or a reload opens the same tab
 
@@ -102,6 +103,7 @@ The **GitHub** entry of the sidebar, for administrators only. It carries a count
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-repos.png" alt="Repositories tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-repos-dark.png" alt="Repositories tab dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-issues.png" alt="Issues tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-issues-dark.png" alt="Issues tab dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-pulls.png" alt="Pull requests tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-pulls-dark.png" alt="Pull requests tab dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-mine.png" alt="My pull requests tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-mine-dark.png" alt="My pull requests tab dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-settings.png" alt="Settings tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-settings-dark.png" alt="Settings tab dark" width="400"> |
 
 ### Repositories
@@ -115,6 +117,10 @@ The list is sorted with the menu next to the search field: followed first (defau
 ### Issues and pull requests
 
 The GitHub integration only has counts and the latest issue and pull request of a repository. The full lists come from the GitHub GraphQL API, with the **access token of the GitHub integration** (sent to `api.github.com` only, never to the browser): one query for 20 followed repositories at a time, at most 50 open issues and 50 open pull requests per repository. They are fetched in the background on a schedule, not when a tab opens: a poller queries GitHub every **Refresh interval (minutes)** (set in **Settings**, 1–1440, default 15) and the panel shows the result as it arrives. The Issues and Pull requests tabs each carry a badge with the number of open items. **Refresh** asks GitHub again right away.
+
+### My pull requests
+
+Your own pull requests are often spread over many repositories you do not follow (upstream integrations, libraries, docs, forks), and adding them all as followed repositories is not practical. The **My pull requests** tab lists the open pull requests you authored in any repository, most recently updated first, with their repository, number, title, age, comments, labels, review state and the rolled-up state of their checks (passing, failing, running). It comes from a single GitHub search with the **access token of the GitHub integration** (`is:pr is:open author:@me`, sent to `api.github.com` only, never to the browser), cached for a few minutes: the list loads the first time the tab opens, and **Refresh** asks GitHub again right away.
 
 ### Notifications
 

@@ -200,6 +200,86 @@ def current_items(hass: HomeAssistant) -> Items:
     return Items()
 
 
+# ── My pull requests ──────────────────────────────────────────────────────────────────────────────────────────
+# The open pull requests authored by the token's user, in any repository (the followed ones and the many others
+# one does not follow): a single GitHub search with the GitHub integration's token, cached like the items above.
+# This does not depend on the followed repositories, so it has its own cache entry and its own command.
+
+# The issue search returns only pull requests (is:pr); each node carries its repository and, when available, the
+# review decision and the rolled-up state of its checks. `author:@me` is the token's own user.
+MINE_SEARCH = "is:pr is:open author:@me archived:false"
+MINE_QUERY = (
+    "query { viewer { login } "
+    f"search(query: {json.dumps(MINE_SEARCH)}, type: ISSUE, first: {PER_REPO}) {{ nodes {{ "
+    f"... on PullRequest {{ {_FIELDS} isDraft reviewDecision repository {{ nameWithOwner }} "
+    "commits(last: 1) { nodes { commit { statusCheckRollup { state } } } } } } } } }"
+)
+
+
+def _mine_item(node: dict[str, Any]) -> dict[str, Any]:
+    """A pull request node of the search, with its repository, review decision and checks state."""
+    repo = (node.get("repository") or {}).get("nameWithOwner") or ""
+    item = _item(repo, node, True)
+    commits = (node.get("commits") or {}).get("nodes") or []
+    rollup = ((commits[0] if commits else {}).get("commit") or {}).get("statusCheckRollup")
+    item["checks"] = (rollup or {}).get("state")
+    return item
+
+
+@dataclass
+class Mine:
+    pulls: list[dict] = field(default_factory=list)
+    viewer: str | None = None
+    fetched_at: float | None = None
+    error: str | None = None
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "pulls": self.pulls,
+            "viewer": self.viewer,
+            "fetched_at": self.fetched_at,
+            "error": self.error,
+            # Never fetched yet (the tab has not been opened): the panel keeps showing "loading"
+            "pending": self.fetched_at is None and self.error is None,
+        }
+
+
+async def async_mine(hass: HomeAssistant, refresh: bool = False) -> Mine:
+    """The open pull requests of the token's user, across every repository, from the cache unless stale or `refresh`."""
+    entry = github_entry(hass)
+    if entry is None:
+        return Mine(error="github_not_configured")
+    token = entry.data.get(CONF_ACCESS_TOKEN)
+    if not token:
+        return Mine(error="no_token")
+    cache = hass.data.setdefault(DOMAIN, {})
+    cached = cache.get("mine")
+    now = time.time()
+    if not refresh and cached and now - cached.fetched_at < CACHE_SECONDS:
+        return cached
+    session = async_get_clientsession(hass)
+    try:
+        async with session.post(
+            GRAPHQL_URL,
+            json={"query": MINE_QUERY},
+            headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
+            timeout=aiohttp.ClientTimeout(total=30),
+        ) as resp:
+            if resp.status in (401, 403):
+                return Mine(error=f"http_{resp.status}")
+            resp.raise_for_status()
+            body = await resp.json()
+    except (aiohttp.ClientError, TimeoutError, ValueError, KeyError) as err:
+        return Mine(error=type(err).__name__)
+    data = body.get("data") or {}
+    nodes = (data.get("search") or {}).get("nodes") or []
+    pulls = sorted((_mine_item(n) for n in nodes if n), key=_newest, reverse=True)
+    viewer = (data.get("viewer") or {}).get("login")
+    mine = Mine(pulls, viewer, now)
+    cache["mine"] = mine
+    return mine
+
+
 # The first fetch after Home Assistant starts, and a fetch after the followed repositories change, are deferred
 # by a few seconds rather than run at once, so startup is not blocked and bursts of follows coalesce.
 FIRST_FETCH_DELAY = 8

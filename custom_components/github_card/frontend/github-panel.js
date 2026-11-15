@@ -2,7 +2,7 @@
  * GitHub panel for Home Assistant (administrators only)
  * https://github.com/juju35/ha-github
  *
- * Four tabs under the toolbar, as in Smart Comfort and IPTV (text tabs, the active one underlined, the tab in the
+ * Five tabs under the toolbar, as in Smart Comfort and IPTV (text tabs, the active one underlined, the tab in the
  * address, Settings last):
  * - Repositories: the repositories of your GitHub account (and your starred ones, if chosen), followed or not by the
  *   core GitHub integration; follow or stop following one, the ticked ones or all of them at once (one reload of the GitHub
@@ -11,13 +11,15 @@
  *   requests), the GitHub account (followers…) closes the list;
  * - Issues and Pull requests: the open ones of the followed repositories, most recently updated first, from the
  *   GitHub API (github_card/items, cached 5 minutes by the integration; Refresh asks GitHub again);
+ * - My pull requests: the open pull requests you authored, in any repository (not only the followed ones), from a
+ *   GitHub search (github_card/mine, cached 5 minutes; loaded when the tab opens, Refresh asks GitHub again);
  * - Settings: which repositories are offered (name patterns, starred ones, archived ones ignored) and the new issue / pull request
  *   notifications.
  */
 
-const GITHUB_PANEL_VERSION = "2.9.1";
+const GITHUB_PANEL_VERSION = "2.10.0";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
-const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "settings"];
+const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
 const GITHUB_PANEL_MIN_REFRESH = 1;
 const GITHUB_PANEL_MAX_REFRESH = 1440;
@@ -45,6 +47,8 @@ const GITHUB_PANEL_KEYS = [
   "follow_selected", "select_repo",
   // Refresh interval of the Issues and Pull requests
   "s_refresh", "s_refresh_hint",
+  // My pull requests tab (open pull requests I authored, in any repository) and the checks state of a pull request
+  "mine", "no_mine", "checks_passing", "checks_failing", "checks_pending",
 ];
 
 const GITHUB_PANEL_TRANSLATIONS = {
@@ -70,6 +74,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Retry",
     "Follow selected ({n})", "Select {repo}",
     "Refresh interval (minutes)", "How often the open issues and pull requests are fetched from GitHub.",
+    // My pull requests
+    "My pull requests", "You have no open pull request.", "Checks passing", "Checks failing", "Checks running",
   ],
   fr: [
     "GitHub", "Dépôts", "Activité", "Réglages", "Intégration GitHub", "Chargement…",
@@ -93,6 +99,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Réessayer",
     "Suivre la sélection ({n})", "Sélectionner {repo}",
     "Intervalle d’actualisation (minutes)", "Fréquence de récupération des issues et pull requests ouvertes depuis GitHub.",
+    // My pull requests
+    "Mes pull requests", "Vous n’avez aucune pull request ouverte.", "Tests réussis", "Tests en échec", "Tests en cours",
   ],
   de: [
     "GitHub", "Repositorys", "Aktivität", "Einstellungen", "GitHub-Integration", "Wird geladen…",
@@ -116,6 +124,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Erneut versuchen",
     "Auswahl verfolgen ({n})", "{repo} auswählen",
     "Aktualisierungsintervall (Minuten)", "Wie oft die offenen Issues und Pull Requests von GitHub abgerufen werden.",
+    // My pull requests
+    "Meine Pull Requests", "Du hast keinen offenen Pull Request.", "Prüfungen bestanden", "Prüfungen fehlgeschlagen", "Prüfungen laufen",
   ],
   es: [
     "GitHub", "Repositorios", "Actividad", "Ajustes", "Integración GitHub", "Cargando…",
@@ -139,6 +149,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Reintentar",
     "Seguir la selección ({n})", "Seleccionar {repo}",
     "Intervalo de actualización (minutos)", "Con qué frecuencia se obtienen de GitHub las issues y pull requests abiertas.",
+    // My pull requests
+    "Mis pull requests", "No tienes ninguna pull request abierta.", "Comprobaciones correctas", "Comprobaciones fallidas", "Comprobaciones en curso",
   ],
   sr: [
     "GitHub", "Репозиторијуми", "Активност", "Подешавања", "Интеграција GitHub", "Учитавање…",
@@ -162,6 +174,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Покушај поново",
     "Прати изабране ({n})", "Изабери {repo}",
     "Интервал освежавања (минути)", "Колико често се отворени проблеми и pull захтеви преузимају са GitHub-а.",
+    // My pull requests
+    "Моји pull захтеви", "Немате отворених pull захтева.", "Провере успешне", "Провере неуспешне", "Провере у току",
   ],
   "sr-Latn": [
     "GitHub", "Repozitorijumi", "Aktivnost", "Podešavanja", "Integracija GitHub", "Učitavanje…",
@@ -185,6 +199,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Pokušaj ponovo",
     "Prati izabrane ({n})", "Izaberi {repo}",
     "Interval osvežavanja (minuti)", "Koliko često se otvoreni problemi i pull zahtevi preuzimaju sa GitHub-a.",
+    // My pull requests
+    "Moji pull zahtevi", "Nemate otvorenih pull zahteva.", "Provere uspešne", "Provere neuspešne", "Provere u toku",
   ],
   it: [
     "GitHub", "Repository", "Attività", "Impostazioni", "Integrazione GitHub", "Caricamento…",
@@ -208,6 +224,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Riprova",
     "Segui la selezione ({n})", "Seleziona {repo}",
     "Intervallo di aggiornamento (minuti)", "Con quale frequenza le issue e le pull request aperte vengono recuperate da GitHub.",
+    // My pull requests
+    "Le mie pull request", "Non hai nessuna pull request aperta.", "Controlli superati", "Controlli falliti", "Controlli in corso",
   ],
   nl: [
     "GitHub", "Repositories", "Activiteit", "Instellingen", "GitHub-integratie", "Laden…",
@@ -231,6 +249,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Opnieuw proberen",
     "Selectie volgen ({n})", "{repo} selecteren",
     "Vernieuwingsinterval (minuten)", "Hoe vaak de open issues en pull requests van GitHub worden opgehaald.",
+    // My pull requests
+    "Mijn pull requests", "Je hebt geen open pull request.", "Controles geslaagd", "Controles mislukt", "Controles bezig",
   ],
   pt: [
     "GitHub", "Repositórios", "Atividade", "Definições", "Integração GitHub", "A carregar…",
@@ -254,6 +274,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Tentar novamente",
     "Seguir a seleção ({n})", "Selecionar {repo}",
     "Intervalo de atualização (minutos)", "Com que frequência as issues e pull requests em aberto são obtidas do GitHub.",
+    // My pull requests
+    "Os meus pull requests", "Não tem nenhum pull request em aberto.", "Verificações aprovadas", "Verificações falhadas", "Verificações em curso",
   ],
   pl: [
     "GitHub", "Repozytoria", "Aktywność", "Ustawienia", "Integracja GitHub", "Ładowanie…",
@@ -277,6 +299,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Spróbuj ponownie",
     "Obserwuj zaznaczone ({n})", "Zaznacz {repo}",
     "Interwał odświeżania (minuty)", "Jak często otwarte zgłoszenia i pull requesty są pobierane z GitHub.",
+    // My pull requests
+    "Moje pull requesty", "Nie masz żadnego otwartego pull requesta.", "Testy zaliczone", "Testy nieudane", "Testy w toku",
   ],
   ro: [
     "GitHub", "Depozite", "Activitate", "Setări", "Integrarea GitHub", "Se încarcă…",
@@ -300,6 +324,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Reîncearcă",
     "Urmărește selecția ({n})", "Selectează {repo}",
     "Interval de actualizare (minute)", "Cât de des sunt preluate de la GitHub issue-urile și pull request-urile deschise.",
+    // My pull requests
+    "Pull request-urile mele", "Nu ai niciun pull request deschis.", "Verificări reușite", "Verificări eșuate", "Verificări în curs",
   ],
   da: [
     "GitHub", "Repositories", "Aktivitet", "Indstillinger", "GitHub-integration", "Indlæser…",
@@ -323,6 +349,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Prøv igen",
     "Følg valgte ({n})", "Vælg {repo}",
     "Opdateringsinterval (minutter)", "Hvor ofte de åbne issues og pull requests hentes fra GitHub.",
+    // My pull requests
+    "Mine pull requests", "Du har ingen åbne pull requests.", "Tjek bestået", "Tjek mislykkedes", "Tjek i gang",
   ],
   sv: [
     "GitHub", "Repon", "Aktivitet", "Inställningar", "GitHub-integration", "Laddar…",
@@ -346,6 +374,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Försök igen",
     "Följ valda ({n})", "Välj {repo}",
     "Uppdateringsintervall (minuter)", "Hur ofta öppna ärenden och pull requests hämtas från GitHub.",
+    // My pull requests
+    "Mina pull requests", "Du har inga öppna pull requests.", "Kontroller godkända", "Kontroller misslyckades", "Kontroller pågår",
   ],
   bg: [
     "GitHub", "Хранилища", "Активност", "Настройки", "Интеграция GitHub", "Зареждане…",
@@ -369,6 +399,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Опитай отново",
     "Следи избраните ({n})", "Избери {repo}",
     "Интервал на опресняване (минути)", "Колко често отворените проблеми и pull заявки се извличат от GitHub.",
+    // My pull requests
+    "Моите pull заявки", "Нямате отворени pull заявки.", "Проверките успешни", "Проверките неуспешни", "Проверките текат",
   ],
   ru: [
     "GitHub", "Репозитории", "Активность", "Настройки", "Интеграция GitHub", "Загрузка…",
@@ -392,6 +424,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Повторить",
     "Отслеживать выбранные ({n})", "Выбрать {repo}",
     "Интервал обновления (минуты)", "Как часто открытые задачи и pull-запросы запрашиваются с GitHub.",
+    // My pull requests
+    "Мои pull-запросы", "У вас нет открытых pull-запросов.", "Проверки пройдены", "Проверки не пройдены", "Проверки выполняются",
   ],
   uk: [
     "GitHub", "Репозиторії", "Активність", "Налаштування", "Інтеграція GitHub", "Завантаження…",
@@ -415,6 +449,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Повторити",
     "Відстежувати вибрані ({n})", "Вибрати {repo}",
     "Інтервал оновлення (хвилини)", "Як часто відкриті задачі та pull-запити отримуються з GitHub.",
+    // My pull requests
+    "Мої pull-запити", "У вас немає відкритих pull-запитів.", "Перевірки пройдено", "Перевірки не пройдено", "Перевірки виконуються",
   ],
   hu: [
     "GitHub", "Tárolók", "Tevékenység", "Beállítások", "GitHub integráció", "Betöltés…",
@@ -438,6 +474,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Újra",
     "Kijelöltek követése ({n})", "{repo} kijelölése",
     "Frissítési időköz (perc)", "Milyen gyakran töltődnek le a nyitott hibajegyek és pull requestek a GitHubról.",
+    // My pull requests
+    "Saját pull requestjeim", "Nincs nyitott pull requested.", "Ellenőrzések rendben", "Ellenőrzések sikertelenek", "Ellenőrzések folyamatban",
   ],
   sk: [
     "GitHub", "Repozitáre", "Aktivita", "Nastavenia", "Integrácia GitHub", "Načítava sa…",
@@ -461,6 +499,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Skúsiť znova",
     "Sledovať vybrané ({n})", "Vybrať {repo}",
     "Interval obnovenia (minúty)", "Ako často sa otvorené problémy a pull requesty načítavajú z GitHubu.",
+    // My pull requests
+    "Moje pull requesty", "Nemáte žiadny otvorený pull request.", "Kontroly prešli", "Kontroly zlyhali", "Kontroly prebiehajú",
   ],
   cs: [
     "GitHub", "Repozitáře", "Aktivita", "Nastavení", "Integrace GitHub", "Načítání…",
@@ -484,6 +524,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Zkusit znovu",
     "Sledovat vybrané ({n})", "Vybrat {repo}",
     "Interval obnovení (minuty)", "Jak často se otevřené problémy a pull requesty načítají z GitHubu.",
+    // My pull requests
+    "Moje pull requesty", "Nemáte žádný otevřený pull request.", "Kontroly prošly", "Kontroly selhaly", "Kontroly probíhají",
   ],
   sl: [
     "GitHub", "Repozitoriji", "Dejavnost", "Nastavitve", "Integracija GitHub", "Nalaganje…",
@@ -507,6 +549,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Poskusi znova",
     "Spremljaj izbrane ({n})", "Izberi {repo}",
     "Interval osveževanja (minute)", "Kako pogosto se odprte težave in pull requesti pridobijo z GitHuba.",
+    // My pull requests
+    "Moji pull requesti", "Nimate odprtega pull requesta.", "Preverjanja uspešna", "Preverjanja neuspešna", "Preverjanja potekajo",
   ],
   lv: [
     "GitHub", "Krātuves", "Aktivitāte", "Iestatījumi", "GitHub integrācija", "Ielādē…",
@@ -530,6 +574,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Mēģināt vēlreiz",
     "Sekot atlasītajām ({n})", "Atlasīt {repo}",
     "Atsvaidzināšanas intervāls (minūtes)", "Cik bieži atvērtās problēmas un pull pieprasījumi tiek iegūti no GitHub.",
+    // My pull requests
+    "Mani pull pieprasījumi", "Jums nav neviena atvērta pull pieprasījuma.", "Pārbaudes nokārtotas", "Pārbaudes neizdevās", "Pārbaudes norisinās",
   ],
   el: [
     "GitHub", "Αποθετήρια", "Δραστηριότητα", "Ρυθμίσεις", "Ενσωμάτωση GitHub", "Φόρτωση…",
@@ -553,6 +599,8 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Δοκιμή ξανά",
     "Παρακολούθηση επιλεγμένων ({n})", "Επιλογή {repo}",
     "Διάστημα ανανέωσης (λεπτά)", "Πόσο συχνά ανακτώνται από το GitHub τα ανοιχτά ζητήματα και pull requests.",
+    // My pull requests
+    "Τα pull requests μου", "Δεν έχετε κανένα ανοιχτό pull request.", "Έλεγχοι επιτυχείς", "Έλεγχοι απέτυχαν", "Έλεγχοι σε εξέλιξη",
   ],
 };
 
@@ -715,6 +763,8 @@ class GitHubPanel extends HTMLElement {
     this._items = null; // open issues and pull requests, loaded with the first of their tabs
     this._itemsBusy = false;
     this._itemRepo = ""; // repository filter of the Issues and Pull requests tabs
+    this._mine = null; // my open pull requests (any repository), loaded when the My pull requests tab opens
+    this._mineBusy = false;
     this._sort = "followed"; // order of the Repositories tab
     try {
       const saved = localStorage.getItem("github_card.repos_sort");
@@ -919,6 +969,8 @@ class GitHubPanel extends HTMLElement {
     }
     // The issues and pull requests are not fetched when their tab opens: a background poller fetches them on its
     // interval and pushes them here (see _subscribeItems).
+    // My pull requests are not followed repositories, so they load the first time their tab opens (then cached).
+    if (tab === "mine" && !this._mine && !this._mineBusy) this._loadMine();
   }
 
   _render() {
@@ -941,6 +993,7 @@ class GitHubPanel extends HTMLElement {
         <section id="tab-repos" role="tabpanel" aria-labelledby="tabbtn-repos"><div id="repos"></div></section>
         <section id="tab-issues" role="tabpanel" aria-labelledby="tabbtn-issues"><div id="issues"></div></section>
         <section id="tab-pulls" role="tabpanel" aria-labelledby="tabbtn-pulls"><div id="pulls"></div></section>
+        <section id="tab-mine" role="tabpanel" aria-labelledby="tabbtn-mine"><div id="mine"></div></section>
         <section id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings"><div id="settings"></div></section>
       </main>`;
     this._menu = root.querySelector("ha-menu-button");
@@ -963,6 +1016,7 @@ class GitHubPanel extends HTMLElement {
     this._renderRepos();
     this._renderItems("issues");
     this._renderItems("pulls");
+    this._renderMine();
     this._renderSettings();
   }
 
@@ -1311,11 +1365,12 @@ class GitHubPanel extends HTMLElement {
     }
   }
 
-  _itemHtml(item, kind) {
+  // `hideAuthor`: the My pull requests tab, where every pull request is the viewer's own, so "by me" is noise.
+  _itemHtml(item, kind, hideAuthor = false) {
     const esc = githubPanelEsc;
     const meta = [
       `<span>${esc(item.repo)} #${esc(item.number)}</span>`,
-      item.author ? `<span>${esc(this._t("by", { author: item.author }))}</span>` : "",
+      item.author && !hideAuthor ? `<span>${esc(this._t("by", { author: item.author }))}</span>` : "",
       item.updated ? `<span title="${esc(item.updated)}">${esc(this._t("updated", { when: this._ago(item.updated) }))}</span>` : "",
       item.comments ? `<span title="${esc(this._t("comments", { n: item.comments }))}">${githubPanelIcon("comment")}${esc(item.comments)}</span>` : "",
     ];
@@ -1324,6 +1379,15 @@ class GitHubPanel extends HTMLElement {
         ? ["muted", "draft"]
         : { APPROVED: ["good", "approved"], CHANGES_REQUESTED: ["bad", "changes_requested"], REVIEW_REQUIRED: ["warn", "review_required"] }[item.review];
       if (review) meta.push(`<span class="rev ${review[0]}">${esc(this._t(review[1]))}</span>`);
+      // The rolled-up state of the pull request's checks (My pull requests tab; absent elsewhere)
+      const checks = {
+        SUCCESS: ["good", "checks_passing"],
+        FAILURE: ["bad", "checks_failing"],
+        ERROR: ["bad", "checks_failing"],
+        PENDING: ["warn", "checks_pending"],
+        EXPECTED: ["warn", "checks_pending"],
+      }[item.checks];
+      if (checks) meta.push(`<span class="rev ${checks[0]}">${esc(this._t(checks[1]))}</span>`);
     }
     for (const label of item.labels || []) {
       const color = /^[0-9a-f]{6}$/i.test(label.color) ? `#${label.color}` : "var(--secondary-text-color)";
@@ -1375,6 +1439,46 @@ class GitHubPanel extends HTMLElement {
       this._renderItems("pulls");
     });
     host.querySelector("[data-action=refresh]")?.addEventListener("click", () => this._refreshItems());
+  }
+
+  // ── My pull requests tab ──
+
+  // Load my open pull requests (any repository). The server caches them for a few minutes; the first open of the
+  // tab fetches them, the Refresh button (refresh=true) asks GitHub again.
+  async _loadMine(refresh = false) {
+    if (!this._hass) return;
+    this._mineBusy = true;
+    this._renderMine();
+    try {
+      this._mine = await this._hass.callWS({ type: "github_card/mine", refresh });
+    } catch (err) {
+      this._mine = { pulls: [], error: err?.message || String(err) };
+    }
+    this._mineBusy = false;
+    this._renderMine();
+  }
+
+  _renderMine() {
+    const host = this.shadowRoot.getElementById?.("mine");
+    if (!host) return;
+    const esc = githubPanelEsc;
+    // Not opened yet, or the fetch is in flight: show loading.
+    if (!this._mine || this._mine.pending || (this._mineBusy && !this._mine.pulls)) {
+      host.innerHTML = `<div class="box"><div class="note">${esc(this._t("loading"))}</div></div>`;
+      return;
+    }
+    const pulls = this._mine.pulls || [];
+    const notes = [];
+    if (this._mine.error) notes.push(`<div class="note bad" role="status">${esc(this._t("items_error", { error: this._mine.error }))}</div>`);
+    host.innerHTML = `<div class="box">
+        <div class="head">
+          <span class="sum">${esc(this._t("open_n", { n: pulls.length }))}</span>
+          <button class="act" data-action="refresh"${this._mineBusy ? " disabled" : ""}>${githubPanelIcon("refresh")}${esc(this._t("refresh"))}</button>
+        </div>
+        ${notes.join("")}
+        <div class="list">${pulls.length ? pulls.map((i) => this._itemHtml(i, "pulls", true)).join("") : `<div class="note">${esc(this._t("no_mine"))}</div>`}</div>
+      </div>`;
+    host.querySelector("[data-action=refresh]")?.addEventListener("click", () => this._loadMine(true));
   }
 
   // ── Settings tab ──

@@ -2,8 +2,9 @@
 
 ## Purpose
 Home Assistant custom integration (domain `github_card`, repository juju35/ha-github) on top of the core `github`
-integration: an admin sidebar panel to follow repositories and read their open issues / pull requests, the bundled
-Lovelace cards (`github-card`, `github-mini-card`), and optional notifications of new issues / pull requests.
+integration: an admin sidebar panel to follow repositories and read their open issues / pull requests (and the viewer's own
+open pull requests across every repository), the bundled Lovelace cards (`github-card`, `github-mini-card`), and
+optional notifications of new issues / pull requests.
 It has no token of its own and creates no entity.
 
 ## Architecture
@@ -17,7 +18,8 @@ custom_components/github_card/
 │                    # integration's own subentry flow, then aborted), async_apply: one unload / setup of the github
 │                    # entry for a whole follow / unfollow change
 ├── items.py         # Open issues / PRs via GitHub GraphQL with the github entry's access_token, 20 repos per query,
-│                    # cached 5 minutes in hass.data[DOMAIN]["items"]
+│                    # cached 5 minutes in hass.data[DOMAIN]["items"]; also async_mine: the viewer's own open PRs in
+│                    # any repository (a GitHub search, author:@me), cached in hass.data[DOMAIN]["mine"]
 ├── archived.py    # Which offered repositories are archived (GraphQL, 50 per query, cached 10 minutes), for the
 │                    # ignore_archived setting
 ├── notify.py        # Persistent notification when a github latest_issue / latest_pull_request number grows

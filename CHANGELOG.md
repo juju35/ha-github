@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.10.0 - 2026-11-15
+
+### Features
+- **My pull requests tab.** A new panel tab lists the open pull requests you authored, in any repository — not only the followed ones. It comes from a single GitHub search with the GitHub integration's token (`is:pr is:open author:@me`), cached for a few minutes like the other items, and shows each pull request's repository, number, title, age, comments, labels, review state and the rolled-up state of its checks. The list loads when the tab opens and the Refresh button asks GitHub again.
+
 ## 2.9.1 - 2026-11-15
 
 ### Maintenance

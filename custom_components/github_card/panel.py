@@ -9,6 +9,8 @@ Issues and Pull requests (open ones of the followed repositories) and Settings. 
 - ``github_card/follow``: follows and unfollows repositories, with a single reload of the GitHub entry;
 - ``github_card/items``: the open issues and pull requests of the followed repositories (GitHub GraphQL API,
   with the GitHub integration's token, cached for 5 minutes; ``refresh`` asks GitHub again);
+- ``github_card/mine``: the open pull requests authored by the token's user, in any repository (GitHub search,
+  cached for 5 minutes; ``refresh`` asks GitHub again);
 - ``github_card/settings`` / ``github_card/update_settings``: the settings (options of the entry).
 """
 
@@ -40,7 +42,7 @@ from .const import (
     SIGNAL_ITEMS_UPDATED,
     VERSION,
 )
-from .items import async_items, current_items
+from .items import async_items, async_mine, current_items
 from .repositories import async_apply, async_overview
 
 MAX_REPOSITORIES = 500
@@ -58,7 +60,15 @@ async def async_register_panel(hass: HomeAssistant) -> None:
         require_admin=True,
         config={"version": VERSION},
     )
-    for command in (_ws_repositories, _ws_follow, _ws_items, _ws_subscribe_items, _ws_settings, _ws_update_settings):
+    for command in (
+        _ws_repositories,
+        _ws_follow,
+        _ws_items,
+        _ws_subscribe_items,
+        _ws_mine,
+        _ws_settings,
+        _ws_update_settings,
+    ):
         websocket_api.async_register_command(hass, command)
 
 
@@ -135,6 +145,16 @@ async def _ws_subscribe_items(hass: HomeAssistant, connection: websocket_api.Act
     connection.subscriptions[msg["id"]] = async_dispatcher_connect(hass, SIGNAL_ITEMS_UPDATED, _forward)
     connection.send_result(msg["id"])
     _forward()
+
+
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/mine", vol.Optional("refresh", default=False): bool})
+@websocket_api.require_admin
+@websocket_api.async_response
+async def _ws_mine(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """The open pull requests of the token's user, across every repository. Cached 5 minutes by the integration;
+    ``refresh`` (the panel's Refresh button) asks GitHub again."""
+    mine = await async_mine(hass, refresh=msg["refresh"])
+    connection.send_result(msg["id"], mine.as_dict())
 
 
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/settings"})

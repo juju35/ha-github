@@ -236,3 +236,53 @@ test("Retry loads again at once", async () => {
   assert.equal(reloads, 1);
   assert.equal(lib.GITHUB_PANEL_STRINGS.fr.retry, "Réessayer");
 });
+
+test("My pull requests: the list is loaded once the tab opens, then cached", async () => {
+  const calls = [];
+  const p = panel(calls);
+  p._hass.callWS = async (msg) => {
+    calls.push(msg);
+    return { pulls: [], viewer: "juju35", fetched_at: 1, error: null, pending: false };
+  };
+  // Opening another tab does not fetch; opening My pull requests does, exactly once.
+  p._showTab("issues");
+  assert.equal(calls.filter((c) => c.type === "github_card/mine").length, 0);
+  p._showTab("mine");
+  await new Promise((r) => setTimeout(r));
+  assert.equal(calls.filter((c) => c.type === "github_card/mine").length, 1);
+  p._showTab("mine");
+  assert.equal(calls.filter((c) => c.type === "github_card/mine").length, 1);
+});
+
+test("My pull requests render: repository, review and checks, no redundant author, with the Refresh button", () => {
+  const p = panel();
+  p._mine = {
+    pulls: [
+      { repo: "home-assistant/core", number: 155412, title: "Add diagnostics", url: "https://github.com/home-assistant/core/pull/155412",
+        author: "juju35", updated: new Date().toISOString(), comments: 2, labels: [], draft: false, review: "REVIEW_REQUIRED", checks: "SUCCESS" },
+    ],
+    viewer: "juju35", fetched_at: 1, error: null, pending: false,
+  };
+  const host = { innerHTML: "", querySelector: () => ({ addEventListener() {} }), querySelectorAll: () => [] };
+  p.shadowRoot.getElementById = (id) => (id === "mine" ? host : null);
+  p._renderMine();
+  assert.match(host.innerHTML, /home-assistant\/core #155412/);
+  assert.match(host.innerHTML, /Revue requise/); // review state
+  assert.match(host.innerHTML, /Tests réussis/); // checks state
+  assert.match(host.innerHTML, /Actualiser/); // Refresh button
+  // The author is the viewer, so "by me" is not shown
+  assert.doesNotMatch(host.innerHTML, /juju35</);
+});
+
+test("My pull requests: the empty and pending states", () => {
+  const p = panel();
+  const host = { innerHTML: "", querySelector: () => null, querySelectorAll: () => [] };
+  p.shadowRoot.getElementById = (id) => (id === "mine" ? host : null);
+  // Not loaded yet: loading
+  p._renderMine();
+  assert.match(host.innerHTML, /Chargement/);
+  // Loaded, none: the empty message
+  p._mine = { pulls: [], viewer: "juju35", fetched_at: 1, error: null, pending: false };
+  p._renderMine();
+  assert.match(host.innerHTML, /aucune pull request ouverte/);
+});

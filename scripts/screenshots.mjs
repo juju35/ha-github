@@ -93,6 +93,19 @@ const panelMock = {
     fetched_at: NOW / 1000,
     error: null,
   },
+  "github_card/mine": {
+    pulls: [
+      { repo: "home-assistant/core", number: 155412, title: "Add diagnostics to the GitHub integration", url: "https://github.com/home-assistant/core/pull/155412",
+        updated: new Date(NOW - 40 * 60e3).toISOString(), comments: 3, labels: [{ name: "integration: github", color: "fbca04" }], draft: false, review: "REVIEW_REQUIRED", checks: "SUCCESS" },
+      { repo: "home-assistant/home-assistant.io", number: 41022, title: "Document the GitHub Card refresh interval", url: "https://github.com/home-assistant/home-assistant.io/pull/41022",
+        updated: new Date(NOW - 22 * 3600e3).toISOString(), comments: 1, labels: [{ name: "current", color: "0e8a16" }], draft: false, review: "CHANGES_REQUESTED", checks: "FAILURE" },
+      { repo: "juju35/ha-parcel", number: 97, title: "Translations: Greek and Latvian", url: "https://github.com/juju35/ha-parcel/pull/97",
+        updated: new Date(NOW - 3 * 86400e3).toISOString(), comments: 0, labels: [{ name: "i18n", color: "5319e7" }], draft: true, review: null, checks: "PENDING" },
+    ],
+    viewer: "juju35",
+    fetched_at: NOW / 1000,
+    error: null,
+  },
   "github_card/settings": { settings: { filter: "juju35/ha-*", include_starred: true, ignore_archived: true, notify_issues: true, notify_pulls: false } },
 };
 

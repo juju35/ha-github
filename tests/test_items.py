@@ -8,7 +8,7 @@ from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 
 from custom_components.github_card.const import DOMAIN
-from custom_components.github_card.items import GRAPHQL_URL, async_items, build_query, parse
+from custom_components.github_card.items import GRAPHQL_URL, async_items, async_mine, build_query, parse
 
 from .test_init import _setup, _ws
 
@@ -165,3 +165,81 @@ def test_a_repository_followed_under_two_names_is_counted_once():
     seen = set()
     parse(_answer()["data"], seen)
     assert parse(_answer()["data"], seen) == ([], [], {})
+
+
+# ── My pull requests (the open pull requests authored by the token's user, in any repository) ──
+
+
+def _mine_answer():
+    """A GitHub search answer: two of the viewer's open pull requests, in repositories they do not follow."""
+    pr = {
+        **NODE,
+        "number": 155412,
+        "title": "Add diagnostics to the GitHub integration",
+        "url": "https://github.com/home-assistant/core/pull/155412",
+        "author": {"login": "juju35"},
+        "isDraft": False,
+        "reviewDecision": "REVIEW_REQUIRED",
+        "repository": {"nameWithOwner": "home-assistant/core"},
+        "commits": {"nodes": [{"commit": {"statusCheckRollup": {"state": "SUCCESS"}}}]},
+    }
+    older = {
+        **pr,
+        "number": 97,
+        "title": "Translations: Greek",
+        "url": "https://github.com/juju35/some-fork/pull/97",
+        "updatedAt": "2026-11-02T10:00:00Z",
+        "isDraft": True,
+        "reviewDecision": None,
+        "repository": {"nameWithOwner": "juju35/some-fork"},
+        "commits": {"nodes": [{"commit": {"statusCheckRollup": None}}]},
+    }
+    return {"data": {"viewer": {"login": "juju35"}, "search": {"nodes": [older, pr]}}}
+
+
+async def test_mine_parses_repo_review_and_checks(hass, aioclient_mock, github):
+    aioclient_mock.post(GRAPHQL_URL, json=_mine_answer())
+    mine = await async_mine(hass)
+    assert mine.error is None and mine.viewer == "juju35"
+    # Most recently updated first, across every repository (not only the followed ones)
+    assert [p["number"] for p in mine.pulls] == [155412, 97]
+    first = mine.pulls[0]
+    assert first["repo"] == "home-assistant/core"
+    assert first["review"] == "REVIEW_REQUIRED" and first["draft"] is False and first["checks"] == "SUCCESS"
+    # A pull request with no rolled-up checks state carries None, not an error
+    assert mine.pulls[1]["draft"] is True and mine.pulls[1]["checks"] is None
+
+
+async def test_mine_cached_then_refreshed(hass, aioclient_mock, github):
+    aioclient_mock.post(GRAPHQL_URL, json=_mine_answer())
+    await async_mine(hass)
+    assert aioclient_mock.call_count == 1
+    assert aioclient_mock.mock_calls[0][3]["Authorization"] == "Bearer tok"
+    await async_mine(hass)
+    assert aioclient_mock.call_count == 1  # cached
+    await async_mine(hass, refresh=True)
+    assert aioclient_mock.call_count == 2
+
+
+async def test_mine_errors(hass, aioclient_mock, github):
+    aioclient_mock.post(GRAPHQL_URL, status=403)
+    assert (await async_mine(hass)).error == "http_403"
+
+
+async def test_mine_without_github_or_token(hass):
+    assert (await async_mine(hass)).error == "github_not_configured"
+    MockConfigEntry(domain="github", data={}).add_to_hass(hass)
+    assert (await async_mine(hass)).error == "no_token"
+
+
+async def test_mine_command_queries_github_and_hides_the_token(hass, aioclient_mock, github, hass_ws_client):
+    """The My pull requests tab reads github_card/mine; the token never reaches the panel."""
+    aioclient_mock.post(GRAPHQL_URL, json=_mine_answer())
+    entry = MockConfigEntry(domain=DOMAIN, data={}, options={})
+    entry.add_to_hass(hass)
+    await _setup(hass, entry)
+    msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/mine"})
+    assert msg["result"]["viewer"] == "juju35"
+    assert msg["result"]["pulls"][0]["url"] == "https://github.com/home-assistant/core/pull/155412"
+    assert msg["result"]["pending"] is False
+    assert "tok" not in str(msg)
