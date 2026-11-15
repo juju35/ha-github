@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.0 - 2026-11-15
+
+### Features
+- **A count of open issues and pull requests on the sidebar.** The GitHub item in the sidebar now carries a badge with the number of open issues and pull requests of the followed repositories, like the notifications count. It mirrors Home Assistant's own badge — a mark over the icon when the sidebar is collapsed, a number at the end of the row when it is expanded. It is read for every administrator every 5 minutes (from the 5-minute cache, no extra GitHub call), even with the panel closed, and goes away when there is nothing open.
+
 ## 2.7.2 - 2026-11-14
 
 ### Fixes

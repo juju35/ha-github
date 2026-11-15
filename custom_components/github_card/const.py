@@ -1,7 +1,7 @@
 """Constants for the GitHub Card integration."""
 
 DOMAIN = "github_card"
-VERSION = "2.7.2"
+VERSION = "2.8.0"
 
 # The core GitHub integration, whose repositories the panel follows and unfollows
 GITHUB_DOMAIN = "github"
@@ -13,6 +13,8 @@ CONF_REPOSITORY = "repository"
 URL_BASE = f"/{DOMAIN}"
 CARD_URL = f"{URL_BASE}/github-card.js"
 PANEL_URL = f"{URL_BASE}/github-panel.js"
+# Loaded on every page: the sidebar badge (open issues and pull requests count on the GitHub panel item)
+BADGE_URL = f"{URL_BASE}/github-badge.js"
 PANEL_PATH = "github-config"
 # Resource of the card installed as a dashboard plugin before 2.0, replaced by the integration's
 LEGACY_CARD_PATH = "/ha-github-card/github-card.js"

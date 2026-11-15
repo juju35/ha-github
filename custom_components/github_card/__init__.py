@@ -15,7 +15,7 @@ from homeassistant.core import CoreState, Event, HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
-from .const import CARD_URL, DEFAULTS, DOMAIN, LEGACY_CARD_PATH, PANEL_PATH, PANEL_URL, VERSION
+from .const import BADGE_URL, CARD_URL, DEFAULTS, DOMAIN, LEGACY_CARD_PATH, PANEL_PATH, PANEL_URL, VERSION
 from .notify import NewItemNotifier
 from .panel import async_register_panel
 
@@ -24,6 +24,8 @@ _LOGGER = logging.getLogger(__name__)
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 # Set once the card is loaded, cleared when the entry is removed
 CARD_LOADED = f"{DOMAIN}_card_loaded"
+# Set once the sidebar badge module is loaded on every page
+BADGE_LOADED = f"{DOMAIN}_badge_loaded"
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
@@ -33,6 +35,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         [
             StaticPathConfig(CARD_URL, str(base / "github-card.js"), True),
             StaticPathConfig(PANEL_URL, str(base / "github-panel.js"), True),
+            StaticPathConfig(BADGE_URL, str(base / "github-badge.js"), True),
         ]
     )
     return True
@@ -41,6 +44,12 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Add the sidebar panel, load the card on every dashboard, and watch for new issues / pull requests."""
     await async_register_panel(hass)
+
+    # The sidebar badge module, loaded on every page (once), so the open issues / pull requests count shows on the
+    # GitHub panel item even with the panel closed.
+    if not hass.data.get(BADGE_LOADED):
+        hass.data[BADGE_LOADED] = True
+        add_extra_js_url(hass, f"{BADGE_URL}?v={VERSION}")
 
     async def _register(_: Event | None = None) -> None:
         if not hass.data.get(CARD_LOADED):
