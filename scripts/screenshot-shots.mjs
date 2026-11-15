@@ -10,6 +10,8 @@ const pairs = [
   { light: "panel-settings", dark: "panel-settings-dark", width: 820, panel: "settings" },
   { light: "mini-card", dark: "mini-card-dark", type: "github-mini-card", width: 380, config: {} },
   { light: "mini-card-zoom", dark: "mini-card-zoom-dark", type: "github-mini-card", width: 460, config: {}, zoom: "dev_parcel" },
+  // The sidebar entry with the count badge: the open issues plus pull requests, amber when there are open issues.
+  { light: "sidebar", dark: "sidebar-dark", sidebar: true, width: 256 },
 ];
 
 export const shots = pairs.flatMap(({ light, dark, ...setup }) => [

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.9.1 - 2026-11-15
+
+### Maintenance
+- Added a README screenshot of the sidebar entry with its count badge (open issues plus pull requests), in both themes.
+
 ## 2.9.0 - 2026-11-15
 
 ### Features

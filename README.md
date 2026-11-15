@@ -91,7 +91,11 @@ The former card resource (`/hacsfiles/ha-github-card/github-card.js` or `/local/
 
 ## Panel
 
-The **GitHub** entry of the sidebar, for administrators only.
+The **GitHub** entry of the sidebar, for administrators only. It carries a count badge — the open issues plus pull requests across the followed repositories — amber when there are open issues, the accent colour when there are only pull requests, like the notifications count; it disappears when there is nothing open.
+
+| Light | Dark |
+|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/sidebar.png" alt="Sidebar count badge" width="256"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/sidebar-dark.png" alt="Sidebar count badge dark" width="256"> |
 
 | Light | Dark |
 |---|---|

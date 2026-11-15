@@ -110,7 +110,35 @@ async function openCard(s) {
   await page.addScriptTag({ content: cardJs });
   if (s.panel) await page.addScriptTag({ content: panelJs });
   await page.evaluate(
-    ({ type, config, states, entities, devices, open, zoom, panel, mock, expand, select }) => {
+    ({ type, config, states, entities, devices, open, zoom, panel, mock, expand, select, sidebar }) => {
+      if (sidebar) {
+        // A faithful mock of Home Assistant's sidebar entry with the count badge (open issues + pull requests),
+        // amber here because there are open issues, like the native notifications count. No real sidebar is mounted.
+        const GITHUB =
+          "M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z";
+        const HOME = "M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z";
+        const COG =
+          "M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z";
+        const icon = (path, color) =>
+          `<svg viewBox="0 0 24 24" style="width:24px;height:24px;flex:none;fill:${color};"><path d="${path}"></path></svg>`;
+        const row = (path, label, on, badge) =>
+          `<div style="display:flex;align-items:center;gap:14px;padding:10px 16px;font-size:14px;` +
+          (on
+            ? `background:rgba(3,169,244,.12);border-left:3px solid var(--primary-color);padding-left:13px;color:var(--primary-color);"`
+            : `color:var(--secondary-text-color);"`) +
+          `>${icon(path, on ? "var(--primary-color)" : "var(--secondary-text-color)")}` +
+          `<span style="flex:1;${on ? "" : "color:var(--primary-text-color);"}">${label}</span>` +
+          (badge
+            ? `<span class="badge" style="min-width:18px;height:18px;box-sizing:border-box;padding:0 5px;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;font-size:11px;font-weight:500;line-height:1;background:var(--warning-color);color:rgba(0,0,0,.87);">${badge}</span>`
+            : "") +
+          `</div>`;
+        document.getElementById("root").innerHTML =
+          `<div style="--warning-color:#ffa600;width:224px;background:var(--card-background-color);border:1px solid var(--divider-color);border-radius:12px;overflow:hidden;">` +
+          `<div style="padding:14px 16px;font-weight:500;color:var(--primary-text-color);border-bottom:1px solid var(--divider-color);">Home Assistant</div>` +
+          `<div style="padding:6px 0;">${row(HOME, "Overview", false, "")}${row(GITHUB, "GitHub", true, "3")}${row(COG, "Settings", false, "")}</div>` +
+          `</div>`;
+        return;
+      }
       if (panel) {
         // The sidebar panel, its WebSocket commands answered with the mock repositories and settings.
         const el = document.createElement("github-panel");
@@ -138,7 +166,7 @@ async function openCard(s) {
         el._update();
       }
     },
-    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, panel: s.panel, mock: panelMock, expand: s.expand, select: s.select }
+    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, panel: s.panel, mock: panelMock, expand: s.expand, select: s.select, sidebar: s.sidebar }
   );
   await page.waitForTimeout(800);
   return page;
