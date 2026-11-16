@@ -8,7 +8,14 @@ from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 
 from custom_components.github_card.const import DOMAIN
-from custom_components.github_card.items import GRAPHQL_URL, async_items, async_mine, build_query, parse
+from custom_components.github_card.items import (
+    GRAPHQL_URL,
+    MINE_QUERY,
+    async_items,
+    async_mine,
+    build_query,
+    parse,
+)
 
 from .test_init import _setup, _ws
 
@@ -224,6 +231,34 @@ async def test_mine_cached_then_refreshed(hass, aioclient_mock, github):
 async def test_mine_errors(hass, aioclient_mock, github):
     aioclient_mock.post(GRAPHQL_URL, status=403)
     assert (await async_mine(hass)).error == "http_403"
+
+
+async def test_mine_reports_graphql_errors(hass, aioclient_mock, github):
+    """GitHub refuses a query with HTTP 200 and `errors`: an error for the tab, not an empty list, and not cached."""
+    aioclient_mock.post(GRAPHQL_URL, json={"errors": [{"message": 'Parse error on "}" (RCURLY)'}]})
+    mine = await async_mine(hass)
+    assert mine.error == 'graphql: Parse error on "}" (RCURLY)' and mine.pulls == []
+    await async_mine(hass)
+    assert aioclient_mock.call_count == 2
+
+
+def _balanced(query: str) -> bool:
+    """Every brace and parenthesis of a GraphQL query closes one that is open (none in its string literals)."""
+    depth = {"{": 0, "(": 0}
+    for ch in query:
+        if ch in "{(":
+            depth[ch] += 1
+        elif ch in "})":
+            depth["{" if ch == "}" else "("] -= 1
+            if min(depth.values()) < 0:
+                return False
+    return depth == {"{": 0, "(": 0}
+
+
+def test_queries_are_balanced():
+    """The answers are mocked, so a query GitHub would refuse goes unnoticed elsewhere: its braces are checked."""
+    assert _balanced(MINE_QUERY)
+    assert _balanced(build_query(["juju35/ha-parcel", "juju35/ha-github"]))
 
 
 async def test_mine_without_github_or_token(hass):

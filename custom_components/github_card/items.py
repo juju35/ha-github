@@ -212,7 +212,7 @@ MINE_QUERY = (
     "query { viewer { login } "
     f"search(query: {json.dumps(MINE_SEARCH)}, type: ISSUE, first: {PER_REPO}) {{ nodes {{ "
     f"... on PullRequest {{ {_FIELDS} isDraft reviewDecision repository {{ nameWithOwner }} "
-    "commits(last: 1) { nodes { commit { statusCheckRollup { state } } } } } } } } }"
+    "commits(last: 1) { nodes { commit { statusCheckRollup { state } } } } } } } }"
 )
 
 
@@ -272,6 +272,11 @@ async def async_mine(hass: HomeAssistant, refresh: bool = False) -> Mine:
     except (aiohttp.ClientError, TimeoutError, ValueError, KeyError) as err:
         return Mine(error=type(err).__name__)
     data = body.get("data") or {}
+    # A query GitHub refuses (invalid, or a field the token may not read) comes back as HTTP 200 with `errors` and
+    # no search: reported as an error rather than shown as "no pull requests", and not cached.
+    errors = body.get("errors") or []
+    if errors and not data.get("search"):
+        return Mine(error=f"graphql: {(errors[0] or {}).get('message') or 'error'}")
     nodes = (data.get("search") or {}).get("nodes") or []
     pulls = sorted((_mine_item(n) for n in nodes if n), key=_newest, reverse=True)
     viewer = (data.get("viewer") or {}).get("login")
