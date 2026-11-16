@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.11.2 - 2026-11-16
+
+### Fixes
+- **Your own pull requests no longer appear twice.** The Pull requests tab now leaves out the pull requests you authored on the followed repositories — they already have their own My pull requests tab. They are dropped from the list, from the per-repository open counts and from the sidebar badge, so what is shown and what is counted match.
+
 ## 2.11.1 - 2026-11-16
 
 ### Fixes
