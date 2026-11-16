@@ -185,7 +185,13 @@ def _own_answer():
                 "pullRequests": {
                     "totalCount": 2,
                     "nodes": [
-                        {**NODE, "number": 97, "author": {"login": "octocat"}, "isDraft": False, "reviewDecision": None},
+                        {
+                            **NODE,
+                            "number": 97,
+                            "author": {"login": "octocat"},
+                            "isDraft": False,
+                            "reviewDecision": None,
+                        },
                         {**NODE, "number": 98, "author": {"login": "juju35"}, "isDraft": False, "reviewDecision": None},
                     ],
                 },
@@ -197,14 +203,14 @@ def _own_answer():
 
 def test_parse_drops_the_viewers_own_pull_requests():
     """The viewer's own pull requests are left out of the Pull requests list and of the open count."""
-    issues, pulls, totals = parse(_own_answer()["data"], viewer="juju35")
+    _issues, pulls, totals = parse(_own_answer()["data"], viewer="juju35")
     assert [p["number"] for p in pulls] == [97]  # 98 (authored by juju35) dropped
     assert totals == {"juju35/ha-parcel": {"issues": 1, "pulls": 1}}  # pulls 2 - 1 own
 
 
 def test_parse_keeps_every_pull_request_without_a_viewer():
     """With no viewer, nothing is filtered (back-compatible) and the viewer alias is ignored, not an error."""
-    issues, pulls, totals = parse(_own_answer()["data"])
+    _issues, pulls, totals = parse(_own_answer()["data"])
     assert {p["number"] for p in pulls} == {97, 98}
     assert totals["juju35/ha-parcel"]["pulls"] == 2
 
