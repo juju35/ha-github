@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.11.1 - 2026-11-16
+
+### Fixes
+- **My pull requests tab no longer stays empty.** The GraphQL search query closed one brace too many, so GitHub refused it (HTTP 200 with `errors` and no results) and the tab read that as "no pull requests". The brace is fixed; a query GitHub refuses is now surfaced as an error instead of an empty list, and is not cached.
+
 ## 2.11.0 - 2026-11-15
 
 ### Features
