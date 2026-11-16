@@ -59,7 +59,7 @@ def build_query(repos: list[str]) -> str:
             f"issues({_ORDER}) {{ totalCount nodes {{ {_FIELDS} }} }} "
             f"pullRequests({_ORDER}) {{ totalCount nodes {{ {_FIELDS} isDraft reviewDecision }} }} }}"
         )
-    return "query { " + " ".join(parts) + " }"
+    return "query { viewer { login } " + " ".join(parts) + " }"
 
 
 def _item(repo: str, node: dict[str, Any], pull: bool) -> dict[str, Any]:
@@ -88,14 +88,20 @@ def _newest(item: dict[str, Any]) -> str:
 
 
 def parse(
-    data: dict[str, Any], seen: set[str] | None = None
+    data: dict[str, Any], seen: set[str] | None = None, viewer: str | None = None
 ) -> tuple[list[dict], list[dict], dict[str, dict[str, int]]]:
-    """Issues and pull requests of a GraphQL answer, and the open totals per repository."""
+    """Issues and pull requests of a GraphQL answer, and the open totals per repository.
+
+    When ``viewer`` is the token's own login, the pull requests it authored are dropped — from the lists and from
+    the open counts — so a followed repository's own pull requests are not shown and counted twice: they already
+    have their own "My pull requests" tab.
+    """
     seen = set() if seen is None else seen
     issues, pulls, totals = [], [], {}
-    for repo_data in (data or {}).values():
-        if not repo_data:
-            continue  # a repository that no longer exists or is not readable: its alias is null
+    viewer_cf = viewer.casefold() if viewer else None
+    for alias, repo_data in (data or {}).items():
+        if alias == "viewer" or not repo_data:
+            continue  # the viewer's login (not a repository), or a repository that no longer exists / is not readable
         repo = repo_data["nameWithOwner"]
         # A repository followed under two names (its former name redirects to the new one) comes back twice:
         # counted once. `seen` carries the repositories already read from the previous queries.
@@ -103,8 +109,14 @@ def parse(
             continue
         seen.add(repo.casefold())
         issues += [_item(repo, n, False) for n in repo_data["issues"]["nodes"]]
-        pulls += [_item(repo, n, True) for n in repo_data["pullRequests"]["nodes"]]
-        totals[repo] = {"issues": repo_data["issues"]["totalCount"], "pulls": repo_data["pullRequests"]["totalCount"]}
+        repo_pulls = [_item(repo, n, True) for n in repo_data["pullRequests"]["nodes"]]
+        pulls_total = repo_data["pullRequests"]["totalCount"]
+        if viewer_cf is not None:
+            own = sum(1 for p in repo_pulls if (p["author"] or "").casefold() == viewer_cf)
+            repo_pulls = [p for p in repo_pulls if (p["author"] or "").casefold() != viewer_cf]
+            pulls_total = max(0, pulls_total - own)
+        pulls += repo_pulls
+        totals[repo] = {"issues": repo_data["issues"]["totalCount"], "pulls": pulls_total}
     return sorted(issues, key=_newest, reverse=True), sorted(pulls, key=_newest, reverse=True), totals
 
 
@@ -166,7 +178,9 @@ async def async_items(hass: HomeAssistant, refresh: bool = False) -> Items:
         for body in bodies:
             if isinstance(body, str):
                 return Items(error=body)
-            i, p, t = parse(body.get("data") or {}, seen)
+            data = body.get("data") or {}
+            viewer = (data.get("viewer") or {}).get("login")
+            i, p, t = parse(data, seen, viewer)
             issues += i
             pulls += p
             totals.update(t)

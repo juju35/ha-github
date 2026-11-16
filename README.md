@@ -25,7 +25,7 @@ It works on top of the core [GitHub integration](https://www.home-assistant.io/i
 ### Sidebar panel (administrators only)
 
 - **Repositories**: every repository of your GitHub account (and your starred ones, if you choose), followed or not by the GitHub integration. Each followed one shows its stars, open issues, open pull requests and latest release on its row, and unfolds the same details as the GitHub Card (counters, latest release, commit, pull request, issue…). The head gives the totals of the followed repositories, and your GitHub account (followers, following, public repositories and gists) closes the list. **Follow** or **Stop following** one, tick several and **Follow selected**, or **Follow all** at once: the whole change reloads the GitHub integration a single time
-- **Issues** and **Pull requests**: the open ones of all the followed repositories, most recently updated first, with their repository, number, author, age, comments and labels, and the review state of pull requests (approved, changes requested, review required, draft); filter by repository; each opens on GitHub
+- **Issues** and **Pull requests**: the open ones of all the followed repositories, most recently updated first, with their repository, number, author, age, comments and labels, and the review state of pull requests (approved, changes requested, review required, draft). The Pull requests tab leaves out the ones **you** authored — they have their own **My pull requests** tab. Filter by repository; each opens on GitHub
 - **My pull requests**: the open pull requests you authored, in any repository — not only the followed ones — with their repository, number, age, review state and the state of their checks; each opens on GitHub
 - **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories, archived repositories ignored), and a Home Assistant notification for each new issue, pull request or release
 - Tabs in the address (`/github-config/issues`), so a link or a reload opens the same tab
@@ -92,7 +92,7 @@ The former card resource (`/hacsfiles/ha-github-card/github-card.js` or `/local/
 
 ## Panel
 
-The **GitHub** entry of the sidebar, for administrators only. It carries a count badge — the open issues plus pull requests across the followed repositories — amber when there are open issues, the accent colour when there are only pull requests, like the notifications count; it disappears when there is nothing open.
+The **GitHub** entry of the sidebar, for administrators only. It carries a count badge — the open issues plus pull requests across the followed repositories, your own pull requests excluded — amber when there are open issues, the accent colour when there are only pull requests, like the notifications count; it disappears when there is nothing open.
 
 | Light | Dark |
 |---|---|
@@ -116,7 +116,7 @@ The list is sorted with the menu next to the search field: followed first (defau
 
 ### Issues and pull requests
 
-The GitHub integration only has counts and the latest issue and pull request of a repository. The full lists come from the GitHub GraphQL API, with the **access token of the GitHub integration** (sent to `api.github.com` only, never to the browser): one query for 20 followed repositories at a time, at most 50 open issues and 50 open pull requests per repository. They are fetched in the background on a schedule, not when a tab opens: a poller queries GitHub every **Refresh interval (minutes)** (set in **Settings**, 1–1440, default 15) and the panel shows the result as it arrives. The Issues and Pull requests tabs each carry a badge with the number of open items. **Refresh** asks GitHub again right away.
+The GitHub integration only has counts and the latest issue and pull request of a repository. The full lists come from the GitHub GraphQL API, with the **access token of the GitHub integration** (sent to `api.github.com` only, never to the browser): one query for 20 followed repositories at a time, at most 50 open issues and 50 open pull requests per repository. They are fetched in the background on a schedule, not when a tab opens: a poller queries GitHub every **Refresh interval (minutes)** (set in **Settings**, 1–1440, default 15) and the panel shows the result as it arrives. The Issues and Pull requests tabs each carry a badge with the number of open items. The Pull requests tab, and its open counts, leave out the pull requests you authored — they are in **My pull requests** instead. **Refresh** asks GitHub again right away.
 
 ### My pull requests
 

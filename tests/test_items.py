@@ -174,6 +174,61 @@ def test_a_repository_followed_under_two_names_is_counted_once():
     assert parse(_answer()["data"], seen) == ([], [], {})
 
 
+def _own_answer():
+    """A followed repository with two open pull requests: one by the viewer (juju35), one by someone else."""
+    return {
+        "data": {
+            "viewer": {"login": "juju35"},
+            "r0": {
+                "nameWithOwner": "juju35/ha-parcel",
+                "issues": {"totalCount": 1, "nodes": [{**NODE, "number": 94}]},
+                "pullRequests": {
+                    "totalCount": 2,
+                    "nodes": [
+                        {
+                            **NODE,
+                            "number": 97,
+                            "author": {"login": "octocat"},
+                            "isDraft": False,
+                            "reviewDecision": None,
+                        },
+                        {**NODE, "number": 98, "author": {"login": "juju35"}, "isDraft": False, "reviewDecision": None},
+                    ],
+                },
+            },
+            "r1": None,
+        }
+    }
+
+
+def test_parse_drops_the_viewers_own_pull_requests():
+    """The viewer's own pull requests are left out of the Pull requests list and of the open count."""
+    _issues, pulls, totals = parse(_own_answer()["data"], viewer="juju35")
+    assert [p["number"] for p in pulls] == [97]  # 98 (authored by juju35) dropped
+    assert totals == {"juju35/ha-parcel": {"issues": 1, "pulls": 1}}  # pulls 2 - 1 own
+
+
+def test_parse_keeps_every_pull_request_without_a_viewer():
+    """With no viewer, nothing is filtered (back-compatible) and the viewer alias is ignored, not an error."""
+    _issues, pulls, totals = parse(_own_answer()["data"])
+    assert {p["number"] for p in pulls} == {97, 98}
+    assert totals["juju35/ha-parcel"]["pulls"] == 2
+
+
+async def test_items_excludes_the_viewers_own_pull_requests(hass, aioclient_mock, github):
+    """End to end: async_items reads the viewer from the query and drops the pull requests it authored."""
+    aioclient_mock.post(GRAPHQL_URL, json=_own_answer())
+    items = await async_items(hass)
+    assert items.error is None
+    assert [p["number"] for p in items.pulls] == [97]
+    assert items.totals["juju35/ha-parcel"]["pulls"] == 1
+
+
+def test_query_asks_for_the_viewer():
+    """The items query carries `viewer { login }` so the viewer's own pull requests can be excluded."""
+    assert "viewer { login }" in build_query(["juju35/ha-parcel"])
+
+
 # ── My pull requests (the open pull requests authored by the token's user, in any repository) ──
 
 
