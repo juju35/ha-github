@@ -11,6 +11,17 @@
 const VERSION = "2.12.0";
 
 // Material Design Icons paths.
+// The width of an element's whole text in its own font, in fractional pixels (scrollWidth is rounded).
+let textCtx;
+const textWidth = (el) => {
+  const cs = getComputedStyle(el);
+  textCtx ??= document.createElement("canvas").getContext?.("2d");
+  if (!textCtx) return el.scrollWidth;
+  textCtx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+  return Math.max(el.scrollWidth, textCtx.measureText(el.textContent.trim()).width + pad);
+};
+
 const ICONS = {
   github:
     "M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z",
@@ -795,14 +806,13 @@ const BANNER_STYLE = `
   .banner.night .zoom { color: #fff; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
   .banner .zoom:hover { color: #33506b; background: rgba(255,255,255,.75); }
   .banner.night .zoom:hover { color: #fff; background: rgba(255,255,255,.22); }
-  /* No room beside the title (measured, see _fitPill) or a narrow card: the pill on a line of its own under the
-     subtitle; on a very narrow card, its dot alone. */
+  /* The whole title and the pill's whole label do not fit on one row (measured, see _fitPill): the pill on a line of
+     its own under the subtitle, which keeps one line; when that does not fit above the desk, its dot alone; on a very
+     narrow card, its dot alone too. */
   .banner .titles.below .title-row { display: contents; }
   .banner .titles.below .title-row > .chip { grid-row: 3; justify-self: start; max-width: 100%; margin-top: 3px; }
-  @container gh-banner (max-width: 260px) {
-    .banner .title-row { display: contents; }
-    .banner .title-row > .chip { grid-row: 3; justify-self: start; max-width: 100%; margin-top: 3px; }
-  }
+  .banner .titles.below .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .banner .titles.dot .title-row > .chip { padding: 4px; } .banner .titles.dot .title-row > .chip > .chip-text { display: none; }
   @container gh-banner (max-width: 200px) { .banner .title-row > .chip { padding: 4px; } .banner .title-row > .chip > .chip-text { display: none; } }
   /* Narrow card: no room for the desk beside the text, the wall and the strip stay. */
   @container gh-banner (max-width: 300px) { .gh-scene { display: none; } .htext { right: 36px; } }
@@ -910,18 +920,42 @@ class GitHubBase extends HTMLElement {
     this._outside.on();
     if (!this._fitObserver && typeof ResizeObserver === "function") this._fitObserver = new ResizeObserver(() => this._fitPill());
     this._fitObserver?.observe(this);
+    document.fonts?.ready?.then(() => this._fitPill());
     // Back on the page after leaving it: rendered again in its default state.
     if (this._hass && this._config) this._update();
   }
 
-  /** The banner's status pill keeps its whole label: when it does not fit beside the title (already down to four
-   *  characters), it takes a line of its own under the subtitle. */
+  // The banner's status pill, measured after each render and on a new width (in every language): it sits on the
+  // title's row, right after the title, only when the whole title and the pill's whole label fit there; otherwise it
+  // takes a line of its own under the subtitle (.below), the title whole on its row (cut only when it does not fit
+  // alone) and the subtitle on one line. When the three lines do not fit in the banner above the ground strip, or
+  // the label does not fit its line, the pill shows its dot alone (.dot): beside the title when the whole title
+  // leaves it room, else under the subtitle.
   _fitPill() {
-    const t = this.shadowRoot?.querySelector?.(".htext .titles");
-    if (!t?.classList) return;
-    t.classList.remove("below");
-    const tx = t.querySelector(".title-row > .chip > .chip-text");
-    if (tx && tx.scrollWidth > tx.clientWidth + 0.5) t.classList.add("below");
+    for (const t of this.shadowRoot?.querySelectorAll?.(".htext .titles") || []) {
+      const row = t.querySelector(".title-row");
+      const chips = row ? [...row.querySelectorAll(":scope > .chip")] : [];
+      if (!chips[0]?.getBoundingClientRect) continue;
+      t.classList.remove("below", "dot");
+      const name = row.querySelector(".name");
+      const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+      const room = row.getBoundingClientRect().width;
+      const title = name && getComputedStyle(name).display !== "none" ? textWidth(name) + gap : 0;
+      const pills = () => chips.reduce((w, c) => w + c.getBoundingClientRect().width, gap * (chips.length - 1));
+      if (title + pills() <= room) continue;
+      t.classList.add("below");
+      const banner = t.closest(".banner") || t;
+      const ground = banner.querySelector(".gh-ground");
+      const floor = ground ? ground.getBoundingClientRect().top : banner.getBoundingClientRect().bottom;
+      const box = t.getBoundingClientRect();
+      const whole = chips.every((c) => {
+        const tx = c.querySelector(".chip-text");
+        return !tx || tx.scrollWidth <= tx.clientWidth + 0.5;
+      });
+      if (whole && box.bottom <= floor + 0.5 && box.top >= banner.getBoundingClientRect().top - 0.5) continue;
+      t.classList.add("dot");
+      if (title + pills() <= room) t.classList.remove("below");
+    }
   }
 
   disconnectedCallback() {
@@ -1066,7 +1100,7 @@ class GitHubBase extends HTMLElement {
     const sub = [repos.length ? this._t("repos_n").replace("{n}", repos.length) : "", stars !== null ? `★ ${fmtCount(stars, this._loc())}` : ""].filter(Boolean).join(" · ");
     const titles = `<div class="titles">
           <div class="title-row"><div class="name">${esc(this._config.title || "GitHub")}</div>${chip}</div>
-          <div class="sub">${esc(sub)}</div>
+          <div class="sub" title="${esc(sub)}">${esc(sub)}</div>
         </div>`;
     // Classic header (illustration: false): the round tinted GitHub icon, the title and the subtitle.
     if (this._config.illustration === false)
