@@ -60,6 +60,7 @@ test("the banner's status pill: beside the whole title or under the subtitle, wh
           const name = nameEl.getBoundingClientRect();
           const p = pill?.getBoundingClientRect();
           const parts = [...t.querySelectorAll(":scope > *, .title-row > *")].map((e) => e.getBoundingClientRect()).filter((r) => r.width);
+          const tb = t.getBoundingClientRect();
           out.push({
             ...c,
             label: pill?.getAttribute("title") || pill?.textContent,
@@ -67,6 +68,8 @@ test("the banner's status pill: beside the whole title or under the subtitle, wh
             cut: tx ? tx.scrollWidth - tx.clientWidth : null,
             beside: p ? p.top < name.bottom - 2 : false,
             titleCut: nameEl.scrollWidth - nameEl.clientWidth,
+            nameW: name.width,
+            past: p ? p.right - tb.right : 0,
             low: Math.max(...parts.map((r) => r.bottom)) - floor,
             out: Math.max(banner.top - Math.min(...parts.map((r) => r.top)), Math.max(...parts.map((r) => r.right)) - banner.right,
                           banner.left - Math.min(...parts.map((r) => r.left))),
@@ -86,6 +89,8 @@ test("the banner's status pill: beside the whole title or under the subtitle, wh
     if (r.width <= 200) assert.ok(r.dot, `pill label shown at ${at}`);
     if (!r.dot) assert.ok(r.cut <= 0.5, `pill "${r.label}" cut by ${r.cut}px: ${at}`);
     if (r.beside) assert.ok(r.titleCut <= 0, `title cut beside the pill: ${at}`);
+    assert.ok(r.nameW >= 24, `title ${r.nameW}px wide: ${at}`);
+    assert.ok(r.past <= 0.5, `pill ${r.past}px past the title block: ${at}`);
     assert.ok(r.low <= 0.5, `header text ${r.low}px into the ground strip: ${at}`);
     assert.ok(r.out <= 0.5, `header text ${r.out}px out of the banner: ${at}`);
   }
