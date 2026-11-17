@@ -22,7 +22,7 @@ test("open issues and pull requests: amber icon and count badge, 99+ past 99", (
   let { html } = render(lib.GitHubCard, { repositories: ["juju35/ha-parcel"] }, hass());
   assert.match(html, /banner gh-issues/);
   assert.match(html, /--ic:var\(--gh-warn\)/);
-  assert.match(html, /gh-badge issues[^]*?>4<\/text>/);
+  assert.match(html, /gh-badge issues[\s\S]*?>4<\/text>/);
   ({ html } = render(lib.GitHubCard, {}, hass()));
   assert.match(html, />99\+<\/text>/);
 });
@@ -43,9 +43,9 @@ test("a merged pull request shows the merge for a while, then the usual state", 
 
 test("unknown counters are grey, unavailable ones red", () => {
   const unknown = { [`${W}issues_count`]: st("unknown"), [`${W}pulls_count`]: st("unknown") };
-  assert.match(render(lib.GitHubCard, weather, hass(unknown)).html, /banner gh-unknown[^]*--ic:var\(--gh-idle\)/);
+  assert.match(render(lib.GitHubCard, weather, hass(unknown)).html, /banner gh-unknown[\s\S]*--ic:var\(--gh-idle\)/);
   const down = { [`${W}issues_count`]: st("unavailable"), [`${W}pulls_count`]: st("unavailable") };
-  assert.match(render(lib.GitHubCard, weather, hass(down)).html, /banner gh-error[^]*--ic:var\(--gh-crit\)/);
+  assert.match(render(lib.GitHubCard, weather, hass(down)).html, /banner gh-error[\s\S]*--ic:var\(--gh-crit\)/);
 });
 
 test("night: illustration_theme, else the sun, else the dark theme", () => {
@@ -65,7 +65,7 @@ test("illustration: false keeps the classic header; mini card has the banner and
   assert.match(html, /class="header"/);
   assert.doesNotMatch(html, /gh-scene|banner/);
   const mini = render(lib.GitHubMiniCard, {}, hass()).html;
-  assert.match(mini, /class="banner gh-issues[^]*class="zoom"/);
+  assert.match(mini, /class="banner gh-issues[\s\S]*class="zoom"/);
 });
 
 test("each card has its own clip path id", () => {
