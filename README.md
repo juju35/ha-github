@@ -190,6 +190,36 @@ language: fr
 
 ## Screenshots
 
+### Animated captures
+
+The header of the GitHub Card in its states, in a loop of about 7 seconds (with `prefers-reduced-motion`, everything stays still).
+
+Open issues and pull requests: commits pop along the graph, the head commit pulses, steam rises from the mug and the amber count blinks:
+
+| Light | Dark |
+|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/anim-issues.gif" alt="open issues animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/anim-issues-dark.gif" alt="open issues animation, dark theme" width="400"> |
+
+Nothing open:
+
+| Light | Dark |
+|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/anim-nothing-open.gif" alt="nothing open animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/anim-nothing-open-dark.gif" alt="nothing open animation, dark theme" width="400"> |
+
+A pull request just merged: the branch draws in and joins main:
+
+| Light | Dark |
+|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/anim-merged.gif" alt="merged pull request animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/anim-merged-dark.gif" alt="merged pull request animation, dark theme" width="400"> |
+
+Night picture:
+
+| Light | Dark |
+|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/anim-night.gif" alt="night animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/anim-night-dark.gif" alt="night animation, dark theme" width="400"> |
+
+### Stills
+
 | Light | Dark |
 |---|---|
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/card.png" alt="card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/card-dark.png" alt="card dark" width="400"> |
@@ -213,7 +243,7 @@ The compact card shows the totals of the repositories shown (stars, forks, open 
 ```bash
 pip install -r requirements_test.txt && pytest   # integration tests (Home Assistant test harness)
 npm ci && npm test                               # card and panel tests
-npm run screenshots                              # renders the cards and the panel with mock data into screenshots/
+npm run screenshots                              # renders the cards and the panel with mock data into screenshots/, and the animated GIFs (needs ffmpeg)
 ```
 
 The card and the panel are plain JavaScript files in `custom_components/github_card/frontend/`, served by the integration: nothing to build.
