@@ -677,7 +677,6 @@ const FULL_STYLE = `
 `;
 
 const MINI_STYLE = `
-  .title-row > .chip { display: none; }
   .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .tiles .tile { justify-content: center; padding: 6px 4px; gap: 4px; }
   .tiles .tile .k { display: none; }
@@ -769,8 +768,12 @@ const BANNER_STYLE = `
   .gh-ground { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: #b98a5c; box-shadow: inset 0 2px 0 #d4a878; }
   .night .gh-ground { background: #4a3a2c; box-shadow: inset 0 2px 0 #5c4836; }
   .htext { position: absolute; left: 14px; top: 0; bottom: 10px; right: calc(min(200px, 54%) + 4px); display: flex; align-items: center;
-           gap: 10px; min-width: 0; container: gh-header / inline-size; }
-  .htext .titles { min-width: 0; }
+           gap: 10px; min-width: 0; }
+  .htext .titles { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); container: gh-titles / inline-size; }
+  /* The status pill on the title's row, in the icon's colour: the title ellipsises first (4 characters kept). */
+  .banner .title-row { flex-wrap: nowrap; min-width: 0; }
+  .banner .title-row > .name { flex: 0 1 auto; min-width: 4.6ch; }
+  .banner .title-row > .chip { flex: none; max-width: 51%; overflow: hidden; box-sizing: border-box; }
   .banner .logo { position: relative; align-self: center; color: var(--ic); background: rgba(255,255,255,.62);
                   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ic) 22%, transparent); }
   .banner.night .logo { color: color-mix(in srgb, var(--ic) 80%, #fff); background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
@@ -780,12 +783,20 @@ const BANNER_STYLE = `
   .banner .badge .icon { width: 14px; height: 14px; }
   .banner .sub { color: #3b5b78; font-size: 13px; }
   .banner.night .sub { color: rgba(255,255,255,.78); }
-  .banner .chip { background: rgba(255,255,255,.7); color: color-mix(in srgb, var(--c, var(--gh-ok)) 60%, #10283f); }
-  .banner.night .chip { background: rgba(10,20,40,.5); color: color-mix(in srgb, var(--c, var(--gh-ok)) 45%, #fff); }
-  .banner .zoom { position: absolute; top: 6px; right: 6px; margin: 0; color: #10283f; background: rgba(255,255,255,.55); }
-  .banner.night .zoom { color: #fff; background: rgba(10,20,40,.45); }
-  .banner .zoom:hover { color: #10283f; background: rgba(255,255,255,.8); }
-  .banner.night .zoom:hover { color: #fff; background: rgba(10,20,40,.7); }
+  .banner .chip { --c: var(--ic); background: color-mix(in srgb, var(--c) 18%, rgba(255,255,255,.78)); color: color-mix(in srgb, var(--c) 45%, #0d2a45); }
+  .banner.night .chip { background: color-mix(in srgb, var(--c) 30%, rgba(8,18,38,.55)); color: color-mix(in srgb, var(--c) 35%, #ffffff); }
+  .banner .chip .dot { width: 7px; height: 7px; }
+  .banner .zoom { position: absolute; z-index: 2; top: 5px; right: 5px; margin: 0; color: #33506b; background: rgba(255,255,255,.55);
+                  box-shadow: inset 0 0 0 1px rgba(255,255,255,.7); backdrop-filter: blur(4px); }
+  .banner.night .zoom { color: #fff; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
+  .banner .zoom:hover { color: #33506b; background: rgba(255,255,255,.75); }
+  .banner.night .zoom:hover { color: #fff; background: rgba(255,255,255,.22); }
+  /* No room beside the title: the pill on a line of its own under the subtitle; on a very narrow card, its dot alone. */
+  @container gh-titles (max-width: 180px) {
+    .banner .title-row { display: contents; }
+    .banner .title-row > .chip { grid-row: 3; justify-self: start; max-width: 100%; margin-top: 3px; }
+  }
+  @container gh-banner (max-width: 200px) { .banner .title-row > .chip { padding: 4px; } .banner .title-row > .chip > .chip-text { display: none; } }
   /* Narrow card: no room for the desk beside the text, the wall and the strip stay. */
   @container gh-banner (max-width: 300px) { .gh-scene { display: none; } .htext { right: 36px; } }
   .gh-desk { fill: #c9b79c; } .night .gh-desk { fill: #3c4558; }
