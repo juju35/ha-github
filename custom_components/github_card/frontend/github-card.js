@@ -763,17 +763,21 @@ const BANNER_STYLE = `
   .banner { position: relative; overflow: hidden; height: 90px; container: gh-banner / inline-size; color: #0d2a45; background: #eef1f6; }
   .banner.night { color: #fff; background: #262c3a; }
   .banner + .content { padding-top: 10px; }
-  .gh-scene { position: absolute; right: 0; bottom: 10px; height: 80px; width: min(200px, 54%); }
+  /* The desk leaves the title row at least 250 px, so the pill stays beside the title; with the detail button in the
+     corner, it is drawn lower and smaller, under the button. */
+  .banner { --gh-scene-w: min(200px, 54%, max(40%, 100% - 250px)); }
+  .banner:has(> .zoom) { --gh-scene-w: min(135px, 40%); }
+  .gh-scene { position: absolute; right: 0; bottom: 10px; height: 80px; width: var(--gh-scene-w); }
   /* The desk: a 10 px strip under the whole banner, edge to edge. */
   .gh-ground { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: #b98a5c; box-shadow: inset 0 2px 0 #d4a878; }
   .night .gh-ground { background: #4a3a2c; box-shadow: inset 0 2px 0 #5c4836; }
-  .htext { position: absolute; left: 14px; top: 0; bottom: 10px; right: calc(min(200px, 54%) + 4px); display: flex; align-items: center;
+  .htext { position: absolute; left: 14px; top: 0; bottom: 10px; right: calc(var(--gh-scene-w) + 4px); display: flex; align-items: center;
            gap: 10px; min-width: 0; }
   .htext .titles { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); container: gh-titles / inline-size; }
   /* The status pill on the title's row, in the icon's colour: the title ellipsises first (4 characters kept). */
   .banner .title-row { flex-wrap: nowrap; min-width: 0; }
   .banner .title-row > .name { flex: 0 1 auto; min-width: 4.6ch; }
-  .banner .title-row > .chip { flex: none; max-width: 51%; overflow: hidden; box-sizing: border-box; }
+  .banner .title-row > .chip { flex: none; max-width: none; overflow: hidden; box-sizing: border-box; }
   .banner .logo { position: relative; align-self: center; color: var(--ic); background: rgba(255,255,255,.62);
                   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ic) 22%, transparent); }
   .banner.night .logo { color: color-mix(in srgb, var(--ic) 80%, #fff); background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
@@ -791,8 +795,11 @@ const BANNER_STYLE = `
   .banner.night .zoom { color: #fff; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
   .banner .zoom:hover { color: #33506b; background: rgba(255,255,255,.75); }
   .banner.night .zoom:hover { color: #fff; background: rgba(255,255,255,.22); }
-  /* No room beside the title: the pill on a line of its own under the subtitle; on a very narrow card, its dot alone. */
-  @container gh-titles (max-width: 180px) {
+  /* No room beside the title (measured, see _fitPill) or a narrow card: the pill on a line of its own under the
+     subtitle; on a very narrow card, its dot alone. */
+  .banner .titles.below .title-row { display: contents; }
+  .banner .titles.below .title-row > .chip { grid-row: 3; justify-self: start; max-width: 100%; margin-top: 3px; }
+  @container gh-banner (max-width: 260px) {
     .banner .title-row { display: contents; }
     .banner .title-row > .chip { grid-row: 3; justify-self: start; max-width: 100%; margin-top: 3px; }
   }
@@ -901,11 +908,24 @@ class GitHubBase extends HTMLElement {
 
   connectedCallback() {
     this._outside.on();
+    if (!this._fitObserver && typeof ResizeObserver === "function") this._fitObserver = new ResizeObserver(() => this._fitPill());
+    this._fitObserver?.observe(this);
     // Back on the page after leaving it: rendered again in its default state.
     if (this._hass && this._config) this._update();
   }
 
+  /** The banner's status pill keeps its whole label: when it does not fit beside the title (already down to four
+   *  characters), it takes a line of its own under the subtitle. */
+  _fitPill() {
+    const t = this.shadowRoot?.querySelector?.(".htext .titles");
+    if (!t?.classList) return;
+    t.classList.remove("below");
+    const tx = t.querySelector(".title-row > .chip > .chip-text");
+    if (tx && tx.scrollWidth > tx.clientWidth + 0.5) t.classList.add("below");
+  }
+
   disconnectedCallback() {
+    this._fitObserver?.disconnect();
     this._pressing = this._dirty = false;
     window.removeEventListener("pointerup", this._onPressEnd, true);
     window.removeEventListener("pointercancel", this._onPressEnd, true);
@@ -982,6 +1002,7 @@ class GitHubBase extends HTMLElement {
       const focused = this._byPointer ? null : focusSelector(this.shadowRoot.activeElement);
       this._html = html;
       this.shadowRoot.innerHTML = html;
+      this._fitPill();
       if (focused) this.shadowRoot.querySelector(focused)?.focus({ preventScroll: true });
     }
   }
