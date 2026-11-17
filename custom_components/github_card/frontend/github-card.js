@@ -8,9 +8,20 @@
  * entity registry (platform "github", translation key, device), whatever the language.
  */
 
-const VERSION = "2.11.2";
+const VERSION = "2.12.0";
 
 // Material Design Icons paths.
+// The width of an element's whole text in its own font, in fractional pixels (scrollWidth is rounded).
+let textCtx;
+const textWidth = (el) => {
+  const cs = getComputedStyle(el);
+  textCtx ??= document.createElement("canvas").getContext?.("2d");
+  if (!textCtx) return el.scrollWidth;
+  textCtx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+  return Math.max(el.scrollWidth, textCtx.measureText(el.textContent.trim()).width + pad);
+};
+
 const ICONS = {
   github:
     "M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z",
@@ -29,6 +40,8 @@ const ICONS = {
   account: "M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z",
   code: "M8,3A2,2 0 0,0 6,5V9A2,2 0 0,1 4,11H3V13H4A2,2 0 0,1 6,15V19A2,2 0 0,0 8,21H10V19H8V14A2,2 0 0,0 6,12A2,2 0 0,0 8,10V5H10V3M16,3A2,2 0 0,1 18,5V9A2,2 0 0,0 20,11H21V13H20A2,2 0 0,0 18,15V19A2,2 0 0,1 16,21H14V19H16V14A2,2 0 0,1 18,12A2,2 0 0,1 16,10V5H14V3H16Z",
   open: "M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z",
+  // mdi:trending-up, the icon of the illustrated header.
+  trend: "M16,6L18.29,8.29L13.41,13.17L9.41,9.17L2,16.59L3.41,18L9.41,12L13.41,16L19.71,9.71L22,12V6H16Z",
   chevron: "M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z",
   // mdi:arrow-expand and mdi:arrow-collapse, for the zoom button of the mini card.
   expand: "M10,21V19H6.41L10.91,14.5L9.5,13.09L5,17.59V14H3V21H10M14.5,10.91L19,6.41V10H21V3H14V5H17.59L13.09,9.5L14.5,10.91Z",
@@ -50,6 +63,8 @@ const KEYS = [
   "max_repos", "zoom", "zoom_helper", "language", "lang_auto",
   // Empty state
   "no_repos", "no_repos_hint", "no_match", "open_integration",
+  // Illustrated header (editor)
+  "illustration", "illustration_theme", "theme_auto", "theme_day", "theme_night",
 ];
 
 const TRANSLATIONS = {
@@ -64,6 +79,7 @@ const TRANSLATIONS = {
     "Sort repositories", "By name", "By stars", "By open issues and pull requests", "Show title", "Show subtitle",
     "Repositories in the compact view", "Zoom button", "Switches the card to the full card and back", "Language", "Automatic",
     "No repository followed", "Add your repositories to the GitHub integration to see them here.", "None of the repositories of the card is followed by the GitHub integration.", "Open the GitHub integration",
+    "Animated illustration", "Illustration theme", "Automatic (sun or dark theme)", "Day", "Night",
   ],
   fr: [
     "Étoiles", "Forks", "Observateurs", "Issues", "Pull requests", "PR fusionnées", "Discussions", "Téléchargements",
@@ -76,6 +92,7 @@ const TRANSLATIONS = {
     "Tri des dépôts", "Par nom", "Par étoiles", "Par issues et pull requests ouvertes", "Afficher le titre", "Afficher le sous-titre",
     "Dépôts dans la vue compacte", "Bouton zoom", "Bascule la carte en carte complète, et inversement", "Langue", "Automatique",
     "Aucun dépôt suivi", "Ajoutez vos dépôts à l’intégration GitHub pour les afficher ici.", "Aucun des dépôts de la carte n’est suivi par l’intégration GitHub.", "Ouvrir l’intégration GitHub",
+    "Illustration animée", "Thème de l’illustration", "Automatique (soleil ou thème sombre)", "Jour", "Nuit",
   ],
   de: [
     "Sterne", "Forks", "Beobachter", "Issues", "Pull Requests", "Gemergte PRs", "Diskussionen", "Downloads",
@@ -88,6 +105,7 @@ const TRANSLATIONS = {
     "Sortierung der Repositorys", "Nach Name", "Nach Sternen", "Nach offenen Issues und Pull Requests", "Titel anzeigen", "Untertitel anzeigen",
     "Repositorys in der kompakten Ansicht", "Zoom-Schaltfläche", "Schaltet zwischen kompakter und vollständiger Karte um", "Sprache", "Automatisch",
     "Kein Repository verfolgt", "Füge deine Repositorys in der GitHub-Integration hinzu, um sie hier zu sehen.", "Keines der Repositorys der Karte wird von der GitHub-Integration verfolgt.", "GitHub-Integration öffnen",
+    "Animierte Illustration", "Thema der Illustration", "Automatisch (Sonne oder dunkles Design)", "Tag", "Nacht",
   ],
   es: [
     "Estrellas", "Forks", "Observadores", "Issues", "Pull requests", "PR fusionadas", "Discusiones", "Descargas",
@@ -100,6 +118,7 @@ const TRANSLATIONS = {
     "Orden de los repositorios", "Por nombre", "Por estrellas", "Por issues y pull requests abiertas", "Mostrar el título", "Mostrar el subtítulo",
     "Repositorios en la vista compacta", "Botón de zoom", "Alterna entre la tarjeta completa y la vista compacta", "Idioma", "Automático",
     "Ningún repositorio seguido", "Añade tus repositorios a la integración GitHub para verlos aquí.", "La integración GitHub no sigue ninguno de los repositorios de la tarjeta.", "Abrir la integración GitHub",
+    "Ilustración animada", "Tema de la ilustración", "Automático (sol o tema oscuro)", "Día", "Noche",
   ],
   sr: [
     "Звездице", "Форкови", "Посматрачи", "Проблеми", "Pull захтеви", "Спојени PR", "Дискусије", "Преузимања",
@@ -112,6 +131,7 @@ const TRANSLATIONS = {
     "Редослед репозиторијума", "По имену", "По звездицама", "По отвореним проблемима и pull захтевима", "Прикажи наслов", "Прикажи поднаслов",
     "Репозиторијуми у компактном приказу", "Дугме за зумирање", "Пребацује између целе картице и компактног приказа", "Језик", "Аутоматски",
     "Ниједан репозиторијум се не прати", "Додајте своје репозиторијуме у интеграцију GitHub да бисте их видели овде.", "Интеграција GitHub не прати ниједан репозиторијум картице.", "Отвори интеграцију GitHub",
+    "Анимирана илустрација", "Тема илустрације", "Аутоматски (сунце или тамна тема)", "Дан", "Ноћ",
   ],
   "sr-Latn": [
     "Zvezdice", "Forkovi", "Posmatrači", "Problemi", "Pull zahtevi", "Spojeni PR", "Diskusije", "Preuzimanja",
@@ -124,6 +144,7 @@ const TRANSLATIONS = {
     "Redosled repozitorijuma", "Po imenu", "Po zvezdicama", "Po otvorenim problemima i pull zahtevima", "Prikaži naslov", "Prikaži podnaslov",
     "Repozitorijumi u kompaktnom prikazu", "Dugme za zumiranje", "Prebacuje između cele kartice i kompaktnog prikaza", "Jezik", "Automatski",
     "Nijedan repozitorijum se ne prati", "Dodajte svoje repozitorijume u integraciju GitHub da biste ih videli ovde.", "Integracija GitHub ne prati nijedan repozitorijum kartice.", "Otvori integraciju GitHub",
+    "Animirana ilustracija", "Tema ilustracije", "Automatski (sunce ili tamna tema)", "Dan", "Noć",
   ],
   it: [
     "Stelle", "Fork", "Osservatori", "Issue", "Pull request", "PR unite", "Discussioni", "Download",
@@ -136,6 +157,7 @@ const TRANSLATIONS = {
     "Ordinamento dei repository", "Per nome", "Per stelle", "Per issue e pull request aperte", "Mostra il titolo", "Mostra il sottotitolo",
     "Repository nella vista compatta", "Pulsante zoom", "Alterna tra la scheda completa e la vista compatta", "Lingua", "Automatica",
     "Nessun repository seguito", "Aggiungi i tuoi repository all’integrazione GitHub per vederli qui.", "L’integrazione GitHub non segue nessuno dei repository della scheda.", "Apri l’integrazione GitHub",
+    "Illustrazione animata", "Tema dell’illustrazione", "Automatico (sole o tema scuro)", "Giorno", "Notte",
   ],
   nl: [
     "Sterren", "Forks", "Kijkers", "Issues", "Pull requests", "Samengevoegde PR’s", "Discussies", "Downloads",
@@ -148,6 +170,7 @@ const TRANSLATIONS = {
     "Sortering van repositories", "Op naam", "Op sterren", "Op open issues en pull requests", "Titel tonen", "Ondertitel tonen",
     "Repositories in de compacte weergave", "Zoomknop", "Schakelt tussen de volledige kaart en de compacte weergave", "Taal", "Automatisch",
     "Geen repository gevolgd", "Voeg je repositories toe aan de GitHub-integratie om ze hier te zien.", "De GitHub-integratie volgt geen enkele repository van de kaart.", "GitHub-integratie openen",
+    "Geanimeerde illustratie", "Thema van de illustratie", "Automatisch (zon of donker thema)", "Dag", "Nacht",
   ],
   pt: [
     "Estrelas", "Forks", "Observadores", "Issues", "Pull requests", "PR integrados", "Discussões", "Transferências",
@@ -160,6 +183,7 @@ const TRANSLATIONS = {
     "Ordenação dos repositórios", "Por nome", "Por estrelas", "Por issues e pull requests em aberto", "Mostrar o título", "Mostrar o subtítulo",
     "Repositórios na vista compacta", "Botão de zoom", "Alterna entre o cartão completo e a vista compacta", "Idioma", "Automático",
     "Nenhum repositório seguido", "Adicione os seus repositórios à integração GitHub para os ver aqui.", "A integração GitHub não segue nenhum dos repositórios do cartão.", "Abrir a integração GitHub",
+    "Ilustração animada", "Tema da ilustração", "Automático (sol ou tema escuro)", "Dia", "Noite",
   ],
   pl: [
     "Gwiazdki", "Forki", "Obserwatorzy", "Zgłoszenia", "Pull requesty", "Scalone PR", "Dyskusje", "Pobrania",
@@ -172,6 +196,7 @@ const TRANSLATIONS = {
     "Sortowanie repozytoriów", "Według nazwy", "Według gwiazdek", "Według otwartych zgłoszeń i pull requestów", "Pokaż tytuł", "Pokaż podtytuł",
     "Repozytoria w widoku kompaktowym", "Przycisk powiększenia", "Przełącza między pełną kartą a widokiem kompaktowym", "Język", "Automatyczny",
     "Brak śledzonych repozytoriów", "Dodaj swoje repozytoria do integracji GitHub, aby zobaczyć je tutaj.", "Integracja GitHub nie śledzi żadnego z repozytoriów karty.", "Otwórz integrację GitHub",
+    "Animowana ilustracja", "Motyw ilustracji", "Automatycznie (słońce lub ciemny motyw)", "Dzień", "Noc",
   ],
   ro: [
     "Stele", "Fork-uri", "Observatori", "Issue-uri", "Pull request-uri", "PR-uri îmbinate", "Discuții", "Descărcări",
@@ -184,6 +209,7 @@ const TRANSLATIONS = {
     "Sortarea depozitelor", "După nume", "După stele", "După issue-uri și pull request-uri deschise", "Afișează titlul", "Afișează subtitlul",
     "Depozite în vizualizarea compactă", "Buton de zoom", "Comută între cardul complet și vizualizarea compactă", "Limbă", "Automat",
     "Niciun depozit urmărit", "Adaugă depozitele tale în integrarea GitHub pentru a le vedea aici.", "Integrarea GitHub nu urmărește niciunul dintre depozitele cardului.", "Deschide integrarea GitHub",
+    "Ilustrație animată", "Tema ilustrației", "Automat (soare sau temă întunecată)", "Zi", "Noapte",
   ],
   da: [
     "Stjerner", "Forks", "Overvågere", "Issues", "Pull requests", "Flettede PR’er", "Diskussioner", "Downloads",
@@ -196,6 +222,7 @@ const TRANSLATIONS = {
     "Sortering af repositories", "Efter navn", "Efter stjerner", "Efter åbne issues og pull requests", "Vis titel", "Vis undertitel",
     "Repositories i kompakt visning", "Zoomknap", "Skifter mellem hele kortet og kompakt visning", "Sprog", "Automatisk",
     "Ingen repositories fulgt", "Tilføj dine repositories i GitHub-integrationen for at se dem her.", "GitHub-integrationen følger ingen af kortets repositories.", "Åbn GitHub-integrationen",
+    "Animeret illustration", "Illustrationens tema", "Automatisk (sol eller mørkt tema)", "Dag", "Nat",
   ],
   sv: [
     "Stjärnor", "Forks", "Bevakare", "Ärenden", "Pull requests", "Sammanfogade PR", "Diskussioner", "Nedladdningar",
@@ -208,6 +235,7 @@ const TRANSLATIONS = {
     "Sortering av repon", "Efter namn", "Efter stjärnor", "Efter öppna ärenden och pull requests", "Visa rubrik", "Visa underrubrik",
     "Repon i kompakt vy", "Zoomknapp", "Växlar mellan hela kortet och kompakt vy", "Språk", "Automatiskt",
     "Inga repon följs", "Lägg till dina repon i GitHub-integrationen för att se dem här.", "GitHub-integrationen följer inget av kortets repon.", "Öppna GitHub-integrationen",
+    "Animerad illustration", "Illustrationens tema", "Automatiskt (sol eller mörkt tema)", "Dag", "Natt",
   ],
   bg: [
     "Звезди", "Форкове", "Наблюдаващи", "Проблеми", "Pull заявки", "Слети PR", "Дискусии", "Изтегляния",
@@ -220,6 +248,7 @@ const TRANSLATIONS = {
     "Подреждане на хранилищата", "По име", "По звезди", "По отворени проблеми и pull заявки", "Показване на заглавието", "Показване на подзаглавието",
     "Хранилища в компактния изглед", "Бутон за мащабиране", "Превключва между цялата карта и компактния изглед", "Език", "Автоматично",
     "Няма следени хранилища", "Добавете хранилищата си в интеграцията GitHub, за да ги видите тук.", "Интеграцията GitHub не следи нито едно от хранилищата на картата.", "Отвори интеграцията GitHub",
+    "Анимирана илюстрация", "Тема на илюстрацията", "Автоматично (слънце или тъмна тема)", "Ден", "Нощ",
   ],
   ru: [
     "Звёзды", "Форки", "Наблюдатели", "Задачи", "Pull-запросы", "Слитые PR", "Обсуждения", "Загрузки",
@@ -232,6 +261,7 @@ const TRANSLATIONS = {
     "Сортировка репозиториев", "По имени", "По звёздам", "По открытым задачам и pull-запросам", "Показывать заголовок", "Показывать подзаголовок",
     "Репозитории в компактном виде", "Кнопка масштабирования", "Переключает между полной карточкой и компактным видом", "Язык", "Автоматически",
     "Нет отслеживаемых репозиториев", "Добавьте свои репозитории в интеграцию GitHub, чтобы увидеть их здесь.", "Интеграция GitHub не отслеживает ни один из репозиториев карточки.", "Открыть интеграцию GitHub",
+    "Анимированная иллюстрация", "Тема иллюстрации", "Автоматически (солнце или тёмная тема)", "День", "Ночь",
   ],
   uk: [
     "Зірки", "Форки", "Спостерігачі", "Задачі", "Pull-запити", "Злиті PR", "Обговорення", "Завантаження",
@@ -244,6 +274,7 @@ const TRANSLATIONS = {
     "Сортування репозиторіїв", "За назвою", "За зірками", "За відкритими задачами та pull-запитами", "Показувати заголовок", "Показувати підзаголовок",
     "Репозиторії в компактному вигляді", "Кнопка масштабування", "Перемикає між повною карткою та компактним виглядом", "Мова", "Автоматично",
     "Немає відстежуваних репозиторіїв", "Додайте свої репозиторії до інтеграції GitHub, щоб побачити їх тут.", "Інтеграція GitHub не відстежує жодного з репозиторіїв картки.", "Відкрити інтеграцію GitHub",
+    "Анімована ілюстрація", "Тема ілюстрації", "Автоматично (сонце або темна тема)", "День", "Ніч",
   ],
   hu: [
     "Csillagok", "Forkok", "Figyelők", "Hibajegyek", "Pull requestek", "Egyesített PR-ek", "Beszélgetések", "Letöltések",
@@ -256,6 +287,7 @@ const TRANSLATIONS = {
     "Tárolók rendezése", "Név szerint", "Csillagok szerint", "Nyitott hibajegyek és pull requestek szerint", "Cím megjelenítése", "Alcím megjelenítése",
     "Tárolók a kompakt nézetben", "Nagyítás gomb", "Vált a teljes kártya és a kompakt nézet között", "Nyelv", "Automatikus",
     "Nincs követett tároló", "Add hozzá a tárolóidat a GitHub integrációhoz, hogy itt lásd őket.", "A GitHub integráció a kártya egyik tárolóját sem követi.", "GitHub integráció megnyitása",
+    "Animált illusztráció", "Az illusztráció témája", "Automatikus (nap vagy sötét téma)", "Nappal", "Éjszaka",
   ],
   sk: [
     "Hviezdičky", "Forky", "Pozorovatelia", "Problémy", "Pull requesty", "Zlúčené PR", "Diskusie", "Stiahnutia",
@@ -268,6 +300,7 @@ const TRANSLATIONS = {
     "Zoradenie repozitárov", "Podľa názvu", "Podľa hviezdičiek", "Podľa otvorených problémov a pull requestov", "Zobraziť názov", "Zobraziť podnázov",
     "Repozitáre v kompaktnom zobrazení", "Tlačidlo priblíženia", "Prepína medzi celou kartou a kompaktným zobrazením", "Jazyk", "Automaticky",
     "Žiadny sledovaný repozitár", "Pridajte svoje repozitáre do integrácie GitHub, aby ste ich videli tu.", "Integrácia GitHub nesleduje žiadny z repozitárov karty.", "Otvoriť integráciu GitHub",
+    "Animovaná ilustrácia", "Téma ilustrácie", "Automaticky (slnko alebo tmavá téma)", "Deň", "Noc",
   ],
   cs: [
     "Hvězdičky", "Forky", "Pozorovatelé", "Problémy", "Pull requesty", "Sloučené PR", "Diskuze", "Stažení",
@@ -280,6 +313,7 @@ const TRANSLATIONS = {
     "Řazení repozitářů", "Podle názvu", "Podle hvězdiček", "Podle otevřených problémů a pull requestů", "Zobrazit název", "Zobrazit podnázev",
     "Repozitáře v kompaktním zobrazení", "Tlačítko přiblížení", "Přepíná mezi celou kartou a kompaktním zobrazením", "Jazyk", "Automaticky",
     "Žádný sledovaný repozitář", "Přidejte své repozitáře do integrace GitHub, abyste je zde viděli.", "Integrace GitHub nesleduje žádný z repozitářů karty.", "Otevřít integraci GitHub",
+    "Animovaná ilustrace", "Motiv ilustrace", "Automaticky (slunce nebo tmavý motiv)", "Den", "Noc",
   ],
   sl: [
     "Zvezdice", "Forki", "Opazovalci", "Težave", "Pull requesti", "Združeni PR", "Razprave", "Prenosi",
@@ -292,6 +326,7 @@ const TRANSLATIONS = {
     "Razvrščanje repozitorijev", "Po imenu", "Po zvezdicah", "Po odprtih težavah in pull requestih", "Prikaži naslov", "Prikaži podnaslov",
     "Repozitoriji v strnjenem pogledu", "Gumb za povečavo", "Preklaplja med celotno kartico in strnjenim pogledom", "Jezik", "Samodejno",
     "Noben repozitorij ni spremljan", "Dodajte svoje repozitorije v integracijo GitHub, da jih vidite tukaj.", "Integracija GitHub ne spremlja nobenega repozitorija kartice.", "Odpri integracijo GitHub",
+    "Animirana ilustracija", "Tema ilustracije", "Samodejno (sonce ali temna tema)", "Dan", "Noč",
   ],
   lv: [
     "Zvaigznes", "Forki", "Vērotāji", "Problēmas", "Pull pieprasījumi", "Apvienotie PR", "Diskusijas", "Lejupielādes",
@@ -304,6 +339,7 @@ const TRANSLATIONS = {
     "Krātuvju kārtošana", "Pēc nosaukuma", "Pēc zvaigznēm", "Pēc atvērtajām problēmām un pull pieprasījumiem", "Rādīt virsrakstu", "Rādīt apakšvirsrakstu",
     "Krātuves kompaktajā skatā", "Tālummaiņas poga", "Pārslēdz starp pilno karti un kompakto skatu", "Valoda", "Automātiski",
     "Netiek sekots nevienai krātuvei", "Pievienojiet savas krātuves GitHub integrācijai, lai tās redzētu šeit.", "GitHub integrācija neseko nevienai kartes krātuvei.", "Atvērt GitHub integrāciju",
+    "Animēta ilustrācija", "Ilustrācijas motīvs", "Automātiski (saule vai tumšā tēma)", "Diena", "Nakts",
   ],
   el: [
     "Αστέρια", "Forks", "Παρατηρητές", "Ζητήματα", "Pull requests", "Συγχωνευμένα PR", "Συζητήσεις", "Λήψεις",
@@ -316,6 +352,7 @@ const TRANSLATIONS = {
     "Ταξινόμηση αποθετηρίων", "Κατά όνομα", "Κατά αστέρια", "Κατά ανοιχτά ζητήματα και pull requests", "Εμφάνιση τίτλου", "Εμφάνιση υπότιτλου",
     "Αποθετήρια στη συμπαγή προβολή", "Κουμπί μεγέθυνσης", "Εναλλάσσει μεταξύ πλήρους κάρτας και συμπαγούς προβολής", "Γλώσσα", "Αυτόματα",
     "Δεν παρακολουθείται κανένα αποθετήριο", "Προσθέστε τα αποθετήριά σας στην ενσωμάτωση GitHub για να τα δείτε εδώ.", "Η ενσωμάτωση GitHub δεν παρακολουθεί κανένα από τα αποθετήρια της κάρτας.", "Άνοιγμα της ενσωμάτωσης GitHub",
+    "Κινούμενη εικονογράφηση", "Θέμα εικονογράφησης", "Αυτόματα (ήλιος ή σκοτεινό θέμα)", "Ημέρα", "Νύχτα",
   ],
 };
 
@@ -524,7 +561,7 @@ const trackedIds = (gh) => [...gh.repos, ...gh.users].flatMap((g) => Object.valu
 /** What a render depends on: the registries, the language, and the states of the GitHub sensors. */
 const renderSignature = (hass) => {
   const gh = discover(hass);
-  return [hass.entities, hass.devices, hass.language, hass.locale, ...trackedIds(gh).map((id) => hass.states[id])];
+  return [hass.entities, hass.devices, hass.language, hass.locale, hass.states["sun.sun"], hass.themes?.darkMode, ...trackedIds(gh).map((id) => hass.states[id])];
 };
 
 const sameSignature = (a, b) => !!a && a.length === b.length && a.every((v, i) => v === b[i]);
@@ -651,7 +688,6 @@ const FULL_STYLE = `
 `;
 
 const MINI_STYLE = `
-  .title-row > .chip { display: none; }
   .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .tiles .tile { justify-content: center; padding: 6px 4px; gap: 4px; }
   .tiles .tile .k { display: none; }
@@ -668,6 +704,154 @@ const MINI_STYLE = `
 `;
 
 // ---------------------------------------------------------------------------
+// Illustrated header: a developer's desk at the right of a 200 × 80 picture (laptop showing a commit graph, a mug of
+// coffee), on a 10 px desk strip under the whole banner. The left of the banner is open wall: the title sits there.
+// The state of the repositories shown changes the picture: nothing open (commits flowing), open issues and pull
+// requests (an amber count by the laptop), a pull request just merged (the branch joins main), unknown or unavailable.
+// ---------------------------------------------------------------------------
+
+// A merge is shown for ten minutes after the merged pull requests' count went up.
+const GH_MERGE_MS = 10 * 60 * 1000;
+
+// Colour of the header icon by state: green (nothing open), amber (open issues/PRs), purple (merged), grey, red.
+const GH_STATE_COLOR = {
+  ok: "var(--gh-ok)",
+  issues: "var(--gh-warn)",
+  merge: "var(--gh-purple)",
+  unknown: "var(--gh-idle)",
+  error: "var(--gh-crit)",
+};
+
+const GH_NO_VALUE = new Set(["unknown", "unavailable", ""]);
+
+/** Night picture: forced by `illustration_theme`, else the sun below the horizon or Home Assistant's dark theme (dark mode alone without a valid sun.sun). */
+const ghIsNight = (hass, config) => {
+  const theme = config?.illustration_theme;
+  if (theme === "night") return true;
+  if (theme === "day") return false;
+  const sun = hass?.states?.["sun.sun"];
+  if (sun && !GH_NO_VALUE.has(String(sun.state))) return sun.state === "below_horizon" || !!hass?.themes?.darkMode;
+  return !!hass?.themes?.darkMode;
+};
+
+let ghUid = 0;
+
+/** The picture. `uid` keeps each card's clip path apart on a page with several cards; `label` is the open count. */
+const ghSceneSvg = (uid, state, label = "") => {
+  const dots = [-20, -8, 8, 20].map((x, i) => `<circle class="gh-dot" style="animation-delay:${i * 0.45}s" cx="${x}" cy="-12" r="2.4"/>`).join("");
+  let badge = "";
+  if (state === "issues") {
+    const small = label.length > 2;
+    badge = `<g class="gh-badge issues" transform="translate(190 50)"><circle r="${small ? 8 : 7}"/><text y="${small ? 2 : 2.8}" font-size="${small ? 5.6 : 8}">${esc(label)}</text></g>`;
+  } else if (state === "merge") {
+    badge = `<g class="gh-badge merge" transform="translate(190 50)"><circle r="7"/><path d="M-2 -3 v6 M2 -3 a2 2 0 0 1 0 4 h-4"/></g>`;
+  } else if (state === "error") {
+    badge = `<g class="gh-badge error" transform="translate(190 50)"><circle r="7"/><path d="M0 -3.6 V0.8 M0 2.6 V3.4"/></g>`;
+  }
+  return `<svg class="gh-scene" viewBox="0 0 200 80" preserveAspectRatio="xMaxYMax meet" aria-hidden="true" focusable="false">
+    <defs><clipPath id="gh-scr-${uid}"><rect x="-27" y="-37" width="54" height="32" rx="1"/></clipPath></defs>
+    <rect class="gh-desk" x="90" y="64" width="110" height="3"/>
+    <g transform="translate(140 64)">
+      <rect class="gh-lid" x="-30" y="-40" width="60" height="38" rx="2"/>
+      <rect class="gh-screen" x="-27" y="-37" width="54" height="32" rx="1"/>
+      <g class="gh-graph" clip-path="url(#gh-scr-${uid})">
+        <path class="gh-main" d="M-20 -12 H20"/><path class="gh-branch" d="M-8 -12 Q-4 -24 4 -24 H16"/>
+        ${dots}<circle class="gh-head" cx="16" cy="-24" r="2.4"/><circle class="gh-ring" cx="16" cy="-24" r="2.4"/>
+        ${state === "merge" ? '<path class="gh-mergeline" pathLength="1" d="M16 -24 Q24 -24 20 -12"/>' : ""}
+      </g>
+      <rect class="gh-base" x="-36" y="-2" width="72" height="3" rx="1"/>
+    </g>
+    ${badge}
+    <g transform="translate(104 64)">
+      <path class="gh-steam" d="M-2 -14 q-2 -3 0 -6 q2 -3 0 -6"/><path class="gh-steam s2" d="M2 -15 q-2 -3 0 -6 q2 -3 0 -6"/>
+      <rect class="gh-mug" x="-6" y="-12" width="12" height="12" rx="2"/><path class="gh-handle" d="M6 -9 q4 0 4 3 q0 3 -4 3"/>
+    </g>
+  </svg>`;
+};
+
+const BANNER_STYLE = `
+  :host { --gh-idle: #8a94a0; }
+  .banner { position: relative; overflow: hidden; height: 90px; container: gh-banner / inline-size; color: #0d2a45; background: #eef1f6; }
+  .banner.night { color: #fff; background: #262c3a; }
+  .banner + .content { padding-top: 10px; }
+  /* The desk leaves the title row at least 250 px, so the pill stays beside the title; with the detail button in the
+     corner, it is drawn lower and smaller, under the button. */
+  .banner { --gh-scene-w: min(200px, 54%, max(40%, 100% - 250px)); }
+  .banner:has(> .zoom) { --gh-scene-w: min(135px, 40%); }
+  .gh-scene { position: absolute; right: 0; bottom: 10px; height: 80px; width: var(--gh-scene-w); }
+  /* The desk: a 10 px strip under the whole banner, edge to edge. */
+  .gh-ground { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: #b98a5c; box-shadow: inset 0 2px 0 #d4a878; }
+  .night .gh-ground { background: #4a3a2c; box-shadow: inset 0 2px 0 #5c4836; }
+  .htext { position: absolute; left: 14px; top: 0; bottom: 10px; right: calc(var(--gh-scene-w) + 4px); display: flex; align-items: center;
+           gap: 10px; min-width: 0; }
+  .htext .titles { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); container: gh-titles / inline-size; }
+  /* The status pill on the title's row, in the icon's colour: the title ellipsises first (4 characters kept). */
+  .banner .title-row { flex-wrap: nowrap; min-width: 0; }
+  .banner .title-row > .name { flex: 0 1 auto; min-width: 4.6ch; }
+  .banner .title-row > .chip { flex: none; max-width: none; overflow: hidden; box-sizing: border-box; }
+  .banner .logo { position: relative; align-self: center; color: var(--ic); background: rgba(255,255,255,.62);
+                  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ic) 22%, transparent); }
+  .banner.night .logo { color: color-mix(in srgb, var(--ic) 80%, #fff); background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
+  /* The GitHub mark in a badge on the header icon, on a white tile readable on any theme. */
+  .banner .badge { position: absolute; right: -4px; bottom: -4px; width: 18px; height: 18px; border-radius: 5px; padding: 2px; box-sizing: border-box;
+                   display: grid; place-items: center; background: #fff; color: #1f2328; box-shadow: 0 0 0 1px rgba(13,42,69,.16), 0 1px 3px rgba(13,42,69,.18); }
+  .banner .badge .icon { width: 14px; height: 14px; }
+  .banner .sub { color: #3b5b78; font-size: 13px; }
+  .banner.night .sub { color: rgba(255,255,255,.78); }
+  .banner .chip { --c: var(--ic); background: color-mix(in srgb, var(--c) 18%, rgba(255,255,255,.78)); color: color-mix(in srgb, var(--c) 45%, #0d2a45); }
+  .banner.night .chip { background: color-mix(in srgb, var(--c) 30%, rgba(8,18,38,.55)); color: color-mix(in srgb, var(--c) 35%, #ffffff); }
+  .banner .chip .dot { width: 7px; height: 7px; }
+  .banner .zoom { position: absolute; z-index: 2; top: 5px; right: 5px; margin: 0; color: #33506b; background: rgba(255,255,255,.55);
+                  box-shadow: inset 0 0 0 1px rgba(255,255,255,.7); backdrop-filter: blur(4px); }
+  .banner.night .zoom { color: #fff; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
+  .banner .zoom:hover { color: #33506b; background: rgba(255,255,255,.75); }
+  .banner.night .zoom:hover { color: #fff; background: rgba(255,255,255,.22); }
+  /* The whole title and the pill's whole label do not fit on one row (measured, see _fitPill): the pill on a line of
+     its own under the subtitle, which keeps one line; when that does not fit above the desk, its dot alone; on a very
+     narrow card, its dot alone too. */
+  .banner .titles.below .title-row { display: contents; }
+  .banner .titles.below .title-row > .chip { grid-row: 3; justify-self: start; max-width: 100%; margin-top: 3px; }
+  .banner .titles.below .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .banner .titles.dot-only .title-row > .chip { padding: 4px; } .banner .titles.dot-only .title-row > .chip > .chip-text { display: none; }
+  @container gh-banner (max-width: 200px) { .banner .title-row > .chip { padding: 4px; } .banner .title-row > .chip > .chip-text { display: none; } }
+  /* Narrow card: no room for the desk beside the text, the wall and the strip stay. */
+  @container gh-banner (max-width: 300px) { .gh-scene { display: none; } .htext { right: 36px; } }
+  .gh-desk { fill: #c9b79c; } .night .gh-desk { fill: #3c4558; }
+  .gh-lid { fill: #2a3038; }
+  .gh-screen { fill: #f6f8fa; } .night .gh-screen { fill: #0d1117; }
+  .gh-base { fill: #9aa3ae; }
+  .gh-graph path { fill: none; stroke-width: 1.6; }
+  .gh-main, .gh-branch { stroke: #7f77dd; }
+  .gh-dot { fill: #2f80ed; }
+  .gh-head { fill: #d4537e; }
+  .gh-ring { fill: none; stroke: #d4537e; stroke-width: .8; opacity: 0; transform-box: fill-box; transform-origin: center; }
+  .gh-mergeline { stroke: #43a047; stroke-dasharray: 1; stroke-dashoffset: 0; }
+  .gh-unknown .gh-graph, .gh-error .gh-graph { opacity: .35; filter: grayscale(1); }
+  .gh-badge text { fill: #fff; font-weight: 700; text-anchor: middle; font-family: Roboto, Arial, sans-serif; }
+  .gh-badge path { fill: none; stroke: #fff; stroke-width: 1.2; stroke-linecap: round; }
+  .gh-badge.issues circle { fill: #f5b400; } .gh-badge.merge circle { fill: #7f77dd; } .gh-badge.error circle { fill: #db4437; }
+  .gh-badge { transform-box: fill-box; }
+  .gh-mug { fill: #f5b400; } .gh-handle { fill: none; stroke: #f5b400; stroke-width: 1.6; }
+  .gh-steam { fill: none; stroke: #9aa3ae; stroke-width: .8; stroke-linecap: round; opacity: 0; }
+  .night .gh-steam { stroke: #c3cad4; }
+  /* Animations: commits pop along the graph, the head commit pulses, steam rises, the merge draws in. */
+  .gh-ok .gh-dot, .gh-issues .gh-dot, .gh-merge .gh-dot { animation: gh-pop 3.6s ease-in-out infinite; }
+  .gh-ok .gh-ring, .gh-issues .gh-ring { animation: gh-ring 2.4s ease-out infinite; }
+  .gh-steam { animation: gh-steam 3.2s ease-in-out infinite; } .gh-steam.s2 { animation-delay: 1.6s; }
+  .gh-mergeline { animation: gh-merge 3s ease-in-out infinite; }
+  .gh-badge.issues circle, .gh-badge.error circle { animation: gh-blink 2.4s ease-in-out infinite; }
+  @keyframes gh-pop { 0%, 70%, 100% { opacity: 1; } 80% { opacity: .35; } }
+  @keyframes gh-ring { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(2.6); } }
+  @keyframes gh-steam { 0% { opacity: 0; transform: translateY(2px); } 40% { opacity: .9; } 100% { opacity: 0; transform: translateY(-4px); } }
+  @keyframes gh-merge { 0% { stroke-dashoffset: 1; } 45%, 100% { stroke-dashoffset: 0; } }
+  @keyframes gh-blink { 50% { opacity: .7; } }
+  @media (prefers-reduced-motion: reduce) {
+    .gh-dot, .gh-ring, .gh-steam, .gh-mergeline, .gh-badge circle { animation: none !important; }
+    .gh-steam { opacity: .6; }
+  }
+`;
+
+// ---------------------------------------------------------------------------
 // Cards
 // ---------------------------------------------------------------------------
 
@@ -675,6 +859,7 @@ class GitHubBase extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    this._uid = ++ghUid;
     this._html = "";
     this._openRepo = null;
     // No rewrite of the card between a press and its click: Home Assistant updates the card several times a second,
@@ -733,15 +918,53 @@ class GitHubBase extends HTMLElement {
 
   connectedCallback() {
     this._outside.on();
+    if (!this._fitObserver && typeof ResizeObserver === "function") this._fitObserver = new ResizeObserver(() => this._fitPill());
+    this._fitObserver?.observe(this);
+    document.fonts?.ready?.then(() => this._fitPill());
     // Back on the page after leaving it: rendered again in its default state.
     if (this._hass && this._config) this._update();
   }
 
+  // The banner's status pill, measured after each render and on a new width (in every language): it sits on the
+  // title's row, right after the title, only when the whole title and the pill's whole label fit there; otherwise it
+  // takes a line of its own under the subtitle (.below), the title whole on its row (cut only when it does not fit
+  // alone) and the subtitle on one line. When the three lines do not fit in the banner above the ground strip, or
+  // the label does not fit its line, the pill shows its dot alone (.dot-only): beside the title when the whole title
+  // leaves it room, else under the subtitle.
+  _fitPill() {
+    for (const t of this.shadowRoot?.querySelectorAll?.(".htext .titles") || []) {
+      const row = t.querySelector(".title-row");
+      const chips = row ? [...row.querySelectorAll(":scope > .chip")] : [];
+      if (!chips[0]?.getBoundingClientRect) continue;
+      t.classList.remove("below", "dot-only");
+      const name = row.querySelector(".name");
+      const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+      const room = row.getBoundingClientRect().width;
+      const title = name && getComputedStyle(name).display !== "none" ? textWidth(name) + gap : 0;
+      const pills = () => chips.reduce((w, c) => w + c.getBoundingClientRect().width, gap * (chips.length - 1));
+      if (title + pills() <= room) continue;
+      t.classList.add("below");
+      const banner = t.closest(".banner") || t;
+      const ground = banner.querySelector(".gh-ground");
+      const floor = ground ? ground.getBoundingClientRect().top : banner.getBoundingClientRect().bottom;
+      const box = t.getBoundingClientRect();
+      const whole = chips.every((c) => {
+        const tx = c.querySelector(".chip-text");
+        return !tx || tx.scrollWidth <= tx.clientWidth + 0.5;
+      });
+      if (whole && box.bottom <= floor + 0.5 && box.top >= banner.getBoundingClientRect().top - 0.5) continue;
+      t.classList.add("dot-only");
+      if (title + pills() <= room) t.classList.remove("below");
+    }
+  }
+
   disconnectedCallback() {
+    this._fitObserver?.disconnect();
     this._pressing = this._dirty = false;
     window.removeEventListener("pointerup", this._onPressEnd, true);
     window.removeEventListener("pointercancel", this._onPressEnd, true);
     this._outside.off();
+    clearTimeout(this._mergeTimer);
     // Left (another dashboard view, a conditional card hidden): the repository folds back.
     this._openRepo = null;
   }
@@ -763,6 +986,7 @@ class GitHubBase extends HTMLElement {
     if (config.repositories !== undefined && !Array.isArray(config.repositories))
       throw new Error("repositories must be a list of owner/repo names");
     this._config = { ...config };
+    this._mergedKey = this._mergedAt = null;
     // show_title / show_subtitle: the header's title / subtitle, hidden by the stylesheet
     this.toggleAttribute?.("hide-title", config.show_title === false);
     this.toggleAttribute?.("hide-subtitle", config.show_subtitle === false);
@@ -812,6 +1036,7 @@ class GitHubBase extends HTMLElement {
       const focused = this._byPointer ? null : focusSelector(this.shadowRoot.activeElement);
       this._html = html;
       this.shadowRoot.innerHTML = html;
+      this._fitPill();
       if (focused) this.shadowRoot.querySelector(focused)?.focus({ preventScroll: true });
     }
   }
@@ -873,15 +1098,60 @@ class GitHubBase extends HTMLElement {
       : "";
     const stars = this._sum(repos, "stargazers_count");
     const sub = [repos.length ? this._t("repos_n").replace("{n}", repos.length) : "", stars !== null ? `★ ${fmtCount(stars, this._loc())}` : ""].filter(Boolean).join(" · ");
-    return `
+    const titles = `<div class="titles">
+          <div class="title-row"><div class="name">${esc(this._config.title || "GitHub")}</div>${chip}</div>
+          <div class="sub" title="${esc(sub)}">${esc(sub)}</div>
+        </div>`;
+    // Classic header (illustration: false): the round tinted GitHub icon, the title and the subtitle.
+    if (this._config.illustration === false)
+      return `
       <div class="header">
         <span class="logo" aria-hidden="true">${svgIcon(ICONS.github)}</span>
-        <div class="titles">
-          <div class="title-row"><div class="name">${esc(this._config.title || "GitHub")}</div>${chip}</div>
-          <div class="sub">${esc(sub)}</div>
+        ${titles}
+        ${aside}
+      </div>`;
+    const il = this._illus(repos);
+    const cls = `banner gh-${il.state}${ghIsNight(this._hass, this._config) ? " night" : ""}`;
+    return `
+      <div class="${cls}" style="--ic:${GH_STATE_COLOR[il.state]}">${ghSceneSvg(this._uid, il.state, il.label)}<div class="gh-ground"></div>
+        <div class="htext">
+          <span class="logo" aria-hidden="true">${svgIcon(ICONS.trend)}<span class="badge">${svgIcon(ICONS.github)}</span></span>
+          ${titles}
         </div>
         ${aside}
       </div>`;
+  }
+
+  /**
+   * State of the illustration: `ok` (nothing open), `issues` (open issues and pull requests, `label` their count),
+   * `merge` (a pull request merged in the last minutes), `unknown` (no repository or no count), `error` (unavailable).
+   */
+  _illus(repos) {
+    if (!repos.length) return { state: "unknown" };
+    const counts = repos.map((r) => this._openCount(r)).filter((v) => v !== null);
+    if (!counts.length) {
+      const unavailable = repos.some((r) => Object.values(r.s).some((id) => this._s(id)?.state === "unavailable"));
+      return { state: unavailable ? "error" : "unknown" };
+    }
+    if (this._merging(repos)) return { state: "merge" };
+    const n = counts.reduce((a, b) => a + b, 0);
+    return n ? { state: "issues", label: n > 99 ? "99+" : String(n) } : { state: "ok" };
+  }
+
+  /** True for GH_MERGE_MS after the merged pull requests of the same repositories went up; redraws when it ends. */
+  _merging(repos) {
+    const total = this._sum(repos, "merged_pulls_count");
+    const key = repos.map((r) => r.id).join("|");
+    if (total !== null) {
+      if (this._mergedKey === key && total > this._mergedTotal) this._mergedAt = Date.now();
+      this._mergedKey = key;
+      this._mergedTotal = total;
+    }
+    const left = this._mergedAt ? this._mergedAt + GH_MERGE_MS - Date.now() : 0;
+    clearTimeout(this._mergeTimer);
+    if (left <= 0) return false;
+    this._mergeTimer = setTimeout(() => this._update(), left + 50);
+    return true;
   }
 
   _tile(id, label, icon, cls) {
@@ -913,6 +1183,11 @@ class GitHubBase extends HTMLElement {
         <div class="h">${esc(this._t(filtered ? "no_match" : "no_repos_hint"))}</div>
         <button class="action" data-action="integration">${svgIcon(ICONS.open)}${esc(this._t("open_integration"))}</button>
       </div></div>`;
+  }
+
+  /** The illustration's styles, only when it is shown. */
+  _bannerStyle() {
+    return this._config.illustration === false ? "" : BANNER_STYLE;
   }
 
   _noGh() {
@@ -959,7 +1234,7 @@ class GitHubCard extends GitHubBase {
     const single = repos.length === 1;
     const sections = repos.length ? repos.map((r) => this._repoSection(r, single)) : [this._empty()];
     for (const u of users) sections.push(this._accountSection(u));
-    return `<style>${BASE_STYLE}${FULL_STYLE}</style>
+    return `<style>${BASE_STYLE}${FULL_STYLE}${this._bannerStyle()}</style>
       <ha-card>
         ${this._header(repos, this._aside?.() || "")}
         <div class="content">${sections.join("")}</div>
@@ -1118,7 +1393,7 @@ class GitHubMiniCard extends GitHubCard {
       if (u.s.followers)
         foot.push(`<span class="clickable" data-entity="${esc(u.s.followers)}" role="button" tabindex="0" title="${esc(`${u.label} · ${this._t("followers")}: ${fmtFull(v, loc)}`)}">${svgIcon(ICONS.group)}${fmtCount(v, loc)}</span>`);
     }
-    return `<style>${BASE_STYLE}${MINI_STYLE}</style>
+    return `<style>${BASE_STYLE}${MINI_STYLE}${this._bannerStyle()}</style>
       <ha-card>
         ${this._header(repos, this._aside())}
         <div class="content">
@@ -1141,7 +1416,7 @@ class GitHubEditorBase extends HTMLElement {
   }
 
   static get defaults() {
-    return { sort: "name" };
+    return { sort: "name", illustration_theme: "auto" };
   }
 
   setConfig(config) {
@@ -1166,6 +1441,10 @@ class GitHubEditorBase extends HTMLElement {
         selector: { select: { mode: "dropdown", options: ["name", "stars", "open"].map((v) => ({ value: v, label: tr(`sort_${v}`) })) } },
       },
       { type: "grid", name: "", schema: this.constructor.toggles.map((name) => ({ name, selector: { boolean: {} } })) },
+      {
+        name: "illustration_theme",
+        selector: { select: { mode: "dropdown", options: ["auto", "day", "night"].map((v) => ({ value: v, label: tr(`theme_${v}`) })) } },
+      },
       ...extra,
       {
         name: "language",
@@ -1222,17 +1501,17 @@ class GitHubEditorBase extends HTMLElement {
 
 class GitHubCardEditor extends GitHubEditorBase {
   static get toggles() {
-    return ["show_title", "show_subtitle", "show_latest", "show_account"];
+    return ["illustration", "show_title", "show_subtitle", "show_latest", "show_account"];
   }
 }
 
 class GitHubMiniCardEditor extends GitHubEditorBase {
   static get toggles() {
-    return ["show_title", "show_subtitle", "show_latest", "show_account", "zoom"];
+    return ["illustration", "show_title", "show_subtitle", "show_latest", "show_account", "zoom"];
   }
 
   static get defaults() {
-    return { sort: "name", max_repos: 5 };
+    return { sort: "name", illustration_theme: "auto", max_repos: 5 };
   }
 
   _extraSchema() {

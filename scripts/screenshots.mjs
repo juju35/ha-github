@@ -1,6 +1,10 @@
 // Renders the cards with mock GitHub data and saves the README screenshots.
 // Usage: npm run build && npm run screenshots
-import { readFileSync } from "node:fs";
+// Then records the header animations into screenshots/*.gif, light and dark (needs ffmpeg).
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { accountOnly, devices, entities, states } from "./mock-states.mjs";
@@ -123,7 +127,7 @@ async function openCard(s) {
   await page.addScriptTag({ content: cardJs });
   if (s.panel) await page.addScriptTag({ content: panelJs });
   await page.evaluate(
-    ({ type, config, states, entities, devices, open, zoom, panel, mock, expand, select, sidebar }) => {
+    ({ type, config, states, entities, devices, open, zoom, merge, panel, mock, expand, select, sidebar, dark }) => {
       if (sidebar) {
         // A faithful mock of Home Assistant's sidebar entry with the count badge (open issues + pull requests),
         // amber here because there are open issues, like the native notifications count. No real sidebar is mounted.
@@ -170,16 +174,21 @@ async function openCard(s) {
       }
       const el = document.createElement(type);
       el.setConfig({ type: `custom:${type}`, ...config });
-      el.hass = { states, entities, devices, language: "en", locale: { language: "en" } };
+      el.hass = { states, entities, devices, language: "en", locale: { language: "en" }, themes: { darkMode: dark } };
       document.getElementById("root").appendChild(el);
       // The repository shown unfolded, or the zoom of the mini card on a repository (as a click on its line does).
+      // A pull request just merged: the merge drawn for ten minutes, as when the merged count goes up.
+      if (merge) {
+        el._mergedAt = Date.now();
+        el._update();
+      }
       if (zoom) el._setZoom(true, zoom);
       else if (open) {
         el._openRepo = open;
         el._update();
       }
     },
-    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, panel: s.panel, mock: panelMock, expand: s.expand, select: s.select, sidebar: s.sidebar }
+    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, merge: s.merge, panel: s.panel, mock: panelMock, expand: s.expand, select: s.select, sidebar: s.sidebar, dark: s.theme === "dark" }
   );
   await page.waitForTimeout(800);
   return page;
@@ -196,6 +205,64 @@ for (const s of shots) {
   const written = writeIfChanged(`${root}screenshots/${s.file}.png`, png);
   console.log(`screenshots/${s.file}.png${written ? "" : " (unchanged)"}`);
   await page.close();
+}
+
+// Animated captures: the full card's header, one GIF per state, light and dark. The CSS animations are paused and
+// stepped frame by frame over a 7.2 s loop; each animation runs a whole number of its cycles in it (the closest to its
+// real speed), so every GIF loops seamlessly whatever the machine's speed.
+const FPS = 15;
+const LOOP = 7200;
+const WEATHER = { title: "ha-weather", repositories: ["juju35/ha-weather-card"], show_account: false };
+const GIFS = [
+  // Open issues and pull requests: commits pop along the graph, the head commit pulses, the amber count blinks.
+  { name: "anim-issues", config: {} },
+  // Nothing open: the same flow, without a count.
+  { name: "anim-nothing-open", config: WEATHER },
+  // A pull request just merged: the branch draws in and joins main.
+  { name: "anim-merged", config: WEATHER, merge: true },
+  // Night picture.
+  { name: "anim-night", config: { illustration_theme: "night" } },
+];
+
+// Pauses every CSS animation of the page (shadow trees walked by hand) at `frac` of the loop.
+const freeze = (page, frac) =>
+  page.evaluate(
+    ({ f, loop }) => {
+      const walk = (node) => [...node.querySelectorAll("*")].flatMap((el) => [...el.getAnimations(), ...(el.shadowRoot ? walk(el.shadowRoot) : [])]);
+      for (const a of walk(document)) {
+        const d = a.effect.getTiming().duration;
+        a.pause();
+        a.currentTime = (10 + f * Math.max(1, Math.round(loop / d))) * d;
+      }
+    },
+    { f: frac, loop: LOOP },
+  );
+
+for (const g of GIFS) {
+  for (const theme of ["light", "dark"]) {
+    const file = `${g.name}${theme === "dark" ? "-dark" : ""}`;
+    const s = { file, theme, type: "github-card", width: 460, config: { illustration_theme: "day", ...g.config }, merge: g.merge };
+    const page = await openCard(s);
+    // The header with the 16 px of theme background around the card.
+    const bottom = await page.evaluate(() => document.querySelector("#root > *").shadowRoot.querySelector(".banner").getBoundingClientRect().bottom);
+    const clip = { x: 0, y: 0, width: s.width + 32, height: Math.ceil(bottom) };
+    const dir = mkdtempSync(join(tmpdir(), "gh-frames-"));
+    const frames = Math.round((FPS * LOOP) / 1000);
+    for (let i = 0; i < frames; i++) {
+      await freeze(page, i / frames);
+      await page.screenshot({ path: join(dir, `f${String(i).padStart(3, "0")}.png`), clip });
+    }
+    // A deterministic GIF: palette from the frames only, ordered dithering, bit-exact muxing.
+    execFileSync("ffmpeg", [
+      "-y", "-loglevel", "error", "-framerate", String(FPS), "-i", join(dir, "f%03d.png"),
+      "-vf", `scale=${s.width + 32}:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=4`,
+      "-fflags", "+bitexact", "-flags", "+bitexact", "-loop", "0", join(dir, "out.gif"),
+    ]);
+    const written = writeIfChanged(`${root}screenshots/${file}.gif`, readFileSync(join(dir, "out.gif")));
+    console.log(`screenshots/${file}.gif${written ? "" : " (unchanged)"}`);
+    rmSync(dir, { recursive: true });
+    await page.close();
+  }
 }
 
 await browser.close();

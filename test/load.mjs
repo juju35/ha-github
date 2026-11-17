@@ -30,6 +30,7 @@ export const load = () => {
     },
     Intl,
     setTimeout,
+    clearTimeout,
     addEventListener() {},
     removeEventListener() {},
   };
