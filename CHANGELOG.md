@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.12.0 - 2026-11-17
+
+### Features
+- **Illustrated header on both cards.** The GitHub Card and the GitHub Mini Card get a 90 px animated banner: a developer's desk with a laptop showing a commit graph and a mug of coffee, on a 10 px desk strip. The picture and the header icon's colour follow the repositories shown: nothing open (green, commits flowing), open issues and pull requests (amber, with their count by the laptop), a pull request just merged (purple, the branch joins main for ten minutes), unknown (grey) or unavailable (red). The GitHub mark sits as a badge on the icon. Night picture after sunset (`sun.sun`, else the dark theme), forced with `illustration_theme: day | night`; `illustration: false` keeps the classic header. Animations stop with reduced motion. Both options are in the visual editors, in every language.
+
 ## 2.11.2 - 2026-11-16
 
 ### Fixes

@@ -123,7 +123,7 @@ async function openCard(s) {
   await page.addScriptTag({ content: cardJs });
   if (s.panel) await page.addScriptTag({ content: panelJs });
   await page.evaluate(
-    ({ type, config, states, entities, devices, open, zoom, panel, mock, expand, select, sidebar }) => {
+    ({ type, config, states, entities, devices, open, zoom, panel, mock, expand, select, sidebar, dark }) => {
       if (sidebar) {
         // A faithful mock of Home Assistant's sidebar entry with the count badge (open issues + pull requests),
         // amber here because there are open issues, like the native notifications count. No real sidebar is mounted.
@@ -170,7 +170,7 @@ async function openCard(s) {
       }
       const el = document.createElement(type);
       el.setConfig({ type: `custom:${type}`, ...config });
-      el.hass = { states, entities, devices, language: "en", locale: { language: "en" } };
+      el.hass = { states, entities, devices, language: "en", locale: { language: "en" }, themes: { darkMode: dark } };
       document.getElementById("root").appendChild(el);
       // The repository shown unfolded, or the zoom of the mini card on a repository (as a click on its line does).
       if (zoom) el._setZoom(true, zoom);
@@ -179,7 +179,7 @@ async function openCard(s) {
         el._update();
       }
     },
-    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, panel: s.panel, mock: panelMock, expand: s.expand, select: s.select, sidebar: s.sidebar }
+    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, panel: s.panel, mock: panelMock, expand: s.expand, select: s.select, sidebar: s.sidebar, dark: s.theme === "dark" }
   );
   await page.waitForTimeout(800);
   return page;

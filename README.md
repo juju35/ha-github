@@ -33,6 +33,7 @@ It works on top of the core [GitHub integration](https://www.home-assistant.io/i
 ### Cards
 
 - A full **GitHub Card** and a compact **GitHub Mini Card**, loaded on every dashboard by the integration (no resource to add)
+- **Illustrated header** (both cards): a developer's desk with a laptop showing a commit graph, on a desk strip. The picture and the colour of the header icon follow the repositories shown — green with commits flowing when nothing is open, amber with the count of open issues and pull requests, purple with the branch joining main for ten minutes after a pull request is merged, grey when unknown, red when unavailable. Night picture after sunset (or with a dark theme), animations off with reduced motion
 - One foldable section per repository, with its stars, open issues and open pull requests at a glance: one unfolded at a time, folded again on a click elsewhere (a single repository is always unfolded)
 - Stars, forks, watchers, open issues, open pull requests, merged pull requests, discussions and downloads of the latest release
 - Latest release, tag, commit, pull request, issue and discussion, each with a link to its page on GitHub
@@ -174,6 +175,8 @@ language: fr
 | Option | Card | Default | Description |
 |---|---|---|---|
 | `title` | all | `GitHub` | Card title |
+| `illustration` | all | `true` | Illustrated header (desk picture following the state of the repositories); `false` keeps the classic header |
+| `illustration_theme` | all | `auto` | `auto` (night after sunset from `sun.sun`, else with a dark theme), `day` or `night` |
 | `show_title` | all | `true` | Show the title in the header (e.g. `false` under a section heading of your own) |
 | `show_subtitle` | all | `true` | Show the subtitle under the title |
 | `repositories` | all | All | Repositories to show (`owner/repo`, any case, or the name given to the device), in this order |
