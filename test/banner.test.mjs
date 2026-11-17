@@ -48,7 +48,7 @@ test("unknown counters are grey, unavailable ones red", () => {
   assert.match(render(lib.GitHubCard, weather, hass(down)).html, /banner gh-error[\s\S]*--ic:var\(--gh-crit\)/);
 });
 
-test("night: illustration_theme, else the sun, else the dark theme", () => {
+test("night: illustration_theme, else the sun below the horizon or the dark theme (even with the sun up)", () => {
   const night = (config, extra, themes) => {
     const h = { ...hass(extra), themes };
     return / night"/.test(render(lib.GitHubCard, { ...weather, ...config }, h).html);
@@ -56,7 +56,10 @@ test("night: illustration_theme, else the sun, else the dark theme", () => {
   assert.equal(night({ illustration_theme: "night" }), true);
   assert.equal(night({ illustration_theme: "day" }, { "sun.sun": st("below_horizon") }), false);
   assert.equal(night({}, { "sun.sun": st("below_horizon") }), true);
-  assert.equal(night({}, { "sun.sun": st("above_horizon") }, { darkMode: true }), false);
+  assert.equal(night({}, { "sun.sun": st("above_horizon") }, { darkMode: true }), true);
+  assert.equal(night({}, { "sun.sun": st("above_horizon") }, { darkMode: false }), false);
+  assert.equal(night({ illustration_theme: "day" }, { "sun.sun": st("above_horizon") }, { darkMode: true }), false);
+  assert.equal(night({ illustration_theme: "night" }, { "sun.sun": st("above_horizon") }, { darkMode: false }), true);
   assert.equal(night({}, {}, { darkMode: true }), true);
 });
 

@@ -176,7 +176,7 @@ language: fr
 |---|---|---|---|
 | `title` | all | `GitHub` | Card title |
 | `illustration` | all | `true` | Illustrated header (desk picture following the state of the repositories); `false` keeps the classic header |
-| `illustration_theme` | all | `auto` | `auto` (night after sunset from `sun.sun`, else with a dark theme), `day` or `night` |
+| `illustration_theme` | all | `auto` | `auto` (night after sunset from `sun.sun` or with a dark theme), `day` or `night` |
 | `show_title` | all | `true` | Show the title in the header (e.g. `false` under a section heading of your own) |
 | `show_subtitle` | all | `true` | Show the subtitle under the title |
 | `repositories` | all | All | Repositories to show (`owner/repo`, any case, or the name given to the device), in this order |
