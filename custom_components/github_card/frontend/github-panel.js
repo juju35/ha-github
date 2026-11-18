@@ -17,7 +17,7 @@
  *   notifications.
  */
 
-const GITHUB_PANEL_VERSION = "2.12.1";
+const GITHUB_PANEL_VERSION = "2.12.2";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
@@ -767,6 +767,17 @@ class GitHubPanel extends HTMLElement {
     .confirm .b { display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
     /* Narrow (phone): the name keeps the line, the chip goes */
     @media (max-width: 420px) { .row .chip { display:none; } }
+    /* Narrow list (phone): the name takes the whole first line; counters, link and button wrap to a second line */
+    .list { container-type:inline-size; }
+    @container (max-width: 560px) {
+      .row:not(.confirm) { flex-wrap:wrap; row-gap:6px; }
+      .row .fold { flex:1 1 calc(100% - 38px); }
+      .row > .n { flex:1 1 calc(100% - 94px); }
+      .row .link { order:1; }
+      .row .info { order:2; flex:1 1 0; min-width:0; overflow:hidden; padding-left:26px; }
+      .row .info .tag { display:none; }
+      .row > .act { order:3; min-width:0; padding:5px 12px; margin-left:auto; }
+    }
     .form { display:flex; flex-direction:column; gap:14px; }
     .ctl { display:flex; flex-direction:column; gap:4px; }
     .ctl > span { font-size:12px; color:var(--secondary-text-color); }

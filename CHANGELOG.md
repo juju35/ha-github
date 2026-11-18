@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.12.2 - 2026-11-18
+
+### Fixes
+- **Repositories tab on a phone.** Repository names were cut down to "j…" on a narrow panel: the counters, the GitHub link and the button left them no room. Below 560 px the name now keeps the whole first line (with the GitHub link), and the counters and the Follow / Stop following button go on a second line.
+
 ## 2.12.1 - 2026-11-18
 
 ### Fixes
