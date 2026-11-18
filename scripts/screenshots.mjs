@@ -224,16 +224,22 @@ const GIFS = [
   { name: "anim-night", config: { illustration_theme: "night" } },
 ];
 
-// Pauses every CSS animation of the page (shadow trees walked by hand) at `frac` of the loop.
+// Pauses every CSS animation of the page (shadow trees walked by hand) at `frac` of the loop, then waits until the
+// paused state is drawn: transform and opacity animations run on the compositor, which applies a new currentTime a
+// frame later — a capture taken at once can catch the previous frame, and that one pixel off changes the palette of
+// the whole GIF from one run to the next.
 const freeze = (page, frac) =>
   page.evaluate(
-    ({ f, loop }) => {
+    async ({ f, loop }) => {
       const walk = (node) => [...node.querySelectorAll("*")].flatMap((el) => [...el.getAnimations(), ...(el.shadowRoot ? walk(el.shadowRoot) : [])]);
-      for (const a of walk(document)) {
+      const anims = walk(document);
+      for (const a of anims) {
         const d = a.effect.getTiming().duration;
         a.pause();
         a.currentTime = (10 + f * Math.max(1, Math.round(loop / d))) * d;
       }
+      await Promise.all(anims.map((a) => a.ready));
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     },
     { f: frac, loop: LOOP },
   );

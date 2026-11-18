@@ -8,7 +8,7 @@
  * entity registry (platform "github", translation key, device), whatever the language.
  */
 
-const VERSION = "2.12.0";
+const VERSION = "2.12.1";
 
 // Material Design Icons paths.
 // The width of an element's whole text in its own font, in fractional pixels (scrollWidth is rounded).
@@ -79,7 +79,7 @@ const TRANSLATIONS = {
     "Sort repositories", "By name", "By stars", "By open issues and pull requests", "Show title", "Show subtitle",
     "Repositories in the compact view", "Zoom button", "Switches the card to the full card and back", "Language", "Automatic",
     "No repository followed", "Add your repositories to the GitHub integration to see them here.", "None of the repositories of the card is followed by the GitHub integration.", "Open the GitHub integration",
-    "Animated illustration", "Illustration theme", "Automatic (sun or dark theme)", "Day", "Night",
+    "Animated illustration", "Illustration theme", "Automatic (follows the theme)", "Day", "Night",
   ],
   fr: [
     "Étoiles", "Forks", "Observateurs", "Issues", "Pull requests", "PR fusionnées", "Discussions", "Téléchargements",
@@ -92,7 +92,7 @@ const TRANSLATIONS = {
     "Tri des dépôts", "Par nom", "Par étoiles", "Par issues et pull requests ouvertes", "Afficher le titre", "Afficher le sous-titre",
     "Dépôts dans la vue compacte", "Bouton zoom", "Bascule la carte en carte complète, et inversement", "Langue", "Automatique",
     "Aucun dépôt suivi", "Ajoutez vos dépôts à l’intégration GitHub pour les afficher ici.", "Aucun des dépôts de la carte n’est suivi par l’intégration GitHub.", "Ouvrir l’intégration GitHub",
-    "Illustration animée", "Thème de l’illustration", "Automatique (soleil ou thème sombre)", "Jour", "Nuit",
+    "Illustration animée", "Thème de l’illustration", "Automatique (suit le thème)", "Jour", "Nuit",
   ],
   de: [
     "Sterne", "Forks", "Beobachter", "Issues", "Pull Requests", "Gemergte PRs", "Diskussionen", "Downloads",
@@ -105,7 +105,7 @@ const TRANSLATIONS = {
     "Sortierung der Repositorys", "Nach Name", "Nach Sternen", "Nach offenen Issues und Pull Requests", "Titel anzeigen", "Untertitel anzeigen",
     "Repositorys in der kompakten Ansicht", "Zoom-Schaltfläche", "Schaltet zwischen kompakter und vollständiger Karte um", "Sprache", "Automatisch",
     "Kein Repository verfolgt", "Füge deine Repositorys in der GitHub-Integration hinzu, um sie hier zu sehen.", "Keines der Repositorys der Karte wird von der GitHub-Integration verfolgt.", "GitHub-Integration öffnen",
-    "Animierte Illustration", "Thema der Illustration", "Automatisch (Sonne oder dunkles Design)", "Tag", "Nacht",
+    "Animierte Illustration", "Thema der Illustration", "Automatisch (folgt dem Design)", "Tag", "Nacht",
   ],
   es: [
     "Estrellas", "Forks", "Observadores", "Issues", "Pull requests", "PR fusionadas", "Discusiones", "Descargas",
@@ -118,7 +118,7 @@ const TRANSLATIONS = {
     "Orden de los repositorios", "Por nombre", "Por estrellas", "Por issues y pull requests abiertas", "Mostrar el título", "Mostrar el subtítulo",
     "Repositorios en la vista compacta", "Botón de zoom", "Alterna entre la tarjeta completa y la vista compacta", "Idioma", "Automático",
     "Ningún repositorio seguido", "Añade tus repositorios a la integración GitHub para verlos aquí.", "La integración GitHub no sigue ninguno de los repositorios de la tarjeta.", "Abrir la integración GitHub",
-    "Ilustración animada", "Tema de la ilustración", "Automático (sol o tema oscuro)", "Día", "Noche",
+    "Ilustración animada", "Tema de la ilustración", "Automático (sigue el tema)", "Día", "Noche",
   ],
   sr: [
     "Звездице", "Форкови", "Посматрачи", "Проблеми", "Pull захтеви", "Спојени PR", "Дискусије", "Преузимања",
@@ -131,7 +131,7 @@ const TRANSLATIONS = {
     "Редослед репозиторијума", "По имену", "По звездицама", "По отвореним проблемима и pull захтевима", "Прикажи наслов", "Прикажи поднаслов",
     "Репозиторијуми у компактном приказу", "Дугме за зумирање", "Пребацује између целе картице и компактног приказа", "Језик", "Аутоматски",
     "Ниједан репозиторијум се не прати", "Додајте своје репозиторијуме у интеграцију GitHub да бисте их видели овде.", "Интеграција GitHub не прати ниједан репозиторијум картице.", "Отвори интеграцију GitHub",
-    "Анимирана илустрација", "Тема илустрације", "Аутоматски (сунце или тамна тема)", "Дан", "Ноћ",
+    "Анимирана илустрација", "Тема илустрације", "Аутоматски (прати тему)", "Дан", "Ноћ",
   ],
   "sr-Latn": [
     "Zvezdice", "Forkovi", "Posmatrači", "Problemi", "Pull zahtevi", "Spojeni PR", "Diskusije", "Preuzimanja",
@@ -144,7 +144,7 @@ const TRANSLATIONS = {
     "Redosled repozitorijuma", "Po imenu", "Po zvezdicama", "Po otvorenim problemima i pull zahtevima", "Prikaži naslov", "Prikaži podnaslov",
     "Repozitorijumi u kompaktnom prikazu", "Dugme za zumiranje", "Prebacuje između cele kartice i kompaktnog prikaza", "Jezik", "Automatski",
     "Nijedan repozitorijum se ne prati", "Dodajte svoje repozitorijume u integraciju GitHub da biste ih videli ovde.", "Integracija GitHub ne prati nijedan repozitorijum kartice.", "Otvori integraciju GitHub",
-    "Animirana ilustracija", "Tema ilustracije", "Automatski (sunce ili tamna tema)", "Dan", "Noć",
+    "Animirana ilustracija", "Tema ilustracije", "Automatski (prati temu)", "Dan", "Noć",
   ],
   it: [
     "Stelle", "Fork", "Osservatori", "Issue", "Pull request", "PR unite", "Discussioni", "Download",
@@ -157,7 +157,7 @@ const TRANSLATIONS = {
     "Ordinamento dei repository", "Per nome", "Per stelle", "Per issue e pull request aperte", "Mostra il titolo", "Mostra il sottotitolo",
     "Repository nella vista compatta", "Pulsante zoom", "Alterna tra la scheda completa e la vista compatta", "Lingua", "Automatica",
     "Nessun repository seguito", "Aggiungi i tuoi repository all’integrazione GitHub per vederli qui.", "L’integrazione GitHub non segue nessuno dei repository della scheda.", "Apri l’integrazione GitHub",
-    "Illustrazione animata", "Tema dell’illustrazione", "Automatico (sole o tema scuro)", "Giorno", "Notte",
+    "Illustrazione animata", "Tema dell’illustrazione", "Automatico (segue il tema)", "Giorno", "Notte",
   ],
   nl: [
     "Sterren", "Forks", "Kijkers", "Issues", "Pull requests", "Samengevoegde PR’s", "Discussies", "Downloads",
@@ -170,7 +170,7 @@ const TRANSLATIONS = {
     "Sortering van repositories", "Op naam", "Op sterren", "Op open issues en pull requests", "Titel tonen", "Ondertitel tonen",
     "Repositories in de compacte weergave", "Zoomknop", "Schakelt tussen de volledige kaart en de compacte weergave", "Taal", "Automatisch",
     "Geen repository gevolgd", "Voeg je repositories toe aan de GitHub-integratie om ze hier te zien.", "De GitHub-integratie volgt geen enkele repository van de kaart.", "GitHub-integratie openen",
-    "Geanimeerde illustratie", "Thema van de illustratie", "Automatisch (zon of donker thema)", "Dag", "Nacht",
+    "Geanimeerde illustratie", "Thema van de illustratie", "Automatisch (volgt het thema)", "Dag", "Nacht",
   ],
   pt: [
     "Estrelas", "Forks", "Observadores", "Issues", "Pull requests", "PR integrados", "Discussões", "Transferências",
@@ -183,7 +183,7 @@ const TRANSLATIONS = {
     "Ordenação dos repositórios", "Por nome", "Por estrelas", "Por issues e pull requests em aberto", "Mostrar o título", "Mostrar o subtítulo",
     "Repositórios na vista compacta", "Botão de zoom", "Alterna entre o cartão completo e a vista compacta", "Idioma", "Automático",
     "Nenhum repositório seguido", "Adicione os seus repositórios à integração GitHub para os ver aqui.", "A integração GitHub não segue nenhum dos repositórios do cartão.", "Abrir a integração GitHub",
-    "Ilustração animada", "Tema da ilustração", "Automático (sol ou tema escuro)", "Dia", "Noite",
+    "Ilustração animada", "Tema da ilustração", "Automático (segue o tema)", "Dia", "Noite",
   ],
   pl: [
     "Gwiazdki", "Forki", "Obserwatorzy", "Zgłoszenia", "Pull requesty", "Scalone PR", "Dyskusje", "Pobrania",
@@ -196,7 +196,7 @@ const TRANSLATIONS = {
     "Sortowanie repozytoriów", "Według nazwy", "Według gwiazdek", "Według otwartych zgłoszeń i pull requestów", "Pokaż tytuł", "Pokaż podtytuł",
     "Repozytoria w widoku kompaktowym", "Przycisk powiększenia", "Przełącza między pełną kartą a widokiem kompaktowym", "Język", "Automatyczny",
     "Brak śledzonych repozytoriów", "Dodaj swoje repozytoria do integracji GitHub, aby zobaczyć je tutaj.", "Integracja GitHub nie śledzi żadnego z repozytoriów karty.", "Otwórz integrację GitHub",
-    "Animowana ilustracja", "Motyw ilustracji", "Automatycznie (słońce lub ciemny motyw)", "Dzień", "Noc",
+    "Animowana ilustracja", "Motyw ilustracji", "Automatycznie (według motywu)", "Dzień", "Noc",
   ],
   ro: [
     "Stele", "Fork-uri", "Observatori", "Issue-uri", "Pull request-uri", "PR-uri îmbinate", "Discuții", "Descărcări",
@@ -209,7 +209,7 @@ const TRANSLATIONS = {
     "Sortarea depozitelor", "După nume", "După stele", "După issue-uri și pull request-uri deschise", "Afișează titlul", "Afișează subtitlul",
     "Depozite în vizualizarea compactă", "Buton de zoom", "Comută între cardul complet și vizualizarea compactă", "Limbă", "Automat",
     "Niciun depozit urmărit", "Adaugă depozitele tale în integrarea GitHub pentru a le vedea aici.", "Integrarea GitHub nu urmărește niciunul dintre depozitele cardului.", "Deschide integrarea GitHub",
-    "Ilustrație animată", "Tema ilustrației", "Automat (soare sau temă întunecată)", "Zi", "Noapte",
+    "Ilustrație animată", "Tema ilustrației", "Automat (urmează tema)", "Zi", "Noapte",
   ],
   da: [
     "Stjerner", "Forks", "Overvågere", "Issues", "Pull requests", "Flettede PR’er", "Diskussioner", "Downloads",
@@ -222,7 +222,7 @@ const TRANSLATIONS = {
     "Sortering af repositories", "Efter navn", "Efter stjerner", "Efter åbne issues og pull requests", "Vis titel", "Vis undertitel",
     "Repositories i kompakt visning", "Zoomknap", "Skifter mellem hele kortet og kompakt visning", "Sprog", "Automatisk",
     "Ingen repositories fulgt", "Tilføj dine repositories i GitHub-integrationen for at se dem her.", "GitHub-integrationen følger ingen af kortets repositories.", "Åbn GitHub-integrationen",
-    "Animeret illustration", "Illustrationens tema", "Automatisk (sol eller mørkt tema)", "Dag", "Nat",
+    "Animeret illustration", "Illustrationens tema", "Automatisk (følger temaet)", "Dag", "Nat",
   ],
   sv: [
     "Stjärnor", "Forks", "Bevakare", "Ärenden", "Pull requests", "Sammanfogade PR", "Diskussioner", "Nedladdningar",
@@ -235,7 +235,7 @@ const TRANSLATIONS = {
     "Sortering av repon", "Efter namn", "Efter stjärnor", "Efter öppna ärenden och pull requests", "Visa rubrik", "Visa underrubrik",
     "Repon i kompakt vy", "Zoomknapp", "Växlar mellan hela kortet och kompakt vy", "Språk", "Automatiskt",
     "Inga repon följs", "Lägg till dina repon i GitHub-integrationen för att se dem här.", "GitHub-integrationen följer inget av kortets repon.", "Öppna GitHub-integrationen",
-    "Animerad illustration", "Illustrationens tema", "Automatiskt (sol eller mörkt tema)", "Dag", "Natt",
+    "Animerad illustration", "Illustrationens tema", "Automatiskt (följer temat)", "Dag", "Natt",
   ],
   bg: [
     "Звезди", "Форкове", "Наблюдаващи", "Проблеми", "Pull заявки", "Слети PR", "Дискусии", "Изтегляния",
@@ -248,7 +248,7 @@ const TRANSLATIONS = {
     "Подреждане на хранилищата", "По име", "По звезди", "По отворени проблеми и pull заявки", "Показване на заглавието", "Показване на подзаглавието",
     "Хранилища в компактния изглед", "Бутон за мащабиране", "Превключва между цялата карта и компактния изглед", "Език", "Автоматично",
     "Няма следени хранилища", "Добавете хранилищата си в интеграцията GitHub, за да ги видите тук.", "Интеграцията GitHub не следи нито едно от хранилищата на картата.", "Отвори интеграцията GitHub",
-    "Анимирана илюстрация", "Тема на илюстрацията", "Автоматично (слънце или тъмна тема)", "Ден", "Нощ",
+    "Анимирана илюстрация", "Тема на илюстрацията", "Автоматично (следва темата)", "Ден", "Нощ",
   ],
   ru: [
     "Звёзды", "Форки", "Наблюдатели", "Задачи", "Pull-запросы", "Слитые PR", "Обсуждения", "Загрузки",
@@ -261,7 +261,7 @@ const TRANSLATIONS = {
     "Сортировка репозиториев", "По имени", "По звёздам", "По открытым задачам и pull-запросам", "Показывать заголовок", "Показывать подзаголовок",
     "Репозитории в компактном виде", "Кнопка масштабирования", "Переключает между полной карточкой и компактным видом", "Язык", "Автоматически",
     "Нет отслеживаемых репозиториев", "Добавьте свои репозитории в интеграцию GitHub, чтобы увидеть их здесь.", "Интеграция GitHub не отслеживает ни один из репозиториев карточки.", "Открыть интеграцию GitHub",
-    "Анимированная иллюстрация", "Тема иллюстрации", "Автоматически (солнце или тёмная тема)", "День", "Ночь",
+    "Анимированная иллюстрация", "Тема иллюстрации", "Автоматически (следует теме)", "День", "Ночь",
   ],
   uk: [
     "Зірки", "Форки", "Спостерігачі", "Задачі", "Pull-запити", "Злиті PR", "Обговорення", "Завантаження",
@@ -274,7 +274,7 @@ const TRANSLATIONS = {
     "Сортування репозиторіїв", "За назвою", "За зірками", "За відкритими задачами та pull-запитами", "Показувати заголовок", "Показувати підзаголовок",
     "Репозиторії в компактному вигляді", "Кнопка масштабування", "Перемикає між повною карткою та компактним виглядом", "Мова", "Автоматично",
     "Немає відстежуваних репозиторіїв", "Додайте свої репозиторії до інтеграції GitHub, щоб побачити їх тут.", "Інтеграція GitHub не відстежує жодного з репозиторіїв картки.", "Відкрити інтеграцію GitHub",
-    "Анімована ілюстрація", "Тема ілюстрації", "Автоматично (сонце або темна тема)", "День", "Ніч",
+    "Анімована ілюстрація", "Тема ілюстрації", "Автоматично (за темою)", "День", "Ніч",
   ],
   hu: [
     "Csillagok", "Forkok", "Figyelők", "Hibajegyek", "Pull requestek", "Egyesített PR-ek", "Beszélgetések", "Letöltések",
@@ -287,7 +287,7 @@ const TRANSLATIONS = {
     "Tárolók rendezése", "Név szerint", "Csillagok szerint", "Nyitott hibajegyek és pull requestek szerint", "Cím megjelenítése", "Alcím megjelenítése",
     "Tárolók a kompakt nézetben", "Nagyítás gomb", "Vált a teljes kártya és a kompakt nézet között", "Nyelv", "Automatikus",
     "Nincs követett tároló", "Add hozzá a tárolóidat a GitHub integrációhoz, hogy itt lásd őket.", "A GitHub integráció a kártya egyik tárolóját sem követi.", "GitHub integráció megnyitása",
-    "Animált illusztráció", "Az illusztráció témája", "Automatikus (nap vagy sötét téma)", "Nappal", "Éjszaka",
+    "Animált illusztráció", "Az illusztráció témája", "Automatikus (a témát követi)", "Nappal", "Éjszaka",
   ],
   sk: [
     "Hviezdičky", "Forky", "Pozorovatelia", "Problémy", "Pull requesty", "Zlúčené PR", "Diskusie", "Stiahnutia",
@@ -300,7 +300,7 @@ const TRANSLATIONS = {
     "Zoradenie repozitárov", "Podľa názvu", "Podľa hviezdičiek", "Podľa otvorených problémov a pull requestov", "Zobraziť názov", "Zobraziť podnázov",
     "Repozitáre v kompaktnom zobrazení", "Tlačidlo priblíženia", "Prepína medzi celou kartou a kompaktným zobrazením", "Jazyk", "Automaticky",
     "Žiadny sledovaný repozitár", "Pridajte svoje repozitáre do integrácie GitHub, aby ste ich videli tu.", "Integrácia GitHub nesleduje žiadny z repozitárov karty.", "Otvoriť integráciu GitHub",
-    "Animovaná ilustrácia", "Téma ilustrácie", "Automaticky (slnko alebo tmavá téma)", "Deň", "Noc",
+    "Animovaná ilustrácia", "Téma ilustrácie", "Automaticky (podľa témy)", "Deň", "Noc",
   ],
   cs: [
     "Hvězdičky", "Forky", "Pozorovatelé", "Problémy", "Pull requesty", "Sloučené PR", "Diskuze", "Stažení",
@@ -313,7 +313,7 @@ const TRANSLATIONS = {
     "Řazení repozitářů", "Podle názvu", "Podle hvězdiček", "Podle otevřených problémů a pull requestů", "Zobrazit název", "Zobrazit podnázev",
     "Repozitáře v kompaktním zobrazení", "Tlačítko přiblížení", "Přepíná mezi celou kartou a kompaktním zobrazením", "Jazyk", "Automaticky",
     "Žádný sledovaný repozitář", "Přidejte své repozitáře do integrace GitHub, abyste je zde viděli.", "Integrace GitHub nesleduje žádný z repozitářů karty.", "Otevřít integraci GitHub",
-    "Animovaná ilustrace", "Motiv ilustrace", "Automaticky (slunce nebo tmavý motiv)", "Den", "Noc",
+    "Animovaná ilustrace", "Motiv ilustrace", "Automaticky (podle motivu)", "Den", "Noc",
   ],
   sl: [
     "Zvezdice", "Forki", "Opazovalci", "Težave", "Pull requesti", "Združeni PR", "Razprave", "Prenosi",
@@ -326,7 +326,7 @@ const TRANSLATIONS = {
     "Razvrščanje repozitorijev", "Po imenu", "Po zvezdicah", "Po odprtih težavah in pull requestih", "Prikaži naslov", "Prikaži podnaslov",
     "Repozitoriji v strnjenem pogledu", "Gumb za povečavo", "Preklaplja med celotno kartico in strnjenim pogledom", "Jezik", "Samodejno",
     "Noben repozitorij ni spremljan", "Dodajte svoje repozitorije v integracijo GitHub, da jih vidite tukaj.", "Integracija GitHub ne spremlja nobenega repozitorija kartice.", "Odpri integracijo GitHub",
-    "Animirana ilustracija", "Tema ilustracije", "Samodejno (sonce ali temna tema)", "Dan", "Noč",
+    "Animirana ilustracija", "Tema ilustracije", "Samodejno (sledi temi)", "Dan", "Noč",
   ],
   lv: [
     "Zvaigznes", "Forki", "Vērotāji", "Problēmas", "Pull pieprasījumi", "Apvienotie PR", "Diskusijas", "Lejupielādes",
@@ -339,7 +339,7 @@ const TRANSLATIONS = {
     "Krātuvju kārtošana", "Pēc nosaukuma", "Pēc zvaigznēm", "Pēc atvērtajām problēmām un pull pieprasījumiem", "Rādīt virsrakstu", "Rādīt apakšvirsrakstu",
     "Krātuves kompaktajā skatā", "Tālummaiņas poga", "Pārslēdz starp pilno karti un kompakto skatu", "Valoda", "Automātiski",
     "Netiek sekots nevienai krātuvei", "Pievienojiet savas krātuves GitHub integrācijai, lai tās redzētu šeit.", "GitHub integrācija neseko nevienai kartes krātuvei.", "Atvērt GitHub integrāciju",
-    "Animēta ilustrācija", "Ilustrācijas motīvs", "Automātiski (saule vai tumšā tēma)", "Diena", "Nakts",
+    "Animēta ilustrācija", "Ilustrācijas motīvs", "Automātiski (pēc tēmas)", "Diena", "Nakts",
   ],
   el: [
     "Αστέρια", "Forks", "Παρατηρητές", "Ζητήματα", "Pull requests", "Συγχωνευμένα PR", "Συζητήσεις", "Λήψεις",
@@ -352,7 +352,7 @@ const TRANSLATIONS = {
     "Ταξινόμηση αποθετηρίων", "Κατά όνομα", "Κατά αστέρια", "Κατά ανοιχτά ζητήματα και pull requests", "Εμφάνιση τίτλου", "Εμφάνιση υπότιτλου",
     "Αποθετήρια στη συμπαγή προβολή", "Κουμπί μεγέθυνσης", "Εναλλάσσει μεταξύ πλήρους κάρτας και συμπαγούς προβολής", "Γλώσσα", "Αυτόματα",
     "Δεν παρακολουθείται κανένα αποθετήριο", "Προσθέστε τα αποθετήριά σας στην ενσωμάτωση GitHub για να τα δείτε εδώ.", "Η ενσωμάτωση GitHub δεν παρακολουθεί κανένα από τα αποθετήρια της κάρτας.", "Άνοιγμα της ενσωμάτωσης GitHub",
-    "Κινούμενη εικονογράφηση", "Θέμα εικονογράφησης", "Αυτόματα (ήλιος ή σκοτεινό θέμα)", "Ημέρα", "Νύχτα",
+    "Κινούμενη εικονογράφηση", "Θέμα εικονογράφησης", "Αυτόματα (ακολουθεί το θέμα)", "Ημέρα", "Νύχτα",
   ],
 };
 
@@ -561,7 +561,7 @@ const trackedIds = (gh) => [...gh.repos, ...gh.users].flatMap((g) => Object.valu
 /** What a render depends on: the registries, the language, and the states of the GitHub sensors. */
 const renderSignature = (hass) => {
   const gh = discover(hass);
-  return [hass.entities, hass.devices, hass.language, hass.locale, hass.states["sun.sun"], hass.themes?.darkMode, ...trackedIds(gh).map((id) => hass.states[id])];
+  return [hass.entities, hass.devices, hass.language, hass.locale, hass.themes?.darkMode, ...trackedIds(gh).map((id) => hass.states[id])];
 };
 
 const sameSignature = (a, b) => !!a && a.length === b.length && a.every((v, i) => v === b[i]);
@@ -722,15 +722,11 @@ const GH_STATE_COLOR = {
   error: "var(--gh-crit)",
 };
 
-const GH_NO_VALUE = new Set(["unknown", "unavailable", ""]);
-
-/** Night picture: forced by `illustration_theme`, else the sun below the horizon or Home Assistant's dark theme (dark mode alone without a valid sun.sun). */
+/** Night picture: forced by `illustration_theme`, else Home Assistant's dark theme alone (a light theme keeps the day picture after sunset). */
 const ghIsNight = (hass, config) => {
   const theme = config?.illustration_theme;
   if (theme === "night") return true;
   if (theme === "day") return false;
-  const sun = hass?.states?.["sun.sun"];
-  if (sun && !GH_NO_VALUE.has(String(sun.state))) return sun.state === "below_horizon" || !!hass?.themes?.darkMode;
   return !!hass?.themes?.darkMode;
 };
 
