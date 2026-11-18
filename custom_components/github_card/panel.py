@@ -11,7 +11,8 @@ Issues and Pull requests (open ones of the followed repositories) and Settings. 
   with the GitHub integration's token, cached for 5 minutes; ``refresh`` asks GitHub again);
 - ``github_card/mine``: the open pull requests authored by the token's user, in any repository (GitHub search,
   cached for 5 minutes; ``refresh`` asks GitHub again);
-- ``github_card/settings`` / ``github_card/update_settings``: the settings (options of the entry).
+- ``github_card/settings`` / ``github_card/update_settings``: the settings (options of the entry), among them
+  ``hide_toolbar`` (the panel's title bar hidden, the tabs kept), also given in the panel's registration.
 """
 
 from __future__ import annotations
@@ -19,13 +20,14 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
-from homeassistant.components import panel_custom, websocket_api
+from homeassistant.components import frontend, panel_custom, websocket_api
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect, async_dispatcher_send
 
 from .const import (
     CONF_FILTER,
+    CONF_HIDE_TOOLBAR,
     CONF_IGNORE_ARCHIVED,
     CONF_INCLUDE_STARRED,
     CONF_NOTIFY_ISSUES,
@@ -48,8 +50,9 @@ from .repositories import async_apply, async_overview
 MAX_REPOSITORIES = 500
 
 
-async def async_register_panel(hass: HomeAssistant) -> None:
-    """Add GitHub to the sidebar (administrators only) and the panel's commands."""
+async def _async_register_sidebar(hass: HomeAssistant) -> None:
+    # hide_toolbar here too: the panel knows it as soon as it is created, before its settings arrive (no title bar
+    # shown then hidden while the page loads)
     await panel_custom.async_register_panel(
         hass,
         frontend_url_path=PANEL_PATH,
@@ -58,8 +61,13 @@ async def async_register_panel(hass: HomeAssistant) -> None:
         sidebar_icon="mdi:github",
         module_url=f"{PANEL_URL}?v={VERSION}",
         require_admin=True,
-        config={"version": VERSION},
+        config={"version": VERSION, CONF_HIDE_TOOLBAR: settings(_entry(hass))[CONF_HIDE_TOOLBAR]},
     )
+
+
+async def async_register_panel(hass: HomeAssistant) -> None:
+    """Add GitHub to the sidebar (administrators only) and the panel's commands."""
+    await _async_register_sidebar(hass)
     for command in (
         _ws_repositories,
         _ws_follow,
@@ -173,6 +181,7 @@ async def _ws_settings(hass: HomeAssistant, connection: websocket_api.ActiveConn
         vol.Optional(CONF_NOTIFY_ISSUES): bool,
         vol.Optional(CONF_NOTIFY_PULLS): bool,
         vol.Optional(CONF_NOTIFY_RELEASES): bool,
+        vol.Optional(CONF_HIDE_TOOLBAR): bool,
         vol.Optional(CONF_REFRESH_MINUTES): vol.All(
             vol.Coerce(int), vol.Range(min=MIN_REFRESH_MINUTES, max=MAX_REFRESH_MINUTES)
         ),
@@ -189,4 +198,8 @@ async def _ws_update_settings(hass: HomeAssistant, connection: websocket_api.Act
     updated[CONF_FILTER] = ", ".join(p.strip() for p in updated[CONF_FILTER].split(",") if p.strip())
     if updated != current:
         hass.config_entries.async_update_entry(entry, options=updated)
+        if updated[CONF_HIDE_TOOLBAR] != current[CONF_HIDE_TOOLBAR]:
+            # The title bar choice is in the panel's registration: registered again with it
+            frontend.async_remove_panel(hass, PANEL_PATH)
+            await _async_register_sidebar(hass)
     connection.send_result(msg["id"], {"ok": True, "settings": updated})

@@ -286,3 +286,20 @@ test("My pull requests: the empty and pending states", () => {
   p._renderMine();
   assert.match(host.innerHTML, /aucune pull request ouverte/);
 });
+
+test("title bar hidden: from the panel's registration until the settings arrive, then from the settings; menu where HA shows it", () => {
+  const p = new lib.GitHubPanel();
+  const attrs = new Set();
+  p.toggleAttribute = (name, on) => (on ? attrs.add(name) : attrs.delete(name));
+  p.panel = { url_path: "github-config", config: { hide_toolbar: true } };
+  const loading = attrs.has("bare");
+  p._settings = { hide_toolbar: false };
+  p._syncBare();
+  const saved = attrs.has("bare");
+  p.narrow = true;
+  const menu = attrs.has("menu");
+  p.narrow = false;
+  p._hass = { dockedSidebar: "always_hidden" };
+  p._syncBare();
+  assert.deepEqual({ loading, saved, menu, hiddenSidebar: attrs.has("menu") }, { loading: true, saved: false, menu: true, hiddenSidebar: true });
+});
