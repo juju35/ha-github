@@ -70,7 +70,7 @@ async def test_config_flow_single_entry(hass):
         "notify_pulls": False,
         "notify_releases": False,
         "refresh_minutes": 15,
-        "hide_toolbar": False,
+        "hide_toolbar": "off",
     }
     again = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
     assert again["type"] is FlowResultType.ABORT
@@ -164,13 +164,23 @@ async def test_repositories_own_then_starred_then_filter(hass, entry, github, ha
 
 async def test_hide_toolbar_setting(hass, entry, hass_ws_client):
     await _setup(hass, entry)
-    # Off by default, and given in the panel's registration (read before the settings arrive)
-    assert hass.data[DATA_PANELS][PANEL_PATH].config["hide_toolbar"] is False
-    msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/update_settings", "hide_toolbar": True})
-    assert msg["result"]["settings"]["hide_toolbar"] is True
-    assert entry.options["hide_toolbar"] is True
+    # Shown by default, and given in the panel's registration (read before the settings arrive)
+    assert hass.data[DATA_PANELS][PANEL_PATH].config["hide_toolbar"] == "off"
+    msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/update_settings", "hide_toolbar": "non_admin"})
+    assert msg["result"]["settings"]["hide_toolbar"] == "non_admin"
+    assert entry.options["hide_toolbar"] == "non_admin"
     # Registered again with the new choice
-    assert hass.data[DATA_PANELS][PANEL_PATH].config["hide_toolbar"] is True
+    assert hass.data[DATA_PANELS][PANEL_PATH].config["hide_toolbar"] == "non_admin"
+    # A switch sent by an older panel: on, hidden for everyone
+    msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/update_settings", "hide_toolbar": True})
+    assert msg["result"]["settings"]["hide_toolbar"] == "all"
+
+
+async def test_hide_toolbar_old_switch(hass, entry):
+    # Saved as a switch by an older version: on reads as hidden for everyone
+    hass.config_entries.async_update_entry(entry, options={**entry.options, "hide_toolbar": True})
+    await _setup(hass, entry)
+    assert hass.data[DATA_PANELS][PANEL_PATH].config["hide_toolbar"] == "all"
 
 
 async def test_refresh_minutes_setting(hass, entry, hass_ws_client):

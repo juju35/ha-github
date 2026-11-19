@@ -304,6 +304,22 @@ test("title bar hidden: from the panel's registration until the settings arrive,
   assert.deepEqual({ loading, saved, menu, hiddenSidebar: attrs.has("menu") }, { loading: true, saved: false, menu: true, hiddenSidebar: true });
 });
 
+test("top bar hidden for everyone or only for non-administrators; an older saved switch means everyone", () => {
+  const p = new lib.GitHubPanel();
+  const attrs = new Set();
+  p.toggleAttribute = (name, on) => (on ? attrs.add(name) : attrs.delete(name));
+  const bare = (mode, admin) => {
+    p._hass = { user: { is_admin: admin } };
+    p._settings = { hide_toolbar: mode };
+    p._syncBare();
+    return attrs.has("bare");
+  };
+  assert.deepEqual(
+    [bare("off", false), bare("all", true), bare("non_admin", true), bare("non_admin", false), bare(true, true), bare(false, false)],
+    [false, true, false, true, true, false],
+  );
+});
+
 test("repository filter: chips only for the busiest five repositories with open items, the rest behind + N more", () => {
   const p = new lib.GitHubPanel();
   p._hass = { language: "en" };

@@ -17,7 +17,7 @@
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-const GITHUB_PANEL_VERSION = "2.15.1";
+const GITHUB_PANEL_VERSION = "2.16.0";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
@@ -57,6 +57,8 @@ const GITHUB_PANEL_KEYS = [
   "followed_head", "to_follow", "unsaved", "up_to_date", "s_group_notify", "s_group_refresh", "s_group_panel", "s_patterns", "other",
   // The ENT ONE layout: the Repositories "To handle" card and the repository filter's overflow
   "to_handle", "nothing_to_handle", "more_repos",
+  // The top bar hidden for nobody, everyone or the users who are not administrators
+  "hide_off", "hide_all", "hide_non_admin",
 ];
 
 const GITHUB_PANEL_TRANSLATIONS = {
@@ -89,6 +91,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Hide the top bar", "The title bar goes, the tabs stay; the menu button stays wherever Home Assistant shows it.",
     "Followed", "To follow", "Unsaved changes", "Up to date", "Notifications", "Refresh", "Panel", "Name patterns", "Other",
     "To handle", "Nothing to handle on your followed repositories", "+ {n} more",
+    "No", "For everyone", "For non-admins",
   ],
   fr: [
     "GitHub", "Dépôts", "Activité", "Réglages", "Intégration GitHub", "Chargement…",
@@ -119,6 +122,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Masquer la barre du haut", "La barre de titre disparaît, les onglets restent ; le bouton menu reste là où Home Assistant l’affiche.",
     "Suivis", "À suivre", "Modifications non enregistrées", "À jour", "Notifications", "Actualisation", "Panneau", "Modèles de noms", "Autre",
     "À traiter", "Rien à traiter sur les dépôts suivis", "+ {n} autres",
+    "Non", "Pour tout le monde", "Pour les non-admins",
   ],
   de: [
     "GitHub", "Repositorys", "Aktivität", "Einstellungen", "GitHub-Integration", "Wird geladen…",
@@ -149,6 +153,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Obere Leiste ausblenden", "Die Titelleiste verschwindet, die Tabs bleiben; der Menüknopf bleibt, wo Home Assistant ihn zeigt.",
     "Verfolgt", "Zu verfolgen", "Nicht gespeicherte Änderungen", "Aktuell", "Benachrichtigungen", "Aktualisierung", "Panel", "Namensmuster", "Andere",
     "Zu erledigen", "Nichts zu erledigen in den verfolgten Repositorys", "+ {n} weitere",
+    "Nein", "Für alle", "Für Nicht-Admins",
   ],
   es: [
     "GitHub", "Repositorios", "Actividad", "Ajustes", "Integración GitHub", "Cargando…",
@@ -179,6 +184,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Ocultar la barra superior", "La barra de título desaparece, las pestañas se quedan; el botón de menú sigue donde Home Assistant lo muestra.",
     "Seguidos", "Por seguir", "Cambios sin guardar", "Al día", "Notificaciones", "Actualización", "Panel", "Patrones de nombre", "Otro",
     "Por atender", "Nada por atender en los repositorios seguidos", "+ {n} más",
+    "No", "Para todos", "Para no administradores",
   ],
   sr: [
     "GitHub", "Репозиторијуми", "Активност", "Подешавања", "Интеграција GitHub", "Учитавање…",
@@ -209,6 +215,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Сакриј горњу траку", "Трака наслова нестаје, картице остају; дугме менија остаје где га Home Assistant приказује.",
     "Праћени", "За праћење", "Несачуване измене", "Ажурно", "Обавештења", "Освежавање", "Панел", "Обрасци имена", "Друго",
     "За обраду", "Ништа за обраду у праћеним репозиторијумима", "+ још {n}",
+    "Не", "За све", "За кориснике који нису администратори",
   ],
   "sr-Latn": [
     "GitHub", "Repozitorijumi", "Aktivnost", "Podešavanja", "Integracija GitHub", "Učitavanje…",
@@ -239,6 +246,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sakrij gornju traku", "Traka naslova nestaje, kartice ostaju; dugme menija ostaje gde ga Home Assistant prikazuje.",
     "Praćeni", "Za praćenje", "Nesačuvane izmene", "Ažurno", "Obaveštenja", "Osvežavanje", "Panel", "Obrasci imena", "Drugo",
     "Za obradu", "Ništa za obradu u praćenim repozitorijumima", "+ još {n}",
+    "Ne", "Za sve", "Za korisnike koji nisu administratori",
   ],
   it: [
     "GitHub", "Repository", "Attività", "Impostazioni", "Integrazione GitHub", "Caricamento…",
@@ -269,6 +277,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Nascondi la barra superiore", "La barra del titolo sparisce, le schede restano; il pulsante del menu resta dove Home Assistant lo mostra.",
     "Seguiti", "Da seguire", "Modifiche non salvate", "Aggiornato", "Notifiche", "Aggiornamento", "Pannello", "Modelli di nome", "Altro",
     "Da gestire", "Niente da gestire nei repository seguiti", "+ altri {n}",
+    "No", "Per tutti", "Per i non amministratori",
   ],
   nl: [
     "GitHub", "Repositories", "Activiteit", "Instellingen", "GitHub-integratie", "Laden…",
@@ -296,9 +305,10 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Mijn pull requests", "Je hebt geen open pull request.", "Controles geslaagd", "Controles mislukt", "Controles bezig",
     // Downloads: row counter + page total
     "Downloads", "Totaal aantal downloads: {n}",
-    "Bovenbalk verbergen", "De titelbalk verdwijnt, de tabbladen blijven; de menuknop blijft waar Home Assistant hem toont.",
+    "Bovenste balk verbergen", "De titelbalk verdwijnt, de tabbladen blijven; de menuknop blijft waar Home Assistant hem toont.",
     "Gevolgd", "Te volgen", "Niet-opgeslagen wijzigingen", "Bijgewerkt", "Meldingen", "Vernieuwen", "Paneel", "Naampatronen", "Anders",
     "Af te handelen", "Niets af te handelen in de gevolgde repositories", "+ {n} meer",
+    "Nee", "Voor iedereen", "Voor niet-beheerders",
   ],
   pt: [
     "GitHub", "Repositórios", "Atividade", "Definições", "Integração GitHub", "A carregar…",
@@ -329,6 +339,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Ocultar a barra superior", "A barra de título desaparece, os separadores ficam; o botão de menu fica onde o Home Assistant o mostra.",
     "Seguidos", "Por seguir", "Alterações não guardadas", "Atualizado", "Notificações", "Atualização", "Painel", "Padrões de nome", "Outro",
     "Por tratar", "Nada por tratar nos repositórios seguidos", "+ {n} mais",
+    "Não", "Para todos", "Para não administradores",
   ],
   pl: [
     "GitHub", "Repozytoria", "Aktywność", "Ustawienia", "Integracja GitHub", "Ładowanie…",
@@ -359,6 +370,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Ukryj górny pasek", "Pasek tytułu znika, karty zostają; przycisk menu zostaje tam, gdzie pokazuje go Home Assistant.",
     "Obserwowane", "Do obserwowania", "Niezapisane zmiany", "Aktualne", "Powiadomienia", "Odświeżanie", "Panel", "Wzorce nazw", "Inne",
     "Do obsłużenia", "Nic do obsłużenia w obserwowanych repozytoriach", "+ {n} więcej",
+    "Nie", "Dla wszystkich", "Dla nie-administratorów",
   ],
   ro: [
     "GitHub", "Depozite", "Activitate", "Setări", "Integrarea GitHub", "Se încarcă…",
@@ -389,6 +401,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Ascunde bara de sus", "Bara de titlu dispare, filele rămân; butonul de meniu rămâne acolo unde îl afișează Home Assistant.",
     "Urmărite", "De urmărit", "Modificări nesalvate", "La zi", "Notificări", "Reîmprospătare", "Panou", "Modele de nume", "Altul",
     "De rezolvat", "Nimic de rezolvat în depozitele urmărite", "+ încă {n}",
+    "Nu", "Pentru toți", "Pentru non-administratori",
   ],
   da: [
     "GitHub", "Repositories", "Aktivitet", "Indstillinger", "GitHub-integration", "Indlæser…",
@@ -416,9 +429,10 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Mine pull requests", "Du har ingen åbne pull requests.", "Tjek bestået", "Tjek mislykkedes", "Tjek i gang",
     // Downloads: row counter + page total
     "Downloads", "Downloads i alt: {n}",
-    "Skjul topbjælken", "Titellinjen forsvinder, fanerne bliver; menuknappen bliver, hvor Home Assistant viser den.",
+    "Skjul den øverste bjælke", "Titellinjen forsvinder, fanerne bliver; menuknappen bliver, hvor Home Assistant viser den.",
     "Fulgt", "At følge", "Ikke-gemte ændringer", "Opdateret", "Notifikationer", "Opdatering", "Panel", "Navnemønstre", "Andet",
     "Skal håndteres", "Intet at håndtere i de fulgte repositories", "+ {n} mere",
+    "Nej", "For alle", "For ikke-administratorer",
   ],
   sv: [
     "GitHub", "Repon", "Aktivitet", "Inställningar", "GitHub-integration", "Laddar…",
@@ -446,9 +460,10 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Mina pull requests", "Du har inga öppna pull requests.", "Kontroller godkända", "Kontroller misslyckades", "Kontroller pågår",
     // Downloads: row counter + page total
     "Nedladdningar", "Totalt antal nedladdningar: {n}",
-    "Dölj översta fältet", "Namnlisten försvinner, flikarna stannar; menyknappen stannar där Home Assistant visar den.",
+    "Dölj det övre fältet", "Namnlisten försvinner, flikarna stannar; menyknappen stannar där Home Assistant visar den.",
     "Följda", "Att följa", "Osparade ändringar", "Uppdaterad", "Aviseringar", "Uppdatering", "Panel", "Namnmönster", "Annat",
     "Att hantera", "Inget att hantera i de följda förråden", "+ {n} till",
+    "Nej", "För alla", "För icke-administratörer",
   ],
   bg: [
     "GitHub", "Хранилища", "Активност", "Настройки", "Интеграция GitHub", "Зареждане…",
@@ -476,9 +491,10 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Моите pull заявки", "Нямате отворени pull заявки.", "Проверките успешни", "Проверките неуспешни", "Проверките текат",
     // Downloads: row counter + page total
     "Изтегляния", "Общо изтегляния: {n}",
-    "Скрий горната лента", "Лентата със заглавие изчезва, разделите остават; бутонът на менюто остава там, където Home Assistant го показва.",
+    "Скриване на горната лента", "Лентата със заглавие изчезва, разделите остават; бутонът на менюто остава там, където Home Assistant го показва.",
     "Следвани", "За следване", "Незапазени промени", "Актуално", "Известия", "Опресняване", "Панел", "Шаблони за имена", "Друго",
     "За обработка", "Нищо за обработка в следваните хранилища", "+ още {n}",
+    "Не", "За всички", "За неадминистратори",
   ],
   ru: [
     "GitHub", "Репозитории", "Активность", "Настройки", "Интеграция GitHub", "Загрузка…",
@@ -509,6 +525,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Скрыть верхнюю панель", "Строка заголовка исчезает, вкладки остаются; кнопка меню остаётся там, где её показывает Home Assistant.",
     "Отслеживаемые", "Для отслеживания", "Несохранённые изменения", "Актуально", "Уведомления", "Обновление", "Панель", "Шаблоны имён", "Другое",
     "К обработке", "Нечего обрабатывать в отслеживаемых репозиториях", "+ ещё {n}",
+    "Нет", "Для всех", "Для не-администраторов",
   ],
   uk: [
     "GitHub", "Репозиторії", "Активність", "Налаштування", "Інтеграція GitHub", "Завантаження…",
@@ -539,6 +556,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Приховати верхню панель", "Рядок заголовка зникає, вкладки лишаються; кнопка меню лишається там, де її показує Home Assistant.",
     "Відстежувані", "Для відстеження", "Незбережені зміни", "Актуально", "Сповіщення", "Оновлення", "Панель", "Шаблони імен", "Інше",
     "До опрацювання", "Нічого опрацьовувати у відстежуваних репозиторіях", "+ ще {n}",
+    "Ні", "Для всіх", "Для не-адміністраторів",
   ],
   hu: [
     "GitHub", "Tárolók", "Tevékenység", "Beállítások", "GitHub integráció", "Betöltés…",
@@ -569,6 +587,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Felső sáv elrejtése", "A címsor eltűnik, a lapok maradnak; a menügomb ott marad, ahol a Home Assistant mutatja.",
     "Követett", "Követendő", "Nem mentett módosítások", "Naprakész", "Értesítések", "Frissítés", "Panel", "Névminták", "Egyéb",
     "Teendő", "Nincs teendő a követett tárolókban", "+ még {n}",
+    "Nem", "Mindenkinek", "Nem rendszergazdáknak",
   ],
   sk: [
     "GitHub", "Repozitáre", "Aktivita", "Nastavenia", "Integrácia GitHub", "Načítava sa…",
@@ -596,9 +615,10 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Moje pull requesty", "Nemáte žiadny otvorený pull request.", "Kontroly prešli", "Kontroly zlyhali", "Kontroly prebiehajú",
     // Downloads: row counter + page total
     "Stiahnutia", "Stiahnutí spolu: {n}",
-    "Skryť hornú lištu", "Lišta s názvom zmizne, karty zostanú; tlačidlo ponuky zostane tam, kde ho Home Assistant zobrazuje.",
+    "Skryť horný panel", "Lišta s názvom zmizne, karty zostanú; tlačidlo ponuky zostane tam, kde ho Home Assistant zobrazuje.",
     "Sledované", "Na sledovanie", "Neuložené zmeny", "Aktuálne", "Upozornenia", "Obnovovanie", "Panel", "Vzory názvov", "Iné",
     "Na vybavenie", "Nič na vybavenie v sledovaných repozitároch", "+ ďalších {n}",
+    "Nie", "Pre všetkých", "Pre neadministrátorov",
   ],
   cs: [
     "GitHub", "Repozitáře", "Aktivita", "Nastavení", "Integrace GitHub", "Načítání…",
@@ -629,6 +649,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Skrýt horní lištu", "Lišta s názvem zmizí, karty zůstanou; tlačítko nabídky zůstane tam, kde ho Home Assistant zobrazuje.",
     "Sledované", "Ke sledování", "Neuložené změny", "Aktuální", "Oznámení", "Obnovování", "Panel", "Vzory názvů", "Jiné",
     "K vyřízení", "Nic k vyřízení ve sledovaných repozitářích", "+ dalších {n}",
+    "Ne", "Pro všechny", "Pro neadministrátory",
   ],
   sl: [
     "GitHub", "Repozitoriji", "Dejavnost", "Nastavitve", "Integracija GitHub", "Nalaganje…",
@@ -659,6 +680,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Skrij zgornjo vrstico", "Naslovna vrstica izgine, zavihki ostanejo; gumb menija ostane tam, kjer ga prikaže Home Assistant.",
     "Spremljani", "Za spremljanje", "Neshranjene spremembe", "Posodobljeno", "Obvestila", "Osveževanje", "Plošča", "Vzorci imen", "Drugo",
     "Za obravnavo", "Nič za obravnavo v spremljanih repozitorijih", "+ še {n}",
+    "Ne", "Za vse", "Za neskrbnike",
   ],
   lv: [
     "GitHub", "Krātuves", "Aktivitāte", "Iestatījumi", "GitHub integrācija", "Ielādē…",
@@ -689,6 +711,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Paslēpt augšējo joslu", "Virsraksta josla pazūd, cilnes paliek; izvēlnes poga paliek tur, kur to rāda Home Assistant.",
     "Sekotie", "Sekot", "Nesaglabātas izmaiņas", "Aktuāls", "Paziņojumi", "Atsvaidzināšana", "Panelis", "Nosaukumu paraugi", "Cits",
     "Jāapstrādā", "Sekotajos repozitorijos nav nekā, ko apstrādāt", "+ vēl {n}",
+    "Nē", "Visiem", "Ne-administratoriem",
   ],
   el: [
     "GitHub", "Αποθετήρια", "Δραστηριότητα", "Ρυθμίσεις", "Ενσωμάτωση GitHub", "Φόρτωση…",
@@ -716,15 +739,20 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Τα pull requests μου", "Δεν έχετε κανένα ανοιχτό pull request.", "Έλεγχοι επιτυχείς", "Έλεγχοι απέτυχαν", "Έλεγχοι σε εξέλιξη",
     // Downloads: row counter + page total
     "Λήψεις", "Σύνολο λήψεων: {n}",
-    "Απόκρυψη επάνω γραμμής", "Η γραμμή τίτλου φεύγει, οι καρτέλες μένουν· το κουμπί μενού μένει όπου το δείχνει το Home Assistant.",
+    "Απόκρυψη της επάνω γραμμής", "Η γραμμή τίτλου φεύγει, οι καρτέλες μένουν· το κουμπί μενού μένει όπου το δείχνει το Home Assistant.",
     "Παρακολουθούμενα", "Προς παρακολούθηση", "Μη αποθηκευμένες αλλαγές", "Ενημερωμένο", "Ειδοποιήσεις", "Ανανέωση", "Πίνακας", "Μοτίβα ονομάτων", "Άλλο",
     "Προς χειρισμό", "Τίποτα προς χειρισμό στα αποθετήρια που ακολουθείτε", "+ {n} ακόμη",
+    "Όχι", "Για όλους", "Για μη διαχειριστές",
   ],
 };
 
 const GITHUB_PANEL_STRINGS = Object.fromEntries(
   Object.entries(GITHUB_PANEL_TRANSLATIONS).map(([l, list]) => [l, Object.fromEntries(GITHUB_PANEL_KEYS.map((k, i) => [k, list[i]]))]),
 );
+
+// The top bar choice: off, all (hidden for everyone) or non_admin; a switch saved by an older version: on, for everyone
+const githubPanelHideMode = (value) =>
+  value === true ? "all" : value === "all" || value === "non_admin" ? value : "off";
 
 const githubPanelEsc = (value) =>
   String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -1058,6 +1086,7 @@ class GitHubPanel extends HTMLElement {
     .toggle.row { cursor:pointer; gap:12px; }
     .toggle .who { cursor:pointer; }
     .toggle .who small { font-size:12px; color:var(--secondary-text-color); }
+    .toggle.row > .seg { flex:none; flex-direction:row; flex-wrap:nowrap; gap:2px; font-size:inherit; background:color-mix(in srgb, var(--primary-text-color) 7%, transparent); }
     input.sw { appearance:none; -webkit-appearance:none; width:40px; height:24px; margin:0; flex:none; border-radius:12px; position:relative; cursor:pointer;
                background:color-mix(in srgb, var(--secondary-text-color) 45%, transparent); transition:background .15s; }
     input.sw::after { content:""; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25); transition:left .15s; }
@@ -1118,10 +1147,11 @@ class GitHubPanel extends HTMLElement {
     this._syncBare();
   }
 
-  // The title bar hidden as saved (Settings); until the settings arrive, the panel's registration says it, so the bar
-  // is never shown then hidden while loading. The tabs stay.
+  // The top bar hidden as saved (Settings): for everyone, or for a user who is not an administrator; until the settings
+  // arrive, the panel's registration says it, so the bar is never shown then hidden while loading. The tabs stay.
   _bare() {
-    return Boolean(this._settings?.hide_toolbar ?? this._panel?.config?.hide_toolbar);
+    const mode = githubPanelHideMode(this._settings?.hide_toolbar ?? this._panel?.config?.hide_toolbar);
+    return mode === "all" || (mode === "non_admin" && this._hass?.user?.is_admin === false);
   }
 
   _syncBare() {
@@ -2044,7 +2074,10 @@ class GitHubPanel extends HTMLElement {
       </div>
       <div class="card list">
         <div class="lhead"><h2 class="lname">${esc(this._t("s_group_panel"))}</h2></div>
-        <div class="rows">${toggle("hide_toolbar", "s_hide_toolbar", "s_hide_toolbar_hint")}</div>
+        <div class="rows"><div class="row toggle"><div class="who"><span class="n">${esc(this._t("s_hide_toolbar"))}</span><small>${esc(this._t("s_hide_toolbar_hint"))}</small></div>
+          <div class="seg" role="group" aria-label="${esc(this._t("s_hide_toolbar"))}">${["off", "all", "non_admin"]
+            .map((m) => `<button data-hide="${m}" aria-pressed="${githubPanelHideMode(this._value("hide_toolbar")) === m}">${esc(this._t(`hide_${m}`))}</button>`)
+            .join("")}</div></div></div>
       </div>
       <div class="card savebar"><button class="act" data-action="save"${changed ? "" : " disabled"}>${esc(this._t("save"))}</button>
         ${changed ? `<button class="act quiet" data-action="revert">${esc(this._t("cancel"))}</button>` : ""}
@@ -2078,6 +2111,13 @@ class GitHubPanel extends HTMLElement {
           this._draft.refresh_minutes = Number(button.dataset.refresh);
           this._saved = false;
         }
+        this._renderSettings();
+      });
+    for (const button of host.querySelectorAll("[data-hide]"))
+      button.addEventListener("click", () => {
+        this._draft.hide_toolbar = button.dataset.hide;
+        if (this._draft.hide_toolbar === this._settings?.hide_toolbar) delete this._draft.hide_toolbar;
+        this._saved = false;
         this._renderSettings();
       });
     host.querySelector("[data-action=save]")?.addEventListener("click", () => this._save());
