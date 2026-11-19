@@ -204,8 +204,12 @@ async function openCard(s) {
 for (const s of shots) {
   const page = await openCard(s);
   const box = await page.locator("#root").boundingBox();
+  // A card with the 16 px of theme background around it; a panel edge to edge, as the other ha-* panels
+  const clip = s.panel
+    ? { x: box.x, y: box.y, width: Math.ceil(box.width), height: Math.ceil(box.height) }
+    : { x: 0, y: 0, width: s.width + 32, height: Math.ceil(box.height) + 32 };
   const png = await page.screenshot({
-    clip: { x: 0, y: 0, width: s.width + 32, height: Math.ceil(box.height) + 32 },
+    clip,
     animations: "disabled",
   });
   // Rewritten only when the pixels change: an identical picture never shows up as a modified file.

@@ -12,7 +12,8 @@ Issues and Pull requests (open ones of the followed repositories) and Settings. 
 - ``github_card/mine``: the open pull requests authored by the token's user, in any repository (GitHub search,
   cached for 5 minutes; ``refresh`` asks GitHub again);
 - ``github_card/settings`` / ``github_card/update_settings``: the settings (options of the entry), among them
-  ``hide_toolbar`` (the panel's title bar hidden, the tabs kept), also given in the panel's registration.
+  ``hide_toolbar`` (the panel's top bar hidden for nobody, everyone or non-administrators, the tabs kept), also given
+  in the panel's registration.
 """
 
 from __future__ import annotations
@@ -36,6 +37,8 @@ from .const import (
     CONF_REFRESH_MINUTES,
     DEFAULTS,
     DOMAIN,
+    HIDE_TOOLBAR_CHOICES,
+    HIDE_TOOLBAR_OFF,
     MAX_FILTER_LENGTH,
     MAX_REFRESH_MINUTES,
     MIN_REFRESH_MINUTES,
@@ -85,9 +88,18 @@ def _entry(hass: HomeAssistant) -> ConfigEntry | None:
     return entries[0] if entries else None
 
 
+def hide_toolbar(value: Any) -> str:
+    """The top bar choice; a switch saved by an older version: on, hidden for everyone."""
+    if isinstance(value, bool):
+        return "all" if value else HIDE_TOOLBAR_OFF
+    return value if value in HIDE_TOOLBAR_CHOICES else HIDE_TOOLBAR_OFF
+
+
 def settings(entry: ConfigEntry | None) -> dict[str, Any]:
     """The settings, defaults filled in."""
-    return {**DEFAULTS, **(entry.options if entry else {})}
+    merged = {**DEFAULTS, **(entry.options if entry else {})}
+    merged[CONF_HIDE_TOOLBAR] = hide_toolbar(merged[CONF_HIDE_TOOLBAR])
+    return merged
 
 
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/repositories"})
@@ -181,7 +193,7 @@ async def _ws_settings(hass: HomeAssistant, connection: websocket_api.ActiveConn
         vol.Optional(CONF_NOTIFY_ISSUES): bool,
         vol.Optional(CONF_NOTIFY_PULLS): bool,
         vol.Optional(CONF_NOTIFY_RELEASES): bool,
-        vol.Optional(CONF_HIDE_TOOLBAR): bool,
+        vol.Optional(CONF_HIDE_TOOLBAR): vol.All(vol.Any(bool, vol.In(HIDE_TOOLBAR_CHOICES)), hide_toolbar),
         vol.Optional(CONF_REFRESH_MINUTES): vol.All(
             vol.Coerce(int), vol.Range(min=MIN_REFRESH_MINUTES, max=MAX_REFRESH_MINUTES)
         ),

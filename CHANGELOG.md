@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.16.0 - 2026-11-19
+
+### Features
+- **Settings → Panel → Hide the top bar**: three choices as in the other ha-* panels, **No**, **For everyone** or **For non-admins** (the panel is only open to administrators for now: that choice applies if it is opened to others). A switch saved by an older version reads as For everyone.
+
+### Maintenance
+- Panel screenshots edge to edge, without the 16 px page margin around the panel, as the other ha-* panels.
+
 ## 2.15.1 - 2026-11-19
 
 ### Fixes

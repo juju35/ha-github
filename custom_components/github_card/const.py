@@ -1,7 +1,7 @@
 """Constants for the GitHub Card integration."""
 
 DOMAIN = "github_card"
-VERSION = "2.15.1"
+VERSION = "2.16.0"
 
 # The core GitHub integration, whose repositories the panel follows and unfollows
 GITHUB_DOMAIN = "github"
@@ -29,8 +29,10 @@ CONF_NOTIFY_RELEASES = "notify_releases"
 # How often the open issues and pull requests are fetched from GitHub, in minutes (the panel no longer fetches
 # them when a tab opens; a background poller does, on this interval)
 CONF_REFRESH_MINUTES = "refresh_minutes"
-# The panel's title bar hidden (the tabs stay)
+# The panel's top bar hidden (the tabs stay): for nobody, everyone or the users who are not administrators
 CONF_HIDE_TOOLBAR = "hide_toolbar"
+HIDE_TOOLBAR_OFF = "off"
+HIDE_TOOLBAR_CHOICES = (HIDE_TOOLBAR_OFF, "all", "non_admin")
 DEFAULT_REFRESH_MINUTES = 15
 MIN_REFRESH_MINUTES = 1
 MAX_REFRESH_MINUTES = 1440
@@ -42,7 +44,7 @@ DEFAULTS = {
     CONF_NOTIFY_PULLS: False,
     CONF_NOTIFY_RELEASES: False,
     CONF_REFRESH_MINUTES: DEFAULT_REFRESH_MINUTES,
-    CONF_HIDE_TOOLBAR: False,
+    CONF_HIDE_TOOLBAR: HIDE_TOOLBAR_OFF,
 }
 MAX_FILTER_LENGTH = 500
 
