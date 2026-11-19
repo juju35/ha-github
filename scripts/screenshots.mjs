@@ -110,7 +110,7 @@ const panelMock = {
     fetched_at: NOW / 1000,
     error: null,
   },
-  "github_card/settings": { settings: { filter: "juju35/ha-*", include_starred: true, ignore_archived: true, notify_issues: true, notify_pulls: false } },
+  "github_card/settings": { settings: { filter: "juju35/ha-*", include_starred: true, ignore_archived: true, notify_issues: true, notify_pulls: false, notify_releases: false, refresh_minutes: 15, hide_toolbar: false } },
 };
 
 const browser = await chromium.launch(
@@ -166,7 +166,14 @@ async function openCard(s) {
         if (select) el._selected = new Set(select);
         el.hass = {
           states, entities, devices, language: "en", locale: { language: "en" },
-          connection: { subscribeMessage: () => Promise.resolve(() => {}) },
+          themes: { darkMode: dark },
+          // The issues and pull requests come through their subscription, as from the background poller
+          connection: {
+            subscribeMessage: (cb, msg) => {
+              if (msg?.type === "github_card/subscribe_items") setTimeout(() => cb(mock["github_card/items"]));
+              return Promise.resolve(() => {});
+            },
+          },
           callWS: async (msg) => mock[msg.type],
         };
         document.getElementById("root").appendChild(el);
