@@ -17,7 +17,7 @@
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-const GITHUB_PANEL_VERSION = "2.13.0";
+const GITHUB_PANEL_VERSION = "2.14.0";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
@@ -53,6 +53,8 @@ const GITHUB_PANEL_KEYS = [
   "downloads", "total_downloads",
   // The panel's title bar hidden (the tabs stay)
   "s_hide_toolbar", "s_hide_toolbar_hint",
+  // The cards' charter: list titles, the Settings header's pill, the Settings groups, the other refresh interval
+  "followed_head", "to_follow", "unsaved", "up_to_date", "s_group_notify", "s_group_refresh", "s_group_panel", "s_patterns", "other",
 ];
 
 const GITHUB_PANEL_TRANSLATIONS = {
@@ -83,6 +85,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Downloads", "Total downloads: {n}",
     "Hide the top bar", "The title bar goes, the tabs stay; the menu button stays wherever Home Assistant shows it.",
+    "Followed", "To follow", "Unsaved changes", "Up to date", "Notifications", "Refresh", "Panel", "Name patterns", "Other",
   ],
   fr: [
     "GitHub", "Dépôts", "Activité", "Réglages", "Intégration GitHub", "Chargement…",
@@ -111,6 +114,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Téléchargements", "Total des téléchargements : {n}",
     "Masquer la barre du haut", "La barre de titre disparaît, les onglets restent ; le bouton menu reste là où Home Assistant l’affiche.",
+    "Suivis", "À suivre", "Modifications non enregistrées", "À jour", "Notifications", "Actualisation", "Panneau", "Modèles de noms", "Autre",
   ],
   de: [
     "GitHub", "Repositorys", "Aktivität", "Einstellungen", "GitHub-Integration", "Wird geladen…",
@@ -139,6 +143,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Downloads", "Downloads insgesamt: {n}",
     "Obere Leiste ausblenden", "Die Titelleiste verschwindet, die Tabs bleiben; der Menüknopf bleibt, wo Home Assistant ihn zeigt.",
+    "Verfolgt", "Zu verfolgen", "Nicht gespeicherte Änderungen", "Aktuell", "Benachrichtigungen", "Aktualisierung", "Panel", "Namensmuster", "Andere",
   ],
   es: [
     "GitHub", "Repositorios", "Actividad", "Ajustes", "Integración GitHub", "Cargando…",
@@ -167,6 +172,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Descargas", "Descargas totales: {n}",
     "Ocultar la barra superior", "La barra de título desaparece, las pestañas se quedan; el botón de menú sigue donde Home Assistant lo muestra.",
+    "Seguidos", "Por seguir", "Cambios sin guardar", "Al día", "Notificaciones", "Actualización", "Panel", "Patrones de nombre", "Otro",
   ],
   sr: [
     "GitHub", "Репозиторијуми", "Активност", "Подешавања", "Интеграција GitHub", "Учитавање…",
@@ -195,6 +201,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Преузимања", "Укупно преузимања: {n}",
     "Сакриј горњу траку", "Трака наслова нестаје, картице остају; дугме менија остаје где га Home Assistant приказује.",
+    "Праћени", "За праћење", "Несачуване измене", "Ажурно", "Обавештења", "Освежавање", "Панел", "Обрасци имена", "Друго",
   ],
   "sr-Latn": [
     "GitHub", "Repozitorijumi", "Aktivnost", "Podešavanja", "Integracija GitHub", "Učitavanje…",
@@ -223,6 +230,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Preuzimanja", "Ukupno preuzimanja: {n}",
     "Sakrij gornju traku", "Traka naslova nestaje, kartice ostaju; dugme menija ostaje gde ga Home Assistant prikazuje.",
+    "Praćeni", "Za praćenje", "Nesačuvane izmene", "Ažurno", "Obaveštenja", "Osvežavanje", "Panel", "Obrasci imena", "Drugo",
   ],
   it: [
     "GitHub", "Repository", "Attività", "Impostazioni", "Integrazione GitHub", "Caricamento…",
@@ -251,6 +259,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Download", "Download totali: {n}",
     "Nascondi la barra superiore", "La barra del titolo sparisce, le schede restano; il pulsante del menu resta dove Home Assistant lo mostra.",
+    "Seguiti", "Da seguire", "Modifiche non salvate", "Aggiornato", "Notifiche", "Aggiornamento", "Pannello", "Modelli di nome", "Altro",
   ],
   nl: [
     "GitHub", "Repositories", "Activiteit", "Instellingen", "GitHub-integratie", "Laden…",
@@ -279,6 +288,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Downloads", "Totaal aantal downloads: {n}",
     "Bovenbalk verbergen", "De titelbalk verdwijnt, de tabbladen blijven; de menuknop blijft waar Home Assistant hem toont.",
+    "Gevolgd", "Te volgen", "Niet-opgeslagen wijzigingen", "Bijgewerkt", "Meldingen", "Vernieuwen", "Paneel", "Naampatronen", "Anders",
   ],
   pt: [
     "GitHub", "Repositórios", "Atividade", "Definições", "Integração GitHub", "A carregar…",
@@ -307,6 +317,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Transferências", "Total de transferências: {n}",
     "Ocultar a barra superior", "A barra de título desaparece, os separadores ficam; o botão de menu fica onde o Home Assistant o mostra.",
+    "Seguidos", "Por seguir", "Alterações não guardadas", "Atualizado", "Notificações", "Atualização", "Painel", "Padrões de nome", "Outro",
   ],
   pl: [
     "GitHub", "Repozytoria", "Aktywność", "Ustawienia", "Integracja GitHub", "Ładowanie…",
@@ -335,6 +346,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Pobrania", "Łączna liczba pobrań: {n}",
     "Ukryj górny pasek", "Pasek tytułu znika, karty zostają; przycisk menu zostaje tam, gdzie pokazuje go Home Assistant.",
+    "Obserwowane", "Do obserwowania", "Niezapisane zmiany", "Aktualne", "Powiadomienia", "Odświeżanie", "Panel", "Wzorce nazw", "Inne",
   ],
   ro: [
     "GitHub", "Depozite", "Activitate", "Setări", "Integrarea GitHub", "Se încarcă…",
@@ -363,6 +375,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Descărcări", "Total descărcări: {n}",
     "Ascunde bara de sus", "Bara de titlu dispare, filele rămân; butonul de meniu rămâne acolo unde îl afișează Home Assistant.",
+    "Urmărite", "De urmărit", "Modificări nesalvate", "La zi", "Notificări", "Reîmprospătare", "Panou", "Modele de nume", "Altul",
   ],
   da: [
     "GitHub", "Repositories", "Aktivitet", "Indstillinger", "GitHub-integration", "Indlæser…",
@@ -391,6 +404,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Downloads", "Downloads i alt: {n}",
     "Skjul topbjælken", "Titellinjen forsvinder, fanerne bliver; menuknappen bliver, hvor Home Assistant viser den.",
+    "Fulgt", "At følge", "Ikke-gemte ændringer", "Opdateret", "Notifikationer", "Opdatering", "Panel", "Navnemønstre", "Andet",
   ],
   sv: [
     "GitHub", "Repon", "Aktivitet", "Inställningar", "GitHub-integration", "Laddar…",
@@ -419,6 +433,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Nedladdningar", "Totalt antal nedladdningar: {n}",
     "Dölj översta fältet", "Namnlisten försvinner, flikarna stannar; menyknappen stannar där Home Assistant visar den.",
+    "Följda", "Att följa", "Osparade ändringar", "Uppdaterad", "Aviseringar", "Uppdatering", "Panel", "Namnmönster", "Annat",
   ],
   bg: [
     "GitHub", "Хранилища", "Активност", "Настройки", "Интеграция GitHub", "Зареждане…",
@@ -447,6 +462,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Изтегляния", "Общо изтегляния: {n}",
     "Скрий горната лента", "Лентата със заглавие изчезва, разделите остават; бутонът на менюто остава там, където Home Assistant го показва.",
+    "Следвани", "За следване", "Незапазени промени", "Актуално", "Известия", "Опресняване", "Панел", "Шаблони за имена", "Друго",
   ],
   ru: [
     "GitHub", "Репозитории", "Активность", "Настройки", "Интеграция GitHub", "Загрузка…",
@@ -475,6 +491,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Загрузки", "Всего загрузок: {n}",
     "Скрыть верхнюю панель", "Строка заголовка исчезает, вкладки остаются; кнопка меню остаётся там, где её показывает Home Assistant.",
+    "Отслеживаемые", "Для отслеживания", "Несохранённые изменения", "Актуально", "Уведомления", "Обновление", "Панель", "Шаблоны имён", "Другое",
   ],
   uk: [
     "GitHub", "Репозиторії", "Активність", "Налаштування", "Інтеграція GitHub", "Завантаження…",
@@ -503,6 +520,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Завантаження", "Усього завантажень: {n}",
     "Приховати верхню панель", "Рядок заголовка зникає, вкладки лишаються; кнопка меню лишається там, де її показує Home Assistant.",
+    "Відстежувані", "Для відстеження", "Незбережені зміни", "Актуально", "Сповіщення", "Оновлення", "Панель", "Шаблони імен", "Інше",
   ],
   hu: [
     "GitHub", "Tárolók", "Tevékenység", "Beállítások", "GitHub integráció", "Betöltés…",
@@ -531,6 +549,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Letöltések", "Letöltések összesen: {n}",
     "Felső sáv elrejtése", "A címsor eltűnik, a lapok maradnak; a menügomb ott marad, ahol a Home Assistant mutatja.",
+    "Követett", "Követendő", "Nem mentett módosítások", "Naprakész", "Értesítések", "Frissítés", "Panel", "Névminták", "Egyéb",
   ],
   sk: [
     "GitHub", "Repozitáre", "Aktivita", "Nastavenia", "Integrácia GitHub", "Načítava sa…",
@@ -559,6 +578,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Stiahnutia", "Stiahnutí spolu: {n}",
     "Skryť hornú lištu", "Lišta s názvom zmizne, karty zostanú; tlačidlo ponuky zostane tam, kde ho Home Assistant zobrazuje.",
+    "Sledované", "Na sledovanie", "Neuložené zmeny", "Aktuálne", "Upozornenia", "Obnovovanie", "Panel", "Vzory názvov", "Iné",
   ],
   cs: [
     "GitHub", "Repozitáře", "Aktivita", "Nastavení", "Integrace GitHub", "Načítání…",
@@ -587,6 +607,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Stažení", "Stažení celkem: {n}",
     "Skrýt horní lištu", "Lišta s názvem zmizí, karty zůstanou; tlačítko nabídky zůstane tam, kde ho Home Assistant zobrazuje.",
+    "Sledované", "Ke sledování", "Neuložené změny", "Aktuální", "Oznámení", "Obnovování", "Panel", "Vzory názvů", "Jiné",
   ],
   sl: [
     "GitHub", "Repozitoriji", "Dejavnost", "Nastavitve", "Integracija GitHub", "Nalaganje…",
@@ -615,6 +636,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Prenosi", "Skupaj prenosov: {n}",
     "Skrij zgornjo vrstico", "Naslovna vrstica izgine, zavihki ostanejo; gumb menija ostane tam, kjer ga prikaže Home Assistant.",
+    "Spremljani", "Za spremljanje", "Neshranjene spremembe", "Posodobljeno", "Obvestila", "Osveževanje", "Plošča", "Vzorci imen", "Drugo",
   ],
   lv: [
     "GitHub", "Krātuves", "Aktivitāte", "Iestatījumi", "GitHub integrācija", "Ielādē…",
@@ -643,6 +665,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Lejupielādes", "Lejupielādes kopā: {n}",
     "Paslēpt augšējo joslu", "Virsraksta josla pazūd, cilnes paliek; izvēlnes poga paliek tur, kur to rāda Home Assistant.",
+    "Sekotie", "Sekot", "Nesaglabātas izmaiņas", "Aktuāls", "Paziņojumi", "Atsvaidzināšana", "Panelis", "Nosaukumu paraugi", "Cits",
   ],
   el: [
     "GitHub", "Αποθετήρια", "Δραστηριότητα", "Ρυθμίσεις", "Ενσωμάτωση GitHub", "Φόρτωση…",
@@ -671,6 +694,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     // Downloads: row counter + page total
     "Λήψεις", "Σύνολο λήψεων: {n}",
     "Απόκρυψη επάνω γραμμής", "Η γραμμή τίτλου φεύγει, οι καρτέλες μένουν· το κουμπί μενού μένει όπου το δείχνει το Home Assistant.",
+    "Παρακολουθούμενα", "Προς παρακολούθηση", "Μη αποθηκευμένες αλλαγές", "Ενημερωμένο", "Ειδοποιήσεις", "Ανανέωση", "Πίνακας", "Μοτίβα ονομάτων", "Άλλο",
   ],
 };
 
@@ -696,7 +720,20 @@ const GITHUB_PANEL_ICONS = {
   comment: "M9,22A1,1 0 0,1 8,21V18H4A2,2 0 0,1 2,16V4C2,2.89 2.9,2 4,2H20A2,2 0 0,1 22,4V16A2,2 0 0,1 20,18H13.9L10.2,21.71C10,21.9 9.75,22 9.5,22V22H9Z",
   refresh: "M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z",
   download: "M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z",
+  search: "M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z",
 };
+// The tabs' illustrated banner (90 px, as the headers of the ha-* cards): a desk with a screen showing a branch
+// graph (the latest commit breathing), a mug and a plant on a parquet strip; night colours with a dark theme.
+const GITHUB_PANEL_SCENE = `<svg class="scene" viewBox="0 0 360 80" preserveAspectRatio="xMaxYMax meet" aria-hidden="true" focusable="false">
+<rect class="s-desk" x="90" y="56" width="200" height="5" rx="1"/><rect class="s-deskd" x="98" y="61" width="5" height="19"/><rect class="s-deskd" x="277" y="61" width="5" height="19"/>
+<rect class="s-mon" x="140" y="8" width="96" height="44" rx="4"/><rect class="s-scr" x="144" y="12" width="88" height="34" rx="2"/><rect class="s-mon" x="183" y="52" width="10" height="4"/>
+<path d="M152 29H222" stroke="#8957e5" stroke-width="2.2" fill="none"/><path d="M168 29C174 29 174 20 180 20H200C206 20 206 29 212 29" stroke="#43a047" stroke-width="2.2" fill="none"/>
+<circle cx="152" cy="29" r="3.2" fill="#8957e5"/><circle cx="168" cy="29" r="3.2" fill="#8957e5"/><circle cx="186" cy="20" r="3.2" fill="#43a047"/><circle cx="198" cy="20" r="3.2" fill="#43a047"/><circle cx="212" cy="29" r="3.2" fill="#8957e5"/>
+<circle class="s-pulse" cx="222" cy="29" r="3.6" fill="none" stroke="#8957e5" stroke-width="2"/>
+<rect class="s-mug" x="250" y="44" width="12" height="12" rx="2" stroke-width="1.4"/><path class="s-handle" d="M262 47h3a3 3 0 0 1 0 6h-3" fill="none" stroke-width="1.4"/>
+<rect class="s-pot" x="310" y="60" width="16" height="20" rx="2"/><path class="s-leaf" d="M318 60C310 48 307 39 310 30C316 39 318 48 318 60ZM318 60C323 47 329 42 335 40C331 49 326 56 318 60Z"/>
+</svg><div class="ground" aria-hidden="true"></div>`;
+
 const githubPanelIcon = (name) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="${GITHUB_PANEL_ICONS[name]}"/></svg>`;
 
 class GitHubPanel extends HTMLElement {
@@ -839,6 +876,149 @@ class GitHubPanel extends HTMLElement {
     .rev.warn { color:color-mix(in srgb, var(--tone-warn) 50%, var(--primary-text-color)); background:color-mix(in srgb, var(--tone-warn) 15%, transparent); }
     .rev.bad { color:color-mix(in srgb, var(--tone-bad) 50%, var(--primary-text-color)); background:color-mix(in srgb, var(--tone-bad) 15%, transparent); }
     .rev.muted { color:var(--secondary-text-color); background:var(--secondary-background-color, rgba(127,127,127,.12)); }
+    /* ── The cards' charter (as the ha-* cards and the System Hub / Cameras panels): a header card per tab with its
+       illustrated banner, then lists under an uppercase title, their rows filled and rounded with a round tinted icon,
+       counters as small pills, pill buttons, the project's purple as accent ── */
+    :host { --gh-sec:color-mix(in srgb, var(--primary-text-color) 6%, var(--card-background-color, #fff)); --gh-ink:color-mix(in srgb, var(--gh-accent) 70%, var(--primary-text-color)); }
+    main { max-width:1180px; }
+    section > div { display:flex; flex-direction:column; gap:12px; }
+    .card { background:var(--ha-card-background, var(--card-background-color, #fff)); border-radius:var(--ha-card-border-radius, 12px); overflow:hidden;
+            border:var(--ha-card-border-width, 1px) solid var(--ha-card-border-color, var(--divider-color, rgba(127,127,127,.2))); box-shadow:var(--ha-card-box-shadow, none); }
+    .card[hidden] { display:none; }
+    .card.list { padding:12px 16px 14px; display:flex; flex-direction:column; gap:8px; }
+    .cbody { padding:12px 16px 16px; display:flex; flex-direction:column; gap:10px; }
+    .cbody:empty { display:none; }
+    .lhead { display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-height:36px; }
+    .lname { flex:1 1 140px; margin:0; font-size:12px; font-weight:500; letter-spacing:.05em; text-transform:uppercase; color:var(--secondary-text-color); }
+    .rows { display:flex; flex-direction:column; gap:6px; container-type:inline-size; }
+    .grow { flex:1; }
+    /* Banner */
+    .banner { position:relative; height:90px; overflow:hidden; background:#f2efe9; color:#1f2328; --gh-muted:#5d6670; container-type:inline-size; }
+    .banner.night { background:#2a2b33; color:#fff; --gh-muted:rgba(255,255,255,.78); }
+    .scene { position:absolute; right:20px; bottom:10px; width:min(360px, 44%); height:80px; }
+    .ground { position:absolute; left:0; right:0; bottom:0; height:10px; background:repeating-linear-gradient(90deg, #c99a6b 0 38px, #b98a5c 38px 40px); box-shadow:inset 0 2px 0 #a97c50; }
+    .night .ground { background:repeating-linear-gradient(90deg, #4a3a2c 0 38px, #3e3024 38px 40px); box-shadow:inset 0 2px 0 #5a4634; }
+    .s-mon { fill:#2d3440; } .night .s-mon { fill:#0f141b; }
+    .s-scr { fill:#f8f9fb; } .night .s-scr { fill:#1e2733; }
+    .s-desk { fill:#a97c50; } .night .s-desk { fill:#5a4634; }
+    .s-deskd { fill:#8f6743; } .night .s-deskd { fill:#46362a; }
+    .s-mug { fill:#fff; stroke:#c9ced4; } .night .s-mug { fill:#d8dce2; stroke:#aab1bb; }
+    .s-handle { stroke:#c9ced4; } .night .s-handle { stroke:#aab1bb; }
+    .s-pot { fill:#d08a5a; } .night .s-pot { fill:#7a4f34; }
+    .s-leaf { fill:#6aa56a; transform-box:fill-box; transform-origin:50% 100%; animation:gh-sway 4s ease-in-out infinite; } .night .s-leaf { fill:#3f6e46; }
+    .s-pulse { animation:gh-pulse 1.6s ease-in-out infinite; }
+    @keyframes gh-sway { 0%, 100% { transform:rotate(-4deg); } 50% { transform:rotate(4deg); } }
+    @keyframes gh-pulse { 50% { opacity:.25; } }
+    @media (prefers-reduced-motion: reduce) { .scene * { animation:none !important; } }
+    .bhead { position:absolute; left:0; top:0; bottom:10px; right:calc(min(360px, 44%) + 28px); padding:0 16px; display:flex; align-items:center; gap:12px; min-width:0; }
+    .badge-ic { width:40px; height:40px; flex:none; border-radius:50%; display:grid; place-items:center; color:var(--tone, var(--gh-accent));
+                background:rgba(255,255,255,.62); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--tone, var(--gh-accent)) 24%, transparent); }
+    .badge-ic .i { width:24px; height:24px; }
+    .night .badge-ic { background:rgba(255,255,255,.12); color:color-mix(in srgb, var(--tone, var(--gh-accent)) 72%, #fff); box-shadow:inset 0 0 0 1px rgba(255,255,255,.14); }
+    .btitles { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+    .brow { display:flex; align-items:center; flex-wrap:wrap; gap:4px 8px; min-width:0; }
+    .bname { font-size:16px; font-weight:500; line-height:1.25; white-space:nowrap; }
+    .bsub { font-size:13px; line-height:18px; color:var(--gh-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .stpill { display:inline-flex; align-items:center; gap:4px; padding:1px 8px; border-radius:12px; font-size:11px; font-weight:500; line-height:16px; white-space:nowrap;
+              --c:var(--gh-accent); background:color-mix(in srgb, var(--c) 18%, rgba(255,255,255,.78)); color:color-mix(in srgb, var(--c) 45%, #0d2a45); }
+    .stpill::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--c); }
+    .stpill.good { --c:var(--tone-good); } .stpill.warn { --c:var(--tone-warn); } .stpill.bad { --c:var(--tone-bad); } .stpill.muted { --c:#8a96a6; }
+    .night .stpill { background:color-mix(in srgb, var(--c) 30%, rgba(8,18,38,.55)); color:color-mix(in srgb, var(--c) 35%, #fff); }
+    @container (max-width:420px) { .scene { display:none; } .bhead { right:0; } }
+    /* Tiles and rows */
+    .kpis { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:8px; }
+    .tile { display:flex; align-items:center; gap:10px; min-height:56px; padding:8px 10px 8px 8px; border-radius:12px; background:var(--gh-sec); box-sizing:border-box; min-width:0; }
+    .kv { display:flex; flex-direction:column; min-width:0; }
+    .kv b { font-size:17px; font-weight:500; line-height:1.2; }
+    .kv span { font-size:12px; color:var(--secondary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ic { width:40px; height:40px; flex:none; border-radius:50%; display:grid; place-items:center; color:var(--primary-text-color);
+          background:color-mix(in srgb, var(--secondary-text-color) 14%, transparent); }
+    .ic .i { width:20px; height:20px; }
+    .ic.acc { color:var(--gh-ink); background:color-mix(in srgb, var(--gh-accent) 16%, transparent); }
+    .ic.good { color:color-mix(in srgb, var(--tone-good) 70%, var(--primary-text-color)); background:color-mix(in srgb, var(--tone-good) 16%, transparent); }
+    .ic.gold { color:#9a6b00; background:rgba(232,168,0,.18); }
+    .ic.info { color:color-mix(in srgb, #3b82f6 75%, var(--primary-text-color)); background:color-mix(in srgb, #3b82f6 16%, transparent); }
+    .row { border-top:0; padding:8px 10px 8px 8px; min-height:56px; border-radius:12px; background:var(--gh-sec); box-sizing:border-box; border:1px solid transparent; }
+    .row.open { border-color:color-mix(in srgb, var(--gh-accent) 40%, transparent); }
+    .row.sel { background:color-mix(in srgb, var(--gh-accent) 9%, var(--gh-sec)); border-color:color-mix(in srgb, var(--gh-accent) 26%, transparent); }
+    .row.confirm { border-color:color-mix(in srgb, var(--tone-bad) 45%, transparent); background:color-mix(in srgb, var(--tone-bad) 8%, var(--gh-sec)); margin:0; }
+    .who { all:unset; flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; cursor:default; }
+    button.who { cursor:pointer; border-radius:6px; }
+    button.who:focus-visible { outline:2px solid var(--gh-accent); outline-offset:2px; }
+    .who .n { font-size:14px; font-weight:500; flex:none; }
+    .who .s { font-size:12px; color:var(--secondary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .chev { all:unset; width:28px; height:36px; flex:none; display:grid; place-items:center; cursor:pointer; color:var(--secondary-text-color); border-radius:6px; }
+    .chev .i { transition:transform .15s; }
+    .row.open .chev .i { transform:rotate(90deg); }
+    .chev:focus-visible { outline:2px solid var(--gh-accent); }
+    .info { gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+    .info > span { height:24px; padding:0 8px; border-radius:12px; font-size:12px; font-weight:500; color:var(--primary-text-color); background:var(--card-background-color, #fff); }
+    .info .star { color:#9a6b00; } .info .ok { color:color-mix(in srgb, var(--tone-good) 70%, var(--primary-text-color)); }
+    .info .pr, .info .tag { color:var(--gh-ink); } .info .dl { color:color-mix(in srgb, #3b82f6 75%, var(--primary-text-color)); }
+    .info .i, .info .star .i, .info .ok .i, .info .tag .i, .info .dl .i { color:inherit; }
+    .row .link { width:36px; height:36px; background:var(--card-background-color, #fff); color:var(--primary-text-color); }
+    .row .link:hover { color:var(--gh-ink); background:var(--card-background-color, #fff); }
+    .detail { padding:0 0 4px 38px; }
+    /* Pill buttons, tinted, never filled */
+    .act { min-height:36px; box-sizing:border-box; padding:0 14px; border-radius:18px; border:0; color:var(--gh-ink); background:color-mix(in srgb, var(--gh-accent) 14%, transparent); }
+    .act:hover:not([disabled]) { background:color-mix(in srgb, var(--gh-accent) 22%, transparent); }
+    .act.quiet { color:var(--primary-text-color); background:var(--gh-sec); }
+    .act.quiet:hover:not([disabled]) { background:color-mix(in srgb, var(--primary-text-color) 10%, var(--card-background-color, #fff)); }
+    .row .act.quiet { background:var(--card-background-color, #fff); }
+    .act.bad { color:color-mix(in srgb, var(--tone-bad) 60%, var(--primary-text-color)); background:color-mix(in srgb, var(--tone-bad) 14%, transparent); }
+    .row > .act { min-width:0; }
+    .search { flex:0 1 260px; min-width:160px; height:36px; border:0; border-radius:18px; padding:0 4px 0 12px; gap:6px; color:var(--secondary-text-color); background:var(--gh-sec); }
+    .search .i { width:16px; height:16px; }
+    .search:focus-within { box-shadow:inset 0 0 0 2px var(--gh-accent); }
+    .search input { padding:8px 6px; color:var(--primary-text-color); }
+    .seg { display:inline-flex; flex-wrap:wrap; gap:2px; padding:3px; border-radius:18px; background:var(--gh-sec); }
+    .seg button { border:0; background:none; cursor:pointer; font:inherit; font-size:12.5px; font-weight:500; padding:6px 12px; border-radius:15px; color:var(--secondary-text-color); }
+    .seg button[aria-pressed="true"] { background:var(--card-background-color, #fff); color:var(--gh-ink); box-shadow:0 1px 2px rgba(0,0,0,.14); }
+    .seg button:focus-visible, .chip:focus-visible { outline:2px solid var(--gh-accent); outline-offset:1px; }
+    .chips { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .chip { display:inline-flex; align-items:center; gap:6px; min-height:34px; padding:0 12px; border-radius:17px; border:1px solid transparent; cursor:pointer;
+            font:inherit; font-size:13px; font-weight:500; color:var(--primary-text-color); background:var(--gh-sec); }
+    .chip em { font-style:normal; font-size:11.5px; opacity:.7; }
+    .chip[aria-pressed="true"] { color:var(--gh-ink); background:color-mix(in srgb, var(--gh-accent) 14%, transparent); border-color:color-mix(in srgb, var(--gh-accent) 35%, transparent); }
+    .row .pick-repo { width:20px; height:20px; border-radius:6px; border-color:#9aa3ae; }
+    /* Issues and pull requests: a row per item */
+    a.row.item { gap:10px; align-items:center; text-decoration:none; color:inherit; }
+    a.row.item:hover { background:color-mix(in srgb, var(--gh-accent) 7%, var(--gh-sec)); }
+    a.row.item:hover .n { color:var(--gh-ink); }
+    .item .who .n { white-space:normal; overflow-wrap:anywhere; }
+    .item .who .s { white-space:normal; }
+    .item .cnt { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; max-width:45%; flex:none; }
+    .item .cnt .com { display:inline-flex; align-items:center; gap:3px; height:22px; padding:0 8px; border-radius:11px; font-size:12px; background:var(--card-background-color, #fff); color:var(--secondary-text-color); }
+    .item .cnt .com .i { width:13px; height:13px; }
+    .rev, .lbl { display:inline-flex; align-items:center; gap:4px; font-size:11.5px; line-height:16px; padding:3px 9px; border-radius:12px; white-space:nowrap; }
+    .rev::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; opacity:.85; }
+    .rev.muted { background:var(--card-background-color, #fff); }
+    @container (max-width:600px) {
+      .row:not(.confirm):not(.item) { flex-wrap:wrap; row-gap:6px; }
+      .row .who { flex:1 1 calc(100% - 120px); }
+      .row .info { order:2; flex:1 1 100%; justify-content:flex-start; padding-left:38px; }
+      .row .info .tag { display:none; }
+      .item .cnt { max-width:none; flex:1 1 100%; justify-content:flex-start; order:2; padding-left:50px; }
+      a.row.item { flex-wrap:wrap; }
+      .detail { padding-left:0; }
+    }
+    /* Settings: switches, the refresh interval as a segmented choice, the save bar */
+    .toggle.row { cursor:pointer; gap:12px; }
+    .toggle .who { cursor:pointer; }
+    .toggle .who small { font-size:12px; color:var(--secondary-text-color); }
+    input.sw { appearance:none; -webkit-appearance:none; width:40px; height:24px; margin:0; flex:none; border-radius:12px; position:relative; cursor:pointer;
+               background:color-mix(in srgb, var(--secondary-text-color) 45%, transparent); transition:background .15s; }
+    input.sw::after { content:""; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25); transition:left .15s; }
+    input.sw:checked { background:var(--gh-accent); }
+    input.sw:checked::after { left:19px; }
+    input.sw:focus-visible { outline:2px solid var(--gh-accent); outline-offset:2px; }
+    .interval { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .interval .field { width:110px; flex:none; }
+    .interval small.note { flex:1 1 220px; font-size:12px; }
+    .field { border:0; border-radius:10px; background:var(--gh-sec); min-height:44px; align-items:center; }
+    .field:focus-within { box-shadow:inset 0 0 0 2px var(--gh-accent); }
+    .savebar { padding:10px 12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; position:sticky; bottom:12px; z-index:1; }
+    .savebar .note { flex:1; text-align:right; font-size:12.5px; }
   `;
 
   constructor() {
@@ -1163,18 +1343,69 @@ class GitHubPanel extends HTMLElement {
     return s && s.state !== "" && Number.isFinite(v) ? v : null;
   }
 
+
+  /** The illustrated banner of a tab's header card: its icon, title, status pill and a line under them. */
+  _banner(icon, title, pill, sub, tone) {
+    const esc = githubPanelEsc;
+    const night = this._hass?.themes?.darkMode ? " night" : "";
+    const pillHtml = pill ? `<span class="stpill ${pill.tone || ""}" role="status">${esc(pill.text)}</span>` : "";
+    return `<div class="banner${night}">${GITHUB_PANEL_SCENE}
+      <div class="bhead"><span class="badge-ic"${tone ? ` style="--tone:${tone}"` : ""}>${githubPanelIcon(icon)}</span>
+        <div class="btitles"><div class="brow"><span class="bname">${esc(title)}</span>${pillHtml}</div>${sub ? `<div class="bsub">${esc(sub)}</div>` : ""}</div></div>
+    </div>`;
+  }
+
+  /** "1.8K" in the panel's language. */
+  _compact(n) {
+    try {
+      return new Intl.NumberFormat(this._lang(), { notation: "compact", maximumFractionDigits: 1 }).format(n);
+    } catch (_err) {
+      return String(n);
+    }
+  }
+
+  /** The sum of a live counter over the followed repositories, or null when none is known. */
+  _sum(key) {
+    const values = (this._overview?.followed || []).map((r) => this._number(r, key)).filter((v) => v !== null);
+    return values.length ? values.reduce((a, b) => a + b, 0) : null;
+  }
+
+  /** The Repositories header's tiles: stars, open issues, open pull requests and downloads of the followed repositories. */
+  _kpisHtml() {
+    const esc = githubPanelEsc;
+    const tile = (key, icon, tone, label) => {
+      const v = this._sum(key);
+      return `<div class="tile"><span class="ic ${tone}">${githubPanelIcon(icon)}</span><div class="kv"><b>${esc(v === null ? "—" : this._compact(v))}</b><span>${esc(this._t(label))}</span></div></div>`;
+    };
+    return [
+      tile("stargazers_count", "star", "gold", "stars"),
+      tile("issues_count", "issue", "good", "sort_issues"),
+      tile("pulls_count", "pr", "acc", "sort_pulls"),
+      tile("latest_release_downloads", "download", "info", "downloads"),
+    ].join("");
+  }
+
+  /** owner/name as two lines: the name, then the owner. */
+  _repoWho(name) {
+    const esc = githubPanelEsc;
+    const [owner, repo] = String(name).split("/");
+    return `<span class="n" title="${esc(name)}">${esc(repo || name)}</span><span class="s">${esc(owner)}</span>`;
+  }
+
   _renderRepos() {
     const host = this.shadowRoot.getElementById?.("repos");
     if (!host) return;
     const esc = githubPanelEsc;
     const o = this._overview;
+    const top = (pill, sub, body) =>
+      `<div class="card top">${this._banner("code", this._t("repos"), pill, sub)}<div class="cbody">${body}</div></div>`;
     if (!o) {
-      host.innerHTML = `<div class="box"><div class="note">${esc(this._t("loading"))}</div></div>`;
+      host.innerHTML = top(null, this._t("loading"), "");
       return;
     }
     if (!o.configured) {
-      host.innerHTML = `<div class="box"><div class="note">${esc(this._t("no_github"))}</div>
-        <div class="bar"><button class="act" data-action="add-github">${githubPanelIcon("plus")}${esc(this._t("add_github"))}</button></div></div>`;
+      host.innerHTML = top({ tone: "warn", text: this._t("add_github") }, "", `<div class="note">${esc(this._t("no_github"))}</div>
+        <div class="bar"><button class="act" data-action="add-github">${githubPanelIcon("plus")}${esc(this._t("add_github"))}</button></div>`);
       this._bindRepos(host);
       return;
     }
@@ -1193,43 +1424,51 @@ class GitHubPanel extends HTMLElement {
       notes.push(`<div class="note ${this._message.tone}" role="status">${esc(this._message.text)}${retry}</div>`);
     }
     const disabled = this._busy ? " disabled" : "";
-    const list = rows.map((r) => {
+    const rowHtml = (r) => {
       const link = `<a class="link" href="https://github.com/${esc(r.name)}" target="_blank" rel="noopener noreferrer" title="${esc(this._t("open_github"))}" aria-label="${esc(this._t("open_github"))}">${githubPanelIcon("open")}</a>`;
       if (this._confirm === r.name)
         return `<div class="row confirm"><div class="note">${esc(this._t("confirm_unfollow", { repo: r.name }))}</div>
           <div class="b"><button class="act quiet" data-action="cancel">${esc(this._t("cancel"))}</button>
           <button class="act bad" data-action="unfollow-confirmed" data-repo="${esc(r.name)}"${disabled}>${esc(this._t("unfollow"))}</button></div></div>`;
-      const action = r.followed
-        ? `<button class="act quiet" data-action="unfollow" data-repo="${esc(r.name)}"${disabled}>${esc(this._t("unfollow"))}</button>`
-        : `<button class="act" data-action="follow" data-repo="${esc(r.name)}"${disabled}>${githubPanelIcon("plus")}${esc(this._t("follow"))}</button>`;
       if (!r.followed) {
         const label = esc(this._t("select_repo", { repo: r.name }));
-        const box = `<input type="checkbox" class="pick-repo" data-repo="${esc(r.name)}" aria-label="${label}" title="${label}"${this._selected.has(r.name) ? " checked" : ""}${disabled}>`;
-        return `<div class="row">${box}${githubPanelIcon("code")}<span class="n" title="${esc(r.name)}">${esc(r.name)}</span>${link}${action}</div>`;
+        const on = this._selected.has(r.name);
+        const box = `<input type="checkbox" class="pick-repo" data-repo="${esc(r.name)}" aria-label="${label}" title="${label}"${on ? " checked" : ""}${disabled}>`;
+        return `<div class="row${on ? " sel" : ""}">${box}<span class="ic">${githubPanelIcon("code")}</span><div class="who">${this._repoWho(r.name)}</div>${link}
+          <button class="act" data-action="follow" data-repo="${esc(r.name)}"${disabled}>${githubPanelIcon("plus")}${esc(this._t("follow"))}</button></div>`;
       }
-      // A followed repository: its name unfolds the GitHub Card's counters and latest activity under the row
+      // A followed repository: the chevron or its name unfolds the GitHub Card's counters and latest activity under the row
       const open = this._expanded === r.name;
       return `<div class="row${open ? " open" : ""}">
-          <button class="fold" data-action="expand" data-repo="${esc(r.name)}" aria-expanded="${open}" title="${esc(this._t("details"))}">
-            ${githubPanelIcon("chevron")}<span class="n" title="${esc(r.name)}">${esc(r.name)}</span></button>
-          <span class="info" data-repo="${esc(r.name)}">${this._infoHtml(r.name)}</span>${link}${action}</div>
+          <button class="chev" data-action="expand" data-repo="${esc(r.name)}" aria-expanded="${open}" title="${esc(this._t("details"))}" aria-label="${esc(this._t("details"))}">${githubPanelIcon("chevron")}</button>
+          <span class="ic acc">${githubPanelIcon("code")}</span>
+          <button class="who fold" data-action="expand" data-repo="${esc(r.name)}" aria-expanded="${open}" title="${esc(this._t("details"))}">${this._repoWho(r.name)}</button>
+          <span class="info" data-repo="${esc(r.name)}">${this._infoHtml(r.name)}</span>${link}
+          <button class="act quiet" data-action="unfollow" data-repo="${esc(r.name)}"${disabled}>${esc(this._t("unfollow"))}</button></div>
         ${open ? `<div class="detail" data-repo="${esc(r.name)}"></div>` : ""}`;
-    });
-    host.innerHTML = `<div class="box">
-        <div class="head">
-          <span class="sum">${esc(this._t("summary", { followed: o.followed.length, offered: o.offered.length }))}<span class="totals">${this._totalsHtml()}</span></span>
-          <select class="pick" data-sort aria-label="${esc(this._t("sort_label"))}" title="${esc(this._t("sort_label"))}">${GITHUB_PANEL_SORTS.map(
-            (v) => `<option value="${v}"${v === this._sort ? " selected" : ""}>${esc(this._t(`sort_${v}`))}</option>`,
-          ).join("")}</select>
-          <label class="search"><input type="search" placeholder="${esc(this._t("search"))}" aria-label="${esc(this._t("search"))}" value="${esc(this._query)}"></label>
+    };
+    const followedRows = rows.filter((r) => r.followed);
+    const offeredRows = rows.filter((r) => !r.followed);
+    const loadFailed = this._message && this._message === this._loadError;
+    const sorts = GITHUB_PANEL_SORTS.map(
+      (v) => `<button data-sort="${v}" aria-pressed="${v === this._sort}">${esc(this._t(`sort_${v}`))}</button>`,
+    ).join("");
+    host.innerHTML = `
+      ${top({ tone: "", text: this._t("summary", { followed: o.followed.length, offered: o.offered.length }) }, o.login ? `github.com/${o.login}` : "", `<div class="kpis">${this._kpisHtml()}</div>${notes.join("")}`)}
+      <div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("followed_head"))} · ${o.followed.length}</h2>
+          <div class="seg" role="group" aria-label="${esc(this._t("sort_label"))}">${sorts}</div></div>
+        <div class="rows">${followedRows.length ? followedRows.map(rowHtml).join("") : loadFailed ? "" : `<div class="note">${esc(this._t(o.followed.length ? "empty" : "no_followed"))}</div>`}</div>
+      </div>
+      <div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("to_follow"))} · ${o.offered.length}</h2>
+          <label class="search">${githubPanelIcon("search")}<input type="search" placeholder="${esc(this._t("search"))}" aria-label="${esc(this._t("search"))}" value="${esc(this._query)}"></label>
           ${selected.length ? `<button class="act" data-action="follow-selected"${disabled}>${githubPanelIcon("plus")}${esc(this._t("follow_selected", { n: selected.length }))}</button>` : ""}
-          ${toFollow.length > 1 ? `<button class="act" data-action="follow-all"${disabled}>${githubPanelIcon("plus")}${esc(this._t("follow_all", { n: toFollow.length }))}</button>` : ""}
+          ${toFollow.length > 1 ? `<button class="act quiet" data-action="follow-all"${disabled}>${esc(this._t("follow_all", { n: toFollow.length }))}</button>` : ""}
         </div>
-        ${notes.join("")}
-        <div class="list">${list.length ? list.join("") : this._message && this._message === this._loadError ? "" : `<div class="note">${esc(this._t("empty"))}</div>`}</div>
-        <div class="account-slot"></div>
-        <div class="dl-total">${this._downloadsTotalHtml()}</div>
-      </div>`;
+        <div class="rows">${offeredRows.length ? offeredRows.map(rowHtml).join("") : `<div class="note">${esc(this._t("empty"))}</div>`}</div>
+      </div>
+      <div class="card list account-card" hidden><div class="account-slot"></div></div>`;
     this._bindRepos(host);
     this._mountDetail(host);
     this._mountAccount(host);
@@ -1257,7 +1496,7 @@ class GitHubPanel extends HTMLElement {
     return [
       count("stargazers_count", "star", "stars", "star"),
       count("issues_count", "issue", "issues", "ok"),
-      count("pulls_count", "pr", "pulls", "ok"),
+      count("pulls_count", "pr", "pulls", "pr"),
       count("latest_release", "tag", "release", "tag"),
       count("latest_release_downloads", "download", "downloads", "dl"),
     ].join("");
@@ -1287,23 +1526,15 @@ class GitHubPanel extends HTMLElement {
     }
     this._account.hass = this._hass;
     slot.appendChild(this._account);
-    // The separator only when the card shows the account (its sensors are disabled by default)
-    slot.classList.toggle("on", !!this._account.shadowRoot?.innerHTML);
+    // Its card only when the GitHub Card shows the account (its sensors are disabled by default)
+    const card = slot.closest?.(".account-card");
+    if (card) card.hidden = !this._account.shadowRoot?.innerHTML;
   }
 
   /** Totals of the followed repositories for the head: stars, and open issues and pull requests. */
   _totalsHtml() {
-    const sum = (key) => {
-      const values = (this._overview?.followed || []).map((r) => this._number(r, key)).filter((v) => v !== null);
-      return values.length ? values.reduce((a, b) => a + b, 0) : null;
-    };
-    const fmt = (n) => {
-      try {
-        return new Intl.NumberFormat(this._lang(), { notation: "compact", maximumFractionDigits: 1 }).format(n);
-      } catch (_err) {
-        return String(n);
-      }
-    };
+    const sum = (key) => this._sum(key);
+    const fmt = (n) => this._compact(n);
     const stars = sum("stargazers_count");
     const issues = sum("issues_count");
     const pulls = sum("pulls_count");
@@ -1332,19 +1563,15 @@ class GitHubPanel extends HTMLElement {
 
   /** Counters of the rows follow the sensors without rebuilding the list (the search field keeps its focus). */
   _updateInfo() {
-    const totals = this.shadowRoot.querySelector?.("#repos .totals");
-    if (totals) {
-      const html = this._totalsHtml();
-      if (totals.innerHTML !== html) totals.innerHTML = html;
-    }
-    const dlTotal = this.shadowRoot.querySelector?.("#repos .dl-total");
-    if (dlTotal) {
-      const html = this._downloadsTotalHtml();
-      if (dlTotal.innerHTML !== html) dlTotal.innerHTML = html;
+    const kpis = this.shadowRoot.querySelector?.("#repos .kpis");
+    if (kpis) {
+      const html = this._kpisHtml();
+      if (kpis.innerHTML !== html) kpis.innerHTML = html;
     }
     if (this._account) {
       this._account.hass = this._hass;
-      this.shadowRoot.querySelector?.("#repos .account-slot")?.classList.toggle("on", !!this._account.shadowRoot?.innerHTML);
+      const card = this.shadowRoot.querySelector?.("#repos .account-card");
+      if (card) card.hidden = !this._account.shadowRoot?.innerHTML;
     }
     for (const span of this.shadowRoot.querySelectorAll?.("#repos .info") || []) {
       const html = this._infoHtml(span.dataset.repo);
@@ -1354,8 +1581,8 @@ class GitHubPanel extends HTMLElement {
   }
 
   _bindRepos(host) {
-    host.querySelector("select[data-sort]")?.addEventListener("change", (ev) => {
-      this._sort = GITHUB_PANEL_SORTS.includes(ev.target.value) ? ev.target.value : "followed";
+    for (const button of host.querySelectorAll("[data-sort]")) button.addEventListener("click", () => {
+      this._sort = GITHUB_PANEL_SORTS.includes(button.dataset.sort) ? button.dataset.sort : "followed";
       // Remembered in this browser only, like the panel's other display choices
       try {
         localStorage.setItem("github_card.repos_sort", this._sort);
@@ -1502,19 +1729,20 @@ class GitHubPanel extends HTMLElement {
   }
 
   // `hideAuthor`: the My pull requests tab, where every pull request is the viewer's own, so "by me" is noise.
+
   _itemHtml(item, kind, hideAuthor = false) {
     const esc = githubPanelEsc;
     const meta = [
-      `<span>${esc(item.repo)} #${esc(item.number)}</span>`,
-      item.author && !hideAuthor ? `<span>${esc(this._t("by", { author: item.author }))}</span>` : "",
-      item.updated ? `<span title="${esc(item.updated)}">${esc(this._t("updated", { when: this._ago(item.updated) }))}</span>` : "",
-      item.comments ? `<span title="${esc(this._t("comments", { n: item.comments }))}">${githubPanelIcon("comment")}${esc(item.comments)}</span>` : "",
-    ];
+      `${esc(item.repo)} #${esc(item.number)}`,
+      item.author && !hideAuthor ? esc(this._t("by", { author: item.author })) : "",
+      item.updated ? esc(this._t("updated", { when: this._ago(item.updated) })) : "",
+    ].filter(Boolean);
+    const pills = [];
     if (kind === "pulls") {
       const review = item.draft
         ? ["muted", "draft"]
         : { APPROVED: ["good", "approved"], CHANGES_REQUESTED: ["bad", "changes_requested"], REVIEW_REQUIRED: ["warn", "review_required"] }[item.review];
-      if (review) meta.push(`<span class="rev ${review[0]}">${esc(this._t(review[1]))}</span>`);
+      if (review) pills.push(`<span class="rev ${review[0]}">${esc(this._t(review[1]))}</span>`);
       // The rolled-up state of the pull request's checks (My pull requests tab; absent elsewhere)
       const checks = {
         SUCCESS: ["good", "checks_passing"],
@@ -1523,57 +1751,70 @@ class GitHubPanel extends HTMLElement {
         PENDING: ["warn", "checks_pending"],
         EXPECTED: ["warn", "checks_pending"],
       }[item.checks];
-      if (checks) meta.push(`<span class="rev ${checks[0]}">${esc(this._t(checks[1]))}</span>`);
+      if (checks) pills.push(`<span class="rev ${checks[0]}">${esc(this._t(checks[1]))}</span>`);
     }
     for (const label of item.labels || []) {
       const color = /^[0-9a-f]{6}$/i.test(label.color) ? `#${label.color}` : "var(--secondary-text-color)";
-      meta.push(`<span class="lbl" style="--c:${color}">${esc(label.name)}</span>`);
+      pills.push(`<span class="lbl" style="--c:${color}">${esc(label.name)}</span>`);
     }
+    if (item.comments) pills.push(`<span class="com" title="${esc(this._t("comments", { n: item.comments }))}">${githubPanelIcon("comment")}${esc(item.comments)}</span>`);
     const url = /^https:\/\/github\.com\//.test(item.url) ? item.url : `https://github.com/${item.repo}`;
-    return `<a class="item${item.draft ? " draft" : ""}" href="${esc(url)}" target="_blank" rel="noopener noreferrer">
-        ${githubPanelIcon(kind === "pulls" ? "pr" : "issue")}
-        <div class="body"><span class="t">${esc(item.title)}</span><div class="m">${meta.filter(Boolean).join("")}</div></div>
+    const tone = item.draft ? "" : kind === "pulls" ? "acc" : "good";
+    return `<a class="row item${item.draft ? " draft" : ""}" href="${esc(url)}" target="_blank" rel="noopener noreferrer">
+        <span class="ic ${tone}">${githubPanelIcon(kind === "pulls" ? "pr" : "issue")}</span>
+        <div class="who"><span class="n t">${esc(item.title)}</span><span class="s">${meta.join(" · ")}</span></div>
+        ${pills.length ? `<span class="cnt">${pills.join("")}</span>` : ""}
       </a>`;
   }
+
+  /** When the items were last fetched, for the header's line: "updated 4 minutes ago". */
+  _fetchedLine(data) {
+    return data?.fetched_at ? this._t("updated", { when: this._ago(new Date(data.fetched_at * 1000).toISOString()) }) : "";
+  }
+
 
   _renderItems(kind) {
     const host = this.shadowRoot.getElementById?.(kind);
     if (!host) return;
     const esc = githubPanelEsc;
     const followed = this._overview?.followed || [];
+    const icon = kind === "pulls" ? "pr" : "issue";
+    const tone = kind === "pulls" ? "" : "var(--tone-good)";
+    const top = (pill, sub, body) => `<div class="card top">${this._banner(icon, this._t(kind), pill, sub, tone)}<div class="cbody">${body}</div></div>`;
     // Never fetched yet (pending): the background poller has not delivered the first items.
     if (!this._items || this._items.pending) {
-      host.innerHTML = `<div class="box"><div class="note">${esc(this._t("loading"))}</div></div>`;
+      host.innerHTML = top(null, this._t("loading"), "");
       return;
     }
     if (this._overview && !followed.length) {
-      host.innerHTML = `<div class="box"><div class="note">${esc(this._t("no_followed"))}</div></div>`;
+      host.innerHTML = top(null, "", `<div class="note">${esc(this._t("no_followed"))}</div>`);
       return;
     }
     const all = this._items[kind] || [];
     const items = this._itemRepo ? all.filter((i) => i.repo === this._itemRepo) : all;
-    const totals = Object.entries(this._items.totals || {}).filter(([repo]) => !this._itemRepo || repo === this._itemRepo);
+    const totalsAll = this._items.totals || {};
+    const totals = Object.entries(totalsAll).filter(([repo]) => !this._itemRepo || repo === this._itemRepo);
     const total = totals.reduce((n, [, t]) => n + (t[kind] || 0), 0);
-    const repos = [...new Set([...followed, ...Object.keys(this._items.totals || {})])].sort((a, b) => a.localeCompare(b));
-    const options = [`<option value="">${esc(this._t("all_repos"))}</option>`]
-      .concat(repos.map((r) => `<option value="${esc(r)}"${r === this._itemRepo ? " selected" : ""}>${esc(r)}</option>`))
-      .join("");
+    const grand = Object.values(totalsAll).reduce((n, t) => n + (t[kind] || 0), 0);
+    const repos = [...new Set([...followed, ...Object.keys(totalsAll)])].sort((a, b) => a.localeCompare(b));
+    const chip = (repo, label, n) =>
+      `<button class="chip" data-repo="${esc(repo)}" aria-pressed="${repo === (this._itemRepo || "")}">${esc(label)}${n ? ` <em>${esc(this._compact(n))}</em>` : ""}</button>`;
+    const chips = [chip("", this._t("all_repos"), grand)].concat(repos.map((r) => chip(r, r, totalsAll[r]?.[kind] || 0))).join("");
     const notes = [];
     if (this._items.error) notes.push(`<div class="note bad" role="status">${esc(this._t("items_error", { error: this._items.error }))}</div>`);
-    host.innerHTML = `<div class="box">
-        <div class="head">
-          <span class="sum">${esc(this._t("open_n", { n: total }))}</span>
-          <select class="pick" aria-label="${esc(this._t("all_repos"))}">${options}</select>
-          <button class="act" data-action="refresh"${this._itemsBusy ? " disabled" : ""}>${githubPanelIcon("refresh")}${esc(this._t("refresh"))}</button>
-        </div>
-        ${notes.join("")}
-        <div class="list">${items.length ? items.map((i) => this._itemHtml(i, kind)).join("") : `<div class="note">${esc(this._t(kind === "pulls" ? "no_pulls" : "no_issues"))}</div>`}</div>
+    host.innerHTML = `
+      ${top({ tone: this._items.error ? "bad" : grand ? (kind === "pulls" ? "" : "good") : "muted", text: this._t("open_n", { n: this._compact(grand) }) }, this._fetchedLine(this._items),
+        `<div class="chips">${chips}<span class="grow"></span><button class="act quiet" data-action="refresh"${this._itemsBusy ? " disabled" : ""}>${githubPanelIcon("refresh")}${esc(this._t("refresh"))}</button></div>${notes.join("")}`)}
+      <div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("open_n", { n: this._compact(total) }))}</h2></div>
+        <div class="rows">${items.length ? items.map((i) => this._itemHtml(i, kind)).join("") : `<div class="note">${esc(this._t(kind === "pulls" ? "no_pulls" : "no_issues"))}</div>`}</div>
       </div>`;
-    host.querySelector("select")?.addEventListener("change", (ev) => {
-      this._itemRepo = ev.target.value;
-      this._renderItems("issues");
-      this._renderItems("pulls");
-    });
+    for (const button of host.querySelectorAll(".chip"))
+      button.addEventListener("click", () => {
+        this._itemRepo = button.dataset.repo;
+        this._renderItems("issues");
+        this._renderItems("pulls");
+      });
     host.querySelector("[data-action=refresh]")?.addEventListener("click", () => this._refreshItems());
   }
 
@@ -1594,25 +1835,26 @@ class GitHubPanel extends HTMLElement {
     this._renderMine();
   }
 
+
   _renderMine() {
     const host = this.shadowRoot.getElementById?.("mine");
     if (!host) return;
     const esc = githubPanelEsc;
+    const top = (pill, sub, body) => `<div class="card top">${this._banner("pr", this._t("mine"), pill, sub)}<div class="cbody">${body}</div></div>`;
     // Not opened yet, or the fetch is in flight: show loading.
     if (!this._mine || this._mine.pending || (this._mineBusy && !this._mine.pulls)) {
-      host.innerHTML = `<div class="box"><div class="note">${esc(this._t("loading"))}</div></div>`;
+      host.innerHTML = top(null, this._t("loading"), "");
       return;
     }
     const pulls = this._mine.pulls || [];
     const notes = [];
     if (this._mine.error) notes.push(`<div class="note bad" role="status">${esc(this._t("items_error", { error: this._mine.error }))}</div>`);
-    host.innerHTML = `<div class="box">
-        <div class="head">
-          <span class="sum">${esc(this._t("open_n", { n: pulls.length }))}</span>
-          <button class="act" data-action="refresh"${this._mineBusy ? " disabled" : ""}>${githubPanelIcon("refresh")}${esc(this._t("refresh"))}</button>
-        </div>
-        ${notes.join("")}
-        <div class="list">${pulls.length ? pulls.map((i) => this._itemHtml(i, "pulls", true)).join("") : `<div class="note">${esc(this._t("no_mine"))}</div>`}</div>
+    host.innerHTML = `
+      ${top({ tone: this._mine.error ? "bad" : pulls.length ? "" : "muted", text: this._t("open_n", { n: pulls.length }) }, this._fetchedLine(this._mine),
+        `<div class="chips"><span class="grow"></span><button class="act quiet" data-action="refresh"${this._mineBusy ? " disabled" : ""}>${githubPanelIcon("refresh")}${esc(this._t("refresh"))}</button></div>${notes.join("")}`)}
+      <div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("open_n", { n: pulls.length }))}</h2></div>
+        <div class="rows">${pulls.length ? pulls.map((i) => this._itemHtml(i, "pulls", true)).join("") : `<div class="note">${esc(this._t("no_mine"))}</div>`}</div>
       </div>`;
     host.querySelector("[data-action=refresh]")?.addEventListener("click", () => this._loadMine(true));
   }
@@ -1623,45 +1865,99 @@ class GitHubPanel extends HTMLElement {
     return key in this._draft ? this._draft[key] : this._settings?.[key];
   }
 
+
+  _changed() {
+    return Object.keys(this._draft).some((k) => this._draft[k] !== this._settings?.[k]);
+  }
+
+  /** The Settings header card: its banner says whether the changes are saved. */
+  _settingsTop() {
+    const changed = this._changed();
+    const patterns = this._value("filter") || "";
+    return `<div class="card top">${this._banner("cog", this._t("settings"), { tone: changed ? "warn" : "good", text: this._t(changed ? "unsaved" : "up_to_date") }, patterns, "#7a8594")}</div>`;
+  }
+
   _renderSettings() {
     const host = this.shadowRoot.getElementById?.("settings");
     if (!host) return;
     const esc = githubPanelEsc;
     if (!this._settings) {
-      host.innerHTML = `<div class="box"><div class="note">${esc(this._t("loading"))}</div></div>`;
+      host.innerHTML = `<div class="card top">${this._banner("cog", this._t("settings"), null, this._t("loading"), "#7a8594")}</div>`;
       return;
     }
-    const toggle = (key, label, hint) => `<label class="toggle"><div><span>${esc(this._t(label))}</span>${hint ? `<small>${esc(this._t(hint))}</small>` : ""}</div>
-        <input type="checkbox" data-key="${key}"${this._value(key) ? " checked" : ""}></label>`;
-    const changed = Object.keys(this._draft).some((k) => this._draft[k] !== this._settings[k]);
-    host.innerHTML = `<div class="box form">
-        <label class="ctl"><span>${esc(this._t("s_filter"))}</span>
+    const toggle = (key, label, hint) => `<label class="row toggle"><div class="who"><span class="n">${esc(this._t(label))}</span>${hint ? `<small>${esc(this._t(hint))}</small>` : ""}</div>
+        <input type="checkbox" class="sw" role="switch" data-key="${key}"${this._value(key) ? " checked" : ""}></label>`;
+    const minutes = Number(this._value("refresh_minutes") ?? 15);
+    const presets = [5, 15, 30, 60];
+    const other = this._refreshOther || !presets.includes(minutes);
+    const preset = presets
+      .map((m) => `<button data-refresh="${m}" aria-pressed="${!other && m === minutes}">${esc(m < 60 ? `${m} min` : `${m / 60} h`)}</button>`)
+      .join("");
+    const changed = this._changed();
+    host.innerHTML = `${this._settingsTop()}
+      <div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("s_filter"))}</h2></div>
+        <label class="ctl"><span>${esc(this._t("s_patterns"))}</span>
           <div class="field"><input type="text" data-key="filter" value="${esc(this._value("filter"))}" placeholder="juju35/ha-*" spellcheck="false"></div>
           <small>${esc(this._t("s_filter_hint"))}</small></label>
-        ${toggle("include_starred", "s_starred", "s_starred_hint")}
-        ${toggle("ignore_archived", "s_archived", "s_archived_hint")}
-        ${toggle("notify_issues", "s_notify_issues", "s_notify_hint")}
-        ${toggle("notify_pulls", "s_notify_pulls", "")}
-        ${toggle("notify_releases", "s_notify_releases", "")}
-        <label class="ctl"><span>${esc(this._t("s_refresh"))}</span>
-          <div class="field"><input type="number" inputmode="numeric" data-key="refresh_minutes" min="${GITHUB_PANEL_MIN_REFRESH}" max="${GITHUB_PANEL_MAX_REFRESH}" step="1" value="${esc(String(this._value("refresh_minutes")))}"></div>
-          <small>${esc(this._t("s_refresh_hint"))}</small></label>
-        ${toggle("hide_toolbar", "s_hide_toolbar", "s_hide_toolbar_hint")}
-        <div class="bar"><button class="act" data-action="save"${changed ? "" : " disabled"}>${esc(this._t("save"))}</button>
-          ${this._saved ? `<span class="note good" role="status">${esc(this._t("saved"))}</span>` : ""}</div>
-      </div>`;
+        <div class="rows">${toggle("include_starred", "s_starred", "s_starred_hint")}${toggle("ignore_archived", "s_archived", "s_archived_hint")}</div>
+      </div>
+      <div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("s_group_notify"))}</h2></div>
+        <div class="rows">${toggle("notify_issues", "s_notify_issues", "s_notify_hint")}${toggle("notify_pulls", "s_notify_pulls", "")}${toggle("notify_releases", "s_notify_releases", "")}</div>
+      </div>
+      <div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("s_group_refresh"))}</h2></div>
+        <div class="interval">
+          <div class="seg" role="group" aria-label="${esc(this._t("s_refresh"))}">${preset}<button data-refresh="other" aria-pressed="${other}">${esc(this._t("other"))}</button></div>
+          ${other ? `<label class="field" title="${esc(this._t("s_refresh"))}"><input type="number" inputmode="numeric" data-key="refresh_minutes" aria-label="${esc(this._t("s_refresh"))}" min="${GITHUB_PANEL_MIN_REFRESH}" max="${GITHUB_PANEL_MAX_REFRESH}" step="1" value="${esc(String(this._value("refresh_minutes")))}"></label>` : ""}
+          <small class="note">${esc(this._t("s_refresh_hint"))}</small>
+        </div>
+      </div>
+      <div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("s_group_panel"))}</h2></div>
+        <div class="rows">${toggle("hide_toolbar", "s_hide_toolbar", "s_hide_toolbar_hint")}</div>
+      </div>
+      <div class="card savebar"><button class="act" data-action="save"${changed ? "" : " disabled"}>${esc(this._t("save"))}</button>
+        ${changed ? `<button class="act quiet" data-action="revert">${esc(this._t("cancel"))}</button>` : ""}
+        <span class="note ${this._saved ? "good" : changed ? "warn" : ""}" role="status">${esc(this._saved ? this._t("saved") : changed ? this._t("unsaved") : "")}</span></div>`;
     for (const input of host.querySelectorAll("input[data-key]")) {
       input.addEventListener(input.type === "checkbox" ? "change" : "input", () => {
         this._draft[input.dataset.key] =
           input.type === "checkbox" ? input.checked : input.type === "number" ? Number(input.value) : input.value;
         this._saved = false;
-        // Typing only refreshes the button, so the field keeps its focus
+        // Typing only refreshes the header, the button and the message, so the field keeps its focus
+        const now = this._changed();
         const save = host.querySelector("[data-action=save]");
-        if (save) save.disabled = !Object.keys(this._draft).some((k) => this._draft[k] !== this._settings[k]);
-        host.querySelector(".note.good")?.remove();
+        if (save) save.disabled = !now;
+        const note = host.querySelector(".savebar .note");
+        if (note) {
+          note.className = `note ${now ? "warn" : ""}`;
+          note.textContent = now ? this._t("unsaved") : "";
+        }
+        const top = host.querySelector(".card.top");
+        if (top && (top.dataset.changed !== String(now) || input.dataset.key === "filter")) {
+          top.outerHTML = this._settingsTop();
+          host.querySelector(".card.top").dataset.changed = String(now);
+        }
       });
     }
+    for (const button of host.querySelectorAll("[data-refresh]"))
+      button.addEventListener("click", () => {
+        if (button.dataset.refresh === "other") this._refreshOther = true;
+        else {
+          this._refreshOther = false;
+          this._draft.refresh_minutes = Number(button.dataset.refresh);
+          this._saved = false;
+        }
+        this._renderSettings();
+      });
     host.querySelector("[data-action=save]")?.addEventListener("click", () => this._save());
+    host.querySelector("[data-action=revert]")?.addEventListener("click", () => {
+      this._draft = {};
+      this._refreshOther = false;
+      this._renderSettings();
+    });
   }
 
   async _save() {

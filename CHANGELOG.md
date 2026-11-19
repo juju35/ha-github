@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.14.0 - 2026-11-19
+
+### Features
+- **Panel in the charter of the ha-* cards.** Each tab opens on a header card with an illustrated banner (a desk with a screen showing a branch graph, the latest commit breathing; night colours with a dark theme), its icon, a status pill and a line under them. Lists come under uppercase titles, their rows filled and rounded with a round tinted icon; counters as small pills; tinted pill buttons.
+  - **Repositories**: tiles for the stars, open issues, open pull requests and downloads of the followed repositories; **Followed** (sort as a segmented choice, each repository unfolding its details) and **To follow** (search, select, follow) as two lists; the GitHub account in a card of its own.
+  - **Issues**, **Pull requests**, **My pull requests**: the repository filter as chips with their open counts, Refresh beside them; review, checks and labels as pills on each row.
+  - **Settings**: grouped lists (repositories offered, notifications, refresh, panel) with switches; the refresh interval as a segmented choice (5 min, 15 min, 30 min, 1 h, other); a save bar that stays in view, with Cancel.
+
 ## 2.13.0 - 2026-11-19
 
 ### Features
