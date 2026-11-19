@@ -17,7 +17,7 @@
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-const GITHUB_PANEL_VERSION = "2.15.0";
+const GITHUB_PANEL_VERSION = "2.15.1";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
@@ -803,6 +803,9 @@ class GitHubPanel extends HTMLElement {
     .thead { display:flex; align-items:center; gap:12px; padding:12px 16px 0; min-width:0; }
     .thead .badge-ic { background:color-mix(in srgb, var(--tone, var(--gh-accent)) 14%, transparent); box-shadow:none; }
     .thead .bsub { color:var(--secondary-text-color); }
+    /* Settings: the tab's header inside the first card, over its first group */
+    .sethead { padding-bottom:10px; margin-bottom:2px; border-bottom:1px solid var(--divider-color, rgba(127,127,127,.2)); }
+    .sethead .thead { padding:0; }
     .thead .stpill { background:color-mix(in srgb, var(--c) 15%, transparent); color:color-mix(in srgb, var(--c) 55%, var(--primary-text-color)); }
     /* Repository filter: the repositories with open items only, the busiest first; the rest behind "+ N more" */
     .more { position:relative; }
@@ -1997,7 +2000,8 @@ class GitHubPanel extends HTMLElement {
   _settingsTop() {
     const changed = this._changed();
     const patterns = this._value("filter") || "";
-    return `<div class="card top">${this._banner("cog", this._t("settings"), { tone: changed ? "warn" : "good", text: this._t(changed ? "unsaved" : "up_to_date") }, patterns, "#7a8594")}</div>`;
+    // The tab's header opens the first settings card: alone in a card of its own, it was only an icon and a pill
+    return `<div class="sethead">${this._banner("cog", this._t("settings"), { tone: changed ? "warn" : "good", text: this._t(changed ? "unsaved" : "up_to_date") }, patterns, "#7a8594")}</div>`;
   }
 
   _renderSettings() {
@@ -2017,8 +2021,9 @@ class GitHubPanel extends HTMLElement {
       .map((m) => `<button data-refresh="${m}" aria-pressed="${!other && m === minutes}">${esc(m < 60 ? `${m} min` : `${m / 60} h`)}</button>`)
       .join("");
     const changed = this._changed();
-    host.innerHTML = `${this._settingsTop()}
+    host.innerHTML = `
       <div class="card list">
+        ${this._settingsTop()}
         <div class="lhead"><h2 class="lname">${esc(this._t("s_filter"))}</h2></div>
         <label class="ctl"><span>${esc(this._t("s_patterns"))}</span>
           <div class="field"><input type="text" data-key="filter" value="${esc(this._value("filter"))}" placeholder="juju35/ha-*" spellcheck="false"></div>
@@ -2058,10 +2063,10 @@ class GitHubPanel extends HTMLElement {
           note.className = `note ${now ? "warn" : ""}`;
           note.textContent = now ? this._t("unsaved") : "";
         }
-        const top = host.querySelector(".card.top");
+        const top = host.querySelector(".sethead");
         if (top && (top.dataset.changed !== String(now) || input.dataset.key === "filter")) {
           top.outerHTML = this._settingsTop();
-          host.querySelector(".card.top").dataset.changed = String(now);
+          host.querySelector(".sethead").dataset.changed = String(now);
         }
       });
     }
