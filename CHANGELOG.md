@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.15.0 - 2026-11-19
+
+### Features
+- **Panel laid out like the ENT ONE panel**: the desk banner is the panel's top bar, across the page — GitHub, how many repositories are followed, the account and when the items were fetched, with Refresh, the account on GitHub and the GitHub integration as round buttons (the blue toolbar is gone). The tabs sit under it on the page background, sticky, the active one underlined. *Hide the top bar* hides the banner, the tabs staying. Each tab keeps its header card, without the picture.
+- **Repositories**: a **To handle** card with the latest open pull requests and issues of the followed repositories.
+- **Issues**, **Pull requests**: the repository filter shows only the repositories with open items, the busiest first and five at most; the others are behind **+ N more**, with a search that also finds the repositories at 0. Nothing open: no chips.
+- Screenshots: a GIF of the panel's top bar (the plant sways, the head commit pulses), light and dark, shown in the README.
+
 ## 2.14.0 - 2026-11-19
 
 ### Features

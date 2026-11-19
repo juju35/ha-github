@@ -33,3 +33,4 @@ custom_components/github_card/
   github-panel.js GITHUB_PANEL_VERSION, package.json.
 - Never send the GitHub token to the frontend; the panel only gets lists.
 - Adding / removing github subentries one by one reloads the github entry each time: always go through async_apply.
+- Panel top bar (2.15.0): the desk banner across the page (`.topbar`, `_renderHead`: title, followed pill, login + fetched line, Refresh / GitHub / integration buttons; its ha-menu-button kept), tabs under it on the page background; `bare` hides `.topbar`. Tab cards keep a compact header (`_banner` → `.thead`, no scene). Repositories: To handle card (`_handleHtml`, redrawn alone by `_renderHandle` when items change). Issues / Pull requests filter: chips only for repositories with open items, top 5, the rest in `<details class="more">` with a search (repos at 0 `hidden data-quiet`, shown only when searched).
