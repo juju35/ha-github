@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.15.1 - 2026-11-19
+
+### Fixes
+- Panel, Settings: the tab's header (icon, title, *Up to date* / *Unsaved changes*, name patterns) opens the first settings card instead of standing alone in a card of its own.
+
 ## 2.15.0 - 2026-11-19
 
 ### Features
