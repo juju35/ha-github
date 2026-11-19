@@ -24,10 +24,12 @@ It works on top of the core [GitHub integration](https://www.home-assistant.io/i
 
 ### Sidebar panel (administrators only)
 
-- **Repositories**: every repository of your GitHub account (and your starred ones, if you choose), followed or not by the GitHub integration. Each followed one shows its stars, open issues, open pull requests and latest release on its row, and unfolds the same details as the GitHub Card (counters, latest release, commit, pull request, issue…). The head gives the totals of the followed repositories, and your GitHub account (followers, following, public repositories and gists) closes the list. **Follow** or **Stop following** one, tick several and **Follow selected**, or **Follow all** at once: the whole change reloads the GitHub integration a single time
-- **Issues** and **Pull requests**: the open ones of all the followed repositories, most recently updated first, with their repository, number, author, age, comments and labels, and the review state of pull requests (approved, changes requested, review required, draft). The Pull requests tab leaves out the ones **you** authored — they have their own **My pull requests** tab. Filter by repository; each opens on GitHub
+The panel opens on the card's desk across the page (as on the ENT ONE panel): GitHub, how many repositories are followed, your account and when the issues and pull requests were fetched, with **Refresh**, your account on GitHub and the GitHub integration as round buttons. The tabs sit under it:
+
+- **Repositories**: every repository of your GitHub account (and your starred ones, if you choose), followed or not by the GitHub integration. Each followed one shows its stars, open issues, open pull requests and latest release on its row, and unfolds the same details as the GitHub Card (counters, latest release, commit, pull request, issue…). The head gives the totals of the followed repositories, a **To handle** card the latest open pull requests and issues, and your GitHub account (followers, following, public repositories and gists) closes the list. **Follow** or **Stop following** one, tick several and **Follow selected**, or **Follow all** at once: the whole change reloads the GitHub integration a single time
+- **Issues** and **Pull requests**: the open ones of all the followed repositories, most recently updated first, with their repository, number, author, age, comments and labels, and the review state of pull requests (approved, changes requested, review required, draft). The Pull requests tab leaves out the ones **you** authored — they have their own **My pull requests** tab. Filter by repository — only the repositories with open items get a chip (the busiest five), the others are behind **+ N more** with a search; each opens on GitHub
 - **My pull requests**: the open pull requests you authored, in any repository — not only the followed ones — with their repository, number, age, review state and the state of their checks; each opens on GitHub
-- **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories, archived repositories ignored), a Home Assistant notification for each new issue, pull request or release, and **Hide the top bar** (the title bar goes, the tabs and the menu button stay)
+- **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories, archived repositories ignored), a Home Assistant notification for each new issue, pull request or release, and **Hide the top bar** (the desk banner goes, the tabs and the menu button stay)
 - Tabs in the address (`/github-config/issues`), so a link or a reload opens the same tab
 
 ### Cards
@@ -217,6 +219,12 @@ Night picture:
 | Light | Dark |
 |---|---|
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/anim-night.gif" alt="night animation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/anim-night-dark.gif" alt="night animation, dark theme" width="400"> |
+
+The panel's top bar, across the page: the plant sways and the head commit pulses (day with a light theme, night with a dark one):
+
+| Light | Dark |
+|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/anim-panel.gif" alt="panel top bar animation" width="480"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/anim-panel-dark.gif" alt="panel top bar animation, dark theme" width="480"> |
 
 ### Stills
 

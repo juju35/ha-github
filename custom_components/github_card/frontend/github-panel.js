@@ -17,7 +17,7 @@
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-const GITHUB_PANEL_VERSION = "2.14.0";
+const GITHUB_PANEL_VERSION = "2.15.0";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
@@ -55,6 +55,8 @@ const GITHUB_PANEL_KEYS = [
   "s_hide_toolbar", "s_hide_toolbar_hint",
   // The cards' charter: list titles, the Settings header's pill, the Settings groups, the other refresh interval
   "followed_head", "to_follow", "unsaved", "up_to_date", "s_group_notify", "s_group_refresh", "s_group_panel", "s_patterns", "other",
+  // The ENT ONE layout: the Repositories "To handle" card and the repository filter's overflow
+  "to_handle", "nothing_to_handle", "more_repos",
 ];
 
 const GITHUB_PANEL_TRANSLATIONS = {
@@ -86,6 +88,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Downloads", "Total downloads: {n}",
     "Hide the top bar", "The title bar goes, the tabs stay; the menu button stays wherever Home Assistant shows it.",
     "Followed", "To follow", "Unsaved changes", "Up to date", "Notifications", "Refresh", "Panel", "Name patterns", "Other",
+    "To handle", "Nothing to handle on your followed repositories", "+ {n} more",
   ],
   fr: [
     "GitHub", "Dépôts", "Activité", "Réglages", "Intégration GitHub", "Chargement…",
@@ -115,6 +118,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Téléchargements", "Total des téléchargements : {n}",
     "Masquer la barre du haut", "La barre de titre disparaît, les onglets restent ; le bouton menu reste là où Home Assistant l’affiche.",
     "Suivis", "À suivre", "Modifications non enregistrées", "À jour", "Notifications", "Actualisation", "Panneau", "Modèles de noms", "Autre",
+    "À traiter", "Rien à traiter sur les dépôts suivis", "+ {n} autres",
   ],
   de: [
     "GitHub", "Repositorys", "Aktivität", "Einstellungen", "GitHub-Integration", "Wird geladen…",
@@ -144,6 +148,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Downloads", "Downloads insgesamt: {n}",
     "Obere Leiste ausblenden", "Die Titelleiste verschwindet, die Tabs bleiben; der Menüknopf bleibt, wo Home Assistant ihn zeigt.",
     "Verfolgt", "Zu verfolgen", "Nicht gespeicherte Änderungen", "Aktuell", "Benachrichtigungen", "Aktualisierung", "Panel", "Namensmuster", "Andere",
+    "Zu erledigen", "Nichts zu erledigen in den verfolgten Repositorys", "+ {n} weitere",
   ],
   es: [
     "GitHub", "Repositorios", "Actividad", "Ajustes", "Integración GitHub", "Cargando…",
@@ -173,6 +178,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Descargas", "Descargas totales: {n}",
     "Ocultar la barra superior", "La barra de título desaparece, las pestañas se quedan; el botón de menú sigue donde Home Assistant lo muestra.",
     "Seguidos", "Por seguir", "Cambios sin guardar", "Al día", "Notificaciones", "Actualización", "Panel", "Patrones de nombre", "Otro",
+    "Por atender", "Nada por atender en los repositorios seguidos", "+ {n} más",
   ],
   sr: [
     "GitHub", "Репозиторијуми", "Активност", "Подешавања", "Интеграција GitHub", "Учитавање…",
@@ -202,6 +208,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Преузимања", "Укупно преузимања: {n}",
     "Сакриј горњу траку", "Трака наслова нестаје, картице остају; дугме менија остаје где га Home Assistant приказује.",
     "Праћени", "За праћење", "Несачуване измене", "Ажурно", "Обавештења", "Освежавање", "Панел", "Обрасци имена", "Друго",
+    "За обраду", "Ништа за обраду у праћеним репозиторијумима", "+ још {n}",
   ],
   "sr-Latn": [
     "GitHub", "Repozitorijumi", "Aktivnost", "Podešavanja", "Integracija GitHub", "Učitavanje…",
@@ -231,6 +238,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Preuzimanja", "Ukupno preuzimanja: {n}",
     "Sakrij gornju traku", "Traka naslova nestaje, kartice ostaju; dugme menija ostaje gde ga Home Assistant prikazuje.",
     "Praćeni", "Za praćenje", "Nesačuvane izmene", "Ažurno", "Obaveštenja", "Osvežavanje", "Panel", "Obrasci imena", "Drugo",
+    "Za obradu", "Ništa za obradu u praćenim repozitorijumima", "+ još {n}",
   ],
   it: [
     "GitHub", "Repository", "Attività", "Impostazioni", "Integrazione GitHub", "Caricamento…",
@@ -260,6 +268,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Download", "Download totali: {n}",
     "Nascondi la barra superiore", "La barra del titolo sparisce, le schede restano; il pulsante del menu resta dove Home Assistant lo mostra.",
     "Seguiti", "Da seguire", "Modifiche non salvate", "Aggiornato", "Notifiche", "Aggiornamento", "Pannello", "Modelli di nome", "Altro",
+    "Da gestire", "Niente da gestire nei repository seguiti", "+ altri {n}",
   ],
   nl: [
     "GitHub", "Repositories", "Activiteit", "Instellingen", "GitHub-integratie", "Laden…",
@@ -289,6 +298,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Downloads", "Totaal aantal downloads: {n}",
     "Bovenbalk verbergen", "De titelbalk verdwijnt, de tabbladen blijven; de menuknop blijft waar Home Assistant hem toont.",
     "Gevolgd", "Te volgen", "Niet-opgeslagen wijzigingen", "Bijgewerkt", "Meldingen", "Vernieuwen", "Paneel", "Naampatronen", "Anders",
+    "Af te handelen", "Niets af te handelen in de gevolgde repositories", "+ {n} meer",
   ],
   pt: [
     "GitHub", "Repositórios", "Atividade", "Definições", "Integração GitHub", "A carregar…",
@@ -318,6 +328,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Transferências", "Total de transferências: {n}",
     "Ocultar a barra superior", "A barra de título desaparece, os separadores ficam; o botão de menu fica onde o Home Assistant o mostra.",
     "Seguidos", "Por seguir", "Alterações não guardadas", "Atualizado", "Notificações", "Atualização", "Painel", "Padrões de nome", "Outro",
+    "Por tratar", "Nada por tratar nos repositórios seguidos", "+ {n} mais",
   ],
   pl: [
     "GitHub", "Repozytoria", "Aktywność", "Ustawienia", "Integracja GitHub", "Ładowanie…",
@@ -347,6 +358,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Pobrania", "Łączna liczba pobrań: {n}",
     "Ukryj górny pasek", "Pasek tytułu znika, karty zostają; przycisk menu zostaje tam, gdzie pokazuje go Home Assistant.",
     "Obserwowane", "Do obserwowania", "Niezapisane zmiany", "Aktualne", "Powiadomienia", "Odświeżanie", "Panel", "Wzorce nazw", "Inne",
+    "Do obsłużenia", "Nic do obsłużenia w obserwowanych repozytoriach", "+ {n} więcej",
   ],
   ro: [
     "GitHub", "Depozite", "Activitate", "Setări", "Integrarea GitHub", "Se încarcă…",
@@ -376,6 +388,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Descărcări", "Total descărcări: {n}",
     "Ascunde bara de sus", "Bara de titlu dispare, filele rămân; butonul de meniu rămâne acolo unde îl afișează Home Assistant.",
     "Urmărite", "De urmărit", "Modificări nesalvate", "La zi", "Notificări", "Reîmprospătare", "Panou", "Modele de nume", "Altul",
+    "De rezolvat", "Nimic de rezolvat în depozitele urmărite", "+ încă {n}",
   ],
   da: [
     "GitHub", "Repositories", "Aktivitet", "Indstillinger", "GitHub-integration", "Indlæser…",
@@ -405,6 +418,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Downloads", "Downloads i alt: {n}",
     "Skjul topbjælken", "Titellinjen forsvinder, fanerne bliver; menuknappen bliver, hvor Home Assistant viser den.",
     "Fulgt", "At følge", "Ikke-gemte ændringer", "Opdateret", "Notifikationer", "Opdatering", "Panel", "Navnemønstre", "Andet",
+    "Skal håndteres", "Intet at håndtere i de fulgte repositories", "+ {n} mere",
   ],
   sv: [
     "GitHub", "Repon", "Aktivitet", "Inställningar", "GitHub-integration", "Laddar…",
@@ -434,6 +448,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Nedladdningar", "Totalt antal nedladdningar: {n}",
     "Dölj översta fältet", "Namnlisten försvinner, flikarna stannar; menyknappen stannar där Home Assistant visar den.",
     "Följda", "Att följa", "Osparade ändringar", "Uppdaterad", "Aviseringar", "Uppdatering", "Panel", "Namnmönster", "Annat",
+    "Att hantera", "Inget att hantera i de följda förråden", "+ {n} till",
   ],
   bg: [
     "GitHub", "Хранилища", "Активност", "Настройки", "Интеграция GitHub", "Зареждане…",
@@ -463,6 +478,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Изтегляния", "Общо изтегляния: {n}",
     "Скрий горната лента", "Лентата със заглавие изчезва, разделите остават; бутонът на менюто остава там, където Home Assistant го показва.",
     "Следвани", "За следване", "Незапазени промени", "Актуално", "Известия", "Опресняване", "Панел", "Шаблони за имена", "Друго",
+    "За обработка", "Нищо за обработка в следваните хранилища", "+ още {n}",
   ],
   ru: [
     "GitHub", "Репозитории", "Активность", "Настройки", "Интеграция GitHub", "Загрузка…",
@@ -492,6 +508,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Загрузки", "Всего загрузок: {n}",
     "Скрыть верхнюю панель", "Строка заголовка исчезает, вкладки остаются; кнопка меню остаётся там, где её показывает Home Assistant.",
     "Отслеживаемые", "Для отслеживания", "Несохранённые изменения", "Актуально", "Уведомления", "Обновление", "Панель", "Шаблоны имён", "Другое",
+    "К обработке", "Нечего обрабатывать в отслеживаемых репозиториях", "+ ещё {n}",
   ],
   uk: [
     "GitHub", "Репозиторії", "Активність", "Налаштування", "Інтеграція GitHub", "Завантаження…",
@@ -521,6 +538,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Завантаження", "Усього завантажень: {n}",
     "Приховати верхню панель", "Рядок заголовка зникає, вкладки лишаються; кнопка меню лишається там, де її показує Home Assistant.",
     "Відстежувані", "Для відстеження", "Незбережені зміни", "Актуально", "Сповіщення", "Оновлення", "Панель", "Шаблони імен", "Інше",
+    "До опрацювання", "Нічого опрацьовувати у відстежуваних репозиторіях", "+ ще {n}",
   ],
   hu: [
     "GitHub", "Tárolók", "Tevékenység", "Beállítások", "GitHub integráció", "Betöltés…",
@@ -550,6 +568,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Letöltések", "Letöltések összesen: {n}",
     "Felső sáv elrejtése", "A címsor eltűnik, a lapok maradnak; a menügomb ott marad, ahol a Home Assistant mutatja.",
     "Követett", "Követendő", "Nem mentett módosítások", "Naprakész", "Értesítések", "Frissítés", "Panel", "Névminták", "Egyéb",
+    "Teendő", "Nincs teendő a követett tárolókban", "+ még {n}",
   ],
   sk: [
     "GitHub", "Repozitáre", "Aktivita", "Nastavenia", "Integrácia GitHub", "Načítava sa…",
@@ -579,6 +598,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Stiahnutia", "Stiahnutí spolu: {n}",
     "Skryť hornú lištu", "Lišta s názvom zmizne, karty zostanú; tlačidlo ponuky zostane tam, kde ho Home Assistant zobrazuje.",
     "Sledované", "Na sledovanie", "Neuložené zmeny", "Aktuálne", "Upozornenia", "Obnovovanie", "Panel", "Vzory názvov", "Iné",
+    "Na vybavenie", "Nič na vybavenie v sledovaných repozitároch", "+ ďalších {n}",
   ],
   cs: [
     "GitHub", "Repozitáře", "Aktivita", "Nastavení", "Integrace GitHub", "Načítání…",
@@ -608,6 +628,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Stažení", "Stažení celkem: {n}",
     "Skrýt horní lištu", "Lišta s názvem zmizí, karty zůstanou; tlačítko nabídky zůstane tam, kde ho Home Assistant zobrazuje.",
     "Sledované", "Ke sledování", "Neuložené změny", "Aktuální", "Oznámení", "Obnovování", "Panel", "Vzory názvů", "Jiné",
+    "K vyřízení", "Nic k vyřízení ve sledovaných repozitářích", "+ dalších {n}",
   ],
   sl: [
     "GitHub", "Repozitoriji", "Dejavnost", "Nastavitve", "Integracija GitHub", "Nalaganje…",
@@ -637,6 +658,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Prenosi", "Skupaj prenosov: {n}",
     "Skrij zgornjo vrstico", "Naslovna vrstica izgine, zavihki ostanejo; gumb menija ostane tam, kjer ga prikaže Home Assistant.",
     "Spremljani", "Za spremljanje", "Neshranjene spremembe", "Posodobljeno", "Obvestila", "Osveževanje", "Plošča", "Vzorci imen", "Drugo",
+    "Za obravnavo", "Nič za obravnavo v spremljanih repozitorijih", "+ še {n}",
   ],
   lv: [
     "GitHub", "Krātuves", "Aktivitāte", "Iestatījumi", "GitHub integrācija", "Ielādē…",
@@ -666,6 +688,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Lejupielādes", "Lejupielādes kopā: {n}",
     "Paslēpt augšējo joslu", "Virsraksta josla pazūd, cilnes paliek; izvēlnes poga paliek tur, kur to rāda Home Assistant.",
     "Sekotie", "Sekot", "Nesaglabātas izmaiņas", "Aktuāls", "Paziņojumi", "Atsvaidzināšana", "Panelis", "Nosaukumu paraugi", "Cits",
+    "Jāapstrādā", "Sekotajos repozitorijos nav nekā, ko apstrādāt", "+ vēl {n}",
   ],
   el: [
     "GitHub", "Αποθετήρια", "Δραστηριότητα", "Ρυθμίσεις", "Ενσωμάτωση GitHub", "Φόρτωση…",
@@ -695,6 +718,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Λήψεις", "Σύνολο λήψεων: {n}",
     "Απόκρυψη επάνω γραμμής", "Η γραμμή τίτλου φεύγει, οι καρτέλες μένουν· το κουμπί μενού μένει όπου το δείχνει το Home Assistant.",
     "Παρακολουθούμενα", "Προς παρακολούθηση", "Μη αποθηκευμένες αλλαγές", "Ενημερωμένο", "Ειδοποιήσεις", "Ανανέωση", "Πίνακας", "Μοτίβα ονομάτων", "Άλλο",
+    "Προς χειρισμό", "Τίποτα προς χειρισμό στα αποθετήρια που ακολουθείτε", "+ {n} ακόμη",
   ],
 };
 
@@ -741,30 +765,55 @@ class GitHubPanel extends HTMLElement {
     :host { display:block; min-height:100%; background:var(--primary-background-color); color:var(--primary-text-color);
             --gh-accent:#8957e5; --tone-good:var(--success-color, #43a047); --tone-warn:var(--warning-color, #ffa600); --tone-bad:var(--error-color, #db4437); }
     .i { width:18px; height:18px; fill:currentColor; flex:none; }
-    .toolbar { height:var(--header-height, 56px); display:flex; align-items:center; gap:8px; padding:0 12px; box-sizing:border-box;
-               background:var(--app-header-background-color, var(--primary-color)); color:var(--app-header-text-color, #fff);
-               border-bottom:var(--app-header-border-bottom, none); font-size:20px; position:sticky; top:0; z-index:2; }
-    .toolbar .grow { flex:1; }
-    .toolbar a { color:inherit; display:flex; padding:8px; border-radius:50%; }
-    .toolbar a .i { width:22px; height:22px; }
-    .toolbar a:hover { background:rgba(255,255,255,.12); }
-    /* Tabs under the toolbar, as in Smart Comfort: text, the active one underlined, sticky with the toolbar */
-    .tabs { display:flex; gap:4px; padding:0 12px; overflow-x:auto; background:var(--app-header-background-color, var(--primary-color));
-            position:sticky; top:var(--header-height, 56px); z-index:2; }
-    .tab { background:none; border:none; border-bottom:2px solid transparent; color:var(--app-header-text-color, #fff); opacity:.75;
-           padding:12px 14px; font:inherit; font-size:14px; cursor:pointer; white-space:nowrap; }
-    .tab:hover, .tab:focus-visible { opacity:1; outline:none; }
-    .tab.active { opacity:1; border-bottom-color:var(--app-header-text-color, #fff); }
-    /* Title bar hidden (Settings): the tabs stay at the top; the menu button stays where Home Assistant shows it
+    /* The top bar: the desk banner across the page (title, status, Refresh / GitHub / settings in its corner), as
+       on the ENT ONE panel; the tabs under it, on the page background, sticky */
+    .topbar .banner { height:90px; }
+    .topbar .bhead { padding:0 8px; right:calc(min(360px, 44%) + 150px); }
+    .topbar .bname { font-size:20px; }
+    .topbar .hmenu { flex:none; color:inherit; }
+    .topbar .scene { right:150px; }
+    .hacts { position:absolute; z-index:2; top:calc((100% - 10px) / 2 - 17px); right:12px; display:flex; gap:6px; }
+    .hacts > * { all:unset; cursor:pointer; box-sizing:border-box; width:34px; height:34px; border-radius:50%; display:grid; place-items:center;
+                 color:#33506b; background:rgba(255,255,255,.55); box-shadow:inset 0 0 0 1px rgba(255,255,255,.7); }
+    .hacts > *:hover { background:rgba(255,255,255,.82); }
+    .hacts > *:focus-visible { outline:2px solid var(--gh-accent); outline-offset:1px; }
+    .hacts > *[disabled] { opacity:.6; cursor:default; }
+    .night .hacts > * { color:#fff; background:rgba(255,255,255,.12); box-shadow:inset 0 0 0 1px rgba(255,255,255,.2); }
+    .hacts .i { width:20px; height:20px; }
+    .hacts .spin .i { animation:gh-spin 1s linear infinite; }
+    @keyframes gh-spin { to { transform:rotate(360deg); } }
+    @media (max-width: 600px) { .topbar .scene { display:none; } .topbar .bhead { right:150px; } .topbar .badge-ic { display:none; } }
+    .tabs { display:flex; align-items:center; gap:4px; padding:0 12px; overflow-x:auto; background:var(--primary-background-color);
+            border-bottom:1px solid var(--divider-color, rgba(0,0,0,.12)); position:sticky; top:0; z-index:2; }
+    .tab { background:none; border:none; border-bottom:2px solid transparent; color:var(--secondary-text-color); padding:12px 12px 10px; font:inherit;
+           font-size:14px; font-weight:500; cursor:pointer; white-space:nowrap; }
+    .tab:hover { color:var(--primary-text-color); }
+    .tab:focus-visible { outline:2px solid var(--primary-color); outline-offset:-2px; }
+    .tab.active { color:var(--primary-text-color); border-bottom-color:var(--gh-accent); }
+    /* Top bar hidden (Settings): the tabs alone at the top; the menu button stays where Home Assistant shows it
        (narrow screen or sidebar hidden), at the start of the tabs */
-    :host([bare]) .toolbar { display:none; }
-    :host([bare]) .tabs { top:0; }
-    .tabmenu { display:none; color:var(--app-header-text-color, #fff); align-self:center; margin-inline-end:4px; }
+    :host([bare]) .topbar { display:none; }
+    .tabmenu { display:none; color:var(--primary-text-color); align-self:center; margin-inline-end:4px; }
     :host([bare][menu]) .tabmenu { display:flex; }
     /* Count badge on the Issues and Pull requests tabs */
-    .tab .badge { display:inline-block; margin-inline-start:6px; min-width:18px; padding:0 5px; border-radius:9px; font-size:12px;
-                  line-height:18px; text-align:center; font-weight:600; vertical-align:middle;
-                  background:var(--app-header-text-color, #fff); color:var(--app-header-background-color, var(--primary-color)); }
+    .tab .badge { display:inline-block; margin-inline-start:6px; min-width:18px; padding:0 5px; border-radius:9px; font-size:11px; box-sizing:border-box;
+                  line-height:18px; text-align:center; font-weight:500; vertical-align:middle;
+                  color:color-mix(in srgb, var(--gh-accent) 60%, var(--primary-text-color)); background:color-mix(in srgb, var(--gh-accent) 16%, transparent); }
+    /* A tab's header in its first card (the illustration is in the top bar now) */
+    .thead { display:flex; align-items:center; gap:12px; padding:12px 16px 0; min-width:0; }
+    .thead .badge-ic { background:color-mix(in srgb, var(--tone, var(--gh-accent)) 14%, transparent); box-shadow:none; }
+    .thead .bsub { color:var(--secondary-text-color); }
+    .thead .stpill { background:color-mix(in srgb, var(--c) 15%, transparent); color:color-mix(in srgb, var(--c) 55%, var(--primary-text-color)); }
+    /* Repository filter: the repositories with open items only, the busiest first; the rest behind "+ N more" */
+    .more { position:relative; }
+    .more > summary { list-style:none; } .more > summary::-webkit-details-marker { display:none; }
+    .more > summary.chip { border-style:dashed; border-color:var(--divider-color, rgba(127,127,127,.4)); }
+    .more .pop { position:absolute; z-index:3; top:calc(100% + 6px); left:0; width:300px; max-height:320px; overflow:auto; padding:8px; box-sizing:border-box;
+                 background:var(--card-background-color, #fff); border:1px solid var(--divider-color, rgba(127,127,127,.3)); border-radius:12px;
+                 box-shadow:0 8px 24px rgba(0,0,0,.14); display:flex; flex-direction:column; gap:2px; }
+    .more .pop .search { margin-bottom:4px; }
+    .more .pop .chip { justify-content:space-between; border-radius:8px; min-height:32px; }
+    .more .pop .chip[hidden] { display:none; }
     main { max-width:1040px; margin:0 auto; padding:16px; box-sizing:border-box; }
     section[hidden] { display:none; }
     .box { background:var(--card-background-color, #fff); border-radius:var(--ha-card-border-radius, 12px);
@@ -1086,6 +1135,7 @@ class GitHubPanel extends HTMLElement {
     if (this._tabMenu) this._tabMenu.hass = hass;
     this._syncBare();
     if (!first) this._updateInfo();
+    if (!first) this._renderHead();
     if (first) this._start();
     else if (this._lang() !== before) this._render();
   }
@@ -1199,6 +1249,7 @@ class GitHubPanel extends HTMLElement {
           this._itemsBusy = false;
           this._renderItems("issues");
           this._renderItems("pulls");
+    this._renderHandle();
           this._updateTabBadges();
         },
         { type: "github_card/subscribe_items" },
@@ -1274,11 +1325,9 @@ class GitHubPanel extends HTMLElement {
     }).join("");
     root.innerHTML = `
       <style>${GitHubPanel.STYLE}</style>
-      <div class="toolbar">
-        <ha-menu-button></ha-menu-button>
-        <span class="grow">${githubPanelEsc(this._t("title"))}</span>
-        <a href="/config/integrations/integration/github" title="${githubPanelEsc(this._t("open_integration"))}" aria-label="${githubPanelEsc(this._t("open_integration"))}">${githubPanelIcon("cog")}</a>
-      </div>
+      <div class="topbar"><div class="banner${this._hass?.themes?.darkMode ? " night" : ""}">${GITHUB_PANEL_SCENE}
+        <div class="bhead"><ha-menu-button class="hmenu"></ha-menu-button><div class="hinfo" style="display:contents"></div></div>
+        <div class="hacts"></div></div></div>
       <div class="tabs" role="tablist"><ha-menu-button class="tabmenu"></ha-menu-button>${tabs}</div>
       <main>
         <section id="tab-repos" role="tabpanel" aria-labelledby="tabbtn-repos"><div id="repos"></div></section>
@@ -1287,7 +1336,8 @@ class GitHubPanel extends HTMLElement {
         <section id="tab-mine" role="tabpanel" aria-labelledby="tabbtn-mine"><div id="mine"></div></section>
         <section id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings"><div id="settings"></div></section>
       </main>`;
-    this._menu = root.querySelector(".toolbar ha-menu-button");
+    this._menu = root.querySelector(".topbar ha-menu-button");
+    this._renderHead();
     this._tabMenu = root.querySelector(".tabmenu");
     for (const menu of [this._menu, this._tabMenu]) {
       if (!menu) continue;
@@ -1309,6 +1359,7 @@ class GitHubPanel extends HTMLElement {
     this._renderRepos();
     this._renderItems("issues");
     this._renderItems("pulls");
+    this._renderHandle();
     this._renderMine();
     this._renderSettings();
   }
@@ -1344,15 +1395,36 @@ class GitHubPanel extends HTMLElement {
   }
 
 
-  /** The illustrated banner of a tab's header card: its icon, title, status pill and a line under them. */
+  /** A tab's header in its first card: its icon, title, status pill and a line under them (the illustration is the
+   * panel's top bar). */
   _banner(icon, title, pill, sub, tone) {
     const esc = githubPanelEsc;
-    const night = this._hass?.themes?.darkMode ? " night" : "";
     const pillHtml = pill ? `<span class="stpill ${pill.tone || ""}" role="status">${esc(pill.text)}</span>` : "";
-    return `<div class="banner${night}">${GITHUB_PANEL_SCENE}
-      <div class="bhead"><span class="badge-ic"${tone ? ` style="--tone:${tone}"` : ""}>${githubPanelIcon(icon)}</span>
-        <div class="btitles"><div class="brow"><span class="bname">${esc(title)}</span>${pillHtml}</div>${sub ? `<div class="bsub">${esc(sub)}</div>` : ""}</div></div>
-    </div>`;
+    return `<div class="thead"><span class="badge-ic"${tone ? ` style="--tone:${tone}"` : ""}>${githubPanelIcon(icon)}</span>
+        <div class="btitles"><div class="brow"><span class="bname">${esc(title)}</span>${pillHtml}</div>${sub ? `<div class="bsub">${esc(sub)}</div>` : ""}</div></div>`;
+  }
+
+  /** The top bar across the page: GitHub, how many repositories are followed, the account and when the items were
+   * fetched; Refresh, the account on GitHub and the integration as round buttons. Its menu button is kept. */
+  _renderHead() {
+    const root = this.shadowRoot;
+    const info = root?.querySelector?.(".topbar .hinfo");
+    if (!info) return;
+    const esc = githubPanelEsc;
+    const o = this._overview;
+    root.querySelector(".topbar .banner")?.classList.toggle("night", Boolean(this._hass?.themes?.darkMode));
+    const pill = o?.configured ? `<span class="stpill" role="status">${esc(this._t("summary", { followed: o.followed.length, offered: o.offered.length }))}</span>` : "";
+    const sub = [o?.login ? `github.com/${o.login}` : "", this._fetchedLine(this._items)].filter(Boolean).join(" · ");
+    info.innerHTML = `<span class="badge-ic">${githubPanelIcon("code")}</span>
+      <div class="btitles"><div class="brow"><span class="bname">${esc(this._t("title"))}</span>${pill}</div>${sub ? `<div class="bsub">${esc(sub)}</div>` : ""}</div>`;
+    const acts = root.querySelector(".topbar .hacts");
+    const refresh = esc(this._t("refresh"));
+    const cog = esc(this._t("open_integration"));
+    const gh = esc(this._t("open_github"));
+    acts.innerHTML = `<button data-action="head-refresh" class="${this._itemsBusy ? "spin" : ""}" title="${refresh}" aria-label="${refresh}"${this._itemsBusy ? " disabled" : ""}>${githubPanelIcon("refresh")}</button>
+      ${o?.login ? `<a href="https://github.com/${esc(o.login)}" target="_blank" rel="noopener noreferrer" title="${gh}" aria-label="${gh}">${githubPanelIcon("open")}</a>` : ""}
+      <a href="/config/integrations/integration/github" title="${cog}" aria-label="${cog}">${githubPanelIcon("cog")}</a>`;
+    acts.querySelector("[data-action=head-refresh]")?.addEventListener("click", () => this._refreshItems());
   }
 
   /** "1.8K" in the panel's language. */
@@ -1454,7 +1526,8 @@ class GitHubPanel extends HTMLElement {
       (v) => `<button data-sort="${v}" aria-pressed="${v === this._sort}">${esc(this._t(`sort_${v}`))}</button>`,
     ).join("");
     host.innerHTML = `
-      ${top({ tone: "", text: this._t("summary", { followed: o.followed.length, offered: o.offered.length }) }, o.login ? `github.com/${o.login}` : "", `<div class="kpis">${this._kpisHtml()}</div>${notes.join("")}`)}
+      ${top(null, "", `<div class="kpis">${this._kpisHtml()}</div>${notes.join("")}`)}
+      <div id="handle">${this._handleHtml()}</div>
       <div class="card list">
         <div class="lhead"><h2 class="lname">${esc(this._t("followed_head"))} · ${o.followed.length}</h2>
           <div class="seg" role="group" aria-label="${esc(this._t("sort_label"))}">${sorts}</div></div>
@@ -1472,6 +1545,28 @@ class GitHubPanel extends HTMLElement {
     this._bindRepos(host);
     this._mountDetail(host);
     this._mountAccount(host);
+    this._renderHead();
+  }
+
+  /** To handle: the latest open pull requests and issues of the followed repositories (the Issues and Pull
+   * requests tabs hold the full lists); nothing before the items load or without followed repositories. */
+  _handleHtml() {
+    const esc = githubPanelEsc;
+    const items = this._items;
+    if (!items || items.pending || items.error || !this._overview?.followed?.length) return "";
+    const pending = [...(items.pulls || []).map((i) => [i, "pulls"]), ...(items.issues || []).map((i) => [i, "issues"])]
+      .sort((a, b) => String(b[0].updated || "").localeCompare(String(a[0].updated || "")))
+      .slice(0, 6);
+    return `<div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("to_handle"))}</h2></div>
+        <div class="rows">${pending.length ? pending.map(([i, kind]) => this._itemHtml(i, kind)).join("") : `<div class="note">${esc(this._t("nothing_to_handle"))}</div>`}</div>
+      </div>`;
+  }
+
+  /** Redraw only the To handle card (the items changed): the Repositories tab's search keeps its focus. */
+  _renderHandle() {
+    const slot = this.shadowRoot?.getElementById?.("handle");
+    if (slot) slot.innerHTML = this._handleHtml();
   }
 
   /** Live counters of a followed repository, from its GitHub sensors: stars, open issues, open pull requests, release. */
@@ -1658,6 +1753,7 @@ class GitHubPanel extends HTMLElement {
     this._items = null;
     this._renderItems("issues");
     this._renderItems("pulls");
+    this._renderHandle();
     this._updateTabBadges();
     await this._load();
   }
@@ -1704,6 +1800,7 @@ class GitHubPanel extends HTMLElement {
     this._itemsBusy = true;
     this._renderItems("issues");
     this._renderItems("pulls");
+    this._renderHandle();
     try {
       this._items = await this._hass.callWS({ type: "github_card/items", refresh: true });
     } catch (err) {
@@ -1712,6 +1809,7 @@ class GitHubPanel extends HTMLElement {
     this._itemsBusy = false;
     this._renderItems("issues");
     this._renderItems("pulls");
+    this._renderHandle();
     this._updateTabBadges();
   }
 
@@ -1796,10 +1894,25 @@ class GitHubPanel extends HTMLElement {
     const totals = Object.entries(totalsAll).filter(([repo]) => !this._itemRepo || repo === this._itemRepo);
     const total = totals.reduce((n, [, t]) => n + (t[kind] || 0), 0);
     const grand = Object.values(totalsAll).reduce((n, t) => n + (t[kind] || 0), 0);
-    const repos = [...new Set([...followed, ...Object.keys(totalsAll)])].sort((a, b) => a.localeCompare(b));
-    const chip = (repo, label, n) =>
-      `<button class="chip" data-repo="${esc(repo)}" aria-pressed="${repo === (this._itemRepo || "")}">${esc(label)}${n ? ` <em>${esc(this._compact(n))}</em>` : ""}</button>`;
-    const chips = [chip("", this._t("all_repos"), grand)].concat(repos.map((r) => chip(r, r, totalsAll[r]?.[kind] || 0))).join("");
+    // Only the repositories with open items get a chip, the busiest first and five at most (there can be dozens of
+    // followed repositories); the others are behind "+ N more", with a search that also finds the ones at 0.
+    const count = (r) => totalsAll[r]?.[kind] || 0;
+    const busy = [...new Set([...followed, ...Object.keys(totalsAll)])]
+      .filter((r) => count(r) > 0 || r === this._itemRepo)
+      .sort((a, b) => count(b) - count(a) || a.localeCompare(b));
+    const quiet = [...new Set([...followed, ...Object.keys(totalsAll)])].filter((r) => !busy.includes(r)).sort((a, b) => a.localeCompare(b));
+    const shown = busy.slice(0, 5);
+    const rest = busy.slice(5);
+    const chip = (repo, label, n, hidden) =>
+      `<button class="chip" data-repo="${esc(repo)}" aria-pressed="${repo === (this._itemRepo || "")}"${hidden ? " hidden data-quiet" : ""}>${esc(label)}${n ? ` <em>${esc(this._compact(n))}</em>` : ""}</button>`;
+    const more = rest.length || quiet.length
+      ? `<details class="more"><summary class="chip">${esc(this._t("more_repos", { n: rest.length }))}${githubPanelIcon("chevron")}</summary><div class="pop">
+          <label class="search">${githubPanelIcon("search")}<input type="search" placeholder="${esc(this._t("search"))}" aria-label="${esc(this._t("search"))}"></label>
+          ${rest.map((r) => chip(r, r, count(r))).join("")}${quiet.map((r) => chip(r, r, 0, true)).join("")}</div></details>`
+      : "";
+    const chips = grand || this._itemRepo
+      ? [chip("", this._t("all_repos"), grand)].concat(shown.map((r) => chip(r, r, count(r)))).join("") + (rest.length ? more : "")
+      : "";
     const notes = [];
     if (this._items.error) notes.push(`<div class="note bad" role="status">${esc(this._t("items_error", { error: this._items.error }))}</div>`);
     host.innerHTML = `
@@ -1809,11 +1922,21 @@ class GitHubPanel extends HTMLElement {
         <div class="lhead"><h2 class="lname">${esc(this._t("open_n", { n: this._compact(total) }))}</h2></div>
         <div class="rows">${items.length ? items.map((i) => this._itemHtml(i, kind)).join("") : `<div class="note">${esc(this._t(kind === "pulls" ? "no_pulls" : "no_issues"))}</div>`}</div>
       </div>`;
-    for (const button of host.querySelectorAll(".chip"))
+    // The search of "+ N more": the repositories with open items, and those at 0 once their name is typed
+    host.querySelector(".more input")?.addEventListener("input", (ev) => {
+      const q = ev.target.value.trim().toLowerCase();
+      for (const b of host.querySelectorAll(".more .pop .chip")) {
+        const match = !q || b.dataset.repo.toLowerCase().includes(q);
+        b.hidden = b.hasAttribute("data-quiet") ? !q || !match : !match;
+      }
+    });
+    this._renderHead();
+    for (const button of host.querySelectorAll("button.chip"))
       button.addEventListener("click", () => {
         this._itemRepo = button.dataset.repo;
         this._renderItems("issues");
         this._renderItems("pulls");
+    this._renderHandle();
       });
     host.querySelector("[data-action=refresh]")?.addEventListener("click", () => this._refreshItems());
   }

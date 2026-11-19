@@ -229,6 +229,8 @@ const GIFS = [
   { name: "anim-merged", config: WEATHER, merge: true },
   // Night picture.
   { name: "anim-night", config: { illustration_theme: "night" } },
+  // The panel's top bar (the desk across the page): the plant sways, the head commit pulses; day and night follow the theme.
+  { name: "anim-panel", panel: "repos", width: 960 },
 ];
 
 // Pauses every CSS animation of the page (shadow trees walked by hand) at `frac` of the loop, then waits until the
@@ -254,11 +256,18 @@ const freeze = (page, frac) =>
 for (const g of GIFS) {
   for (const theme of ["light", "dark"]) {
     const file = `${g.name}${theme === "dark" ? "-dark" : ""}`;
-    const s = { file, theme, type: "github-card", width: 460, config: { illustration_theme: "day", ...g.config }, merge: g.merge };
+    const s = g.panel
+      ? { file, theme, panel: g.panel, width: g.width }
+      : { file, theme, type: "github-card", width: 460, config: { illustration_theme: "day", ...g.config }, merge: g.merge };
     const page = await openCard(s);
-    // The header with the 16 px of theme background around the card.
-    const bottom = await page.evaluate(() => document.querySelector("#root > *").shadowRoot.querySelector(".banner").getBoundingClientRect().bottom);
-    const clip = { x: 0, y: 0, width: s.width + 32, height: Math.ceil(bottom) };
+    // The header with the 16 px of theme background around the card; the panel's top bar alone.
+    const box = await page.evaluate((panel) => {
+      const r = document.querySelector("#root > *").shadowRoot.querySelector(panel ? ".topbar" : ".banner").getBoundingClientRect();
+      return { x: r.left, y: r.top, width: r.width, bottom: r.bottom };
+    }, Boolean(g.panel));
+    const clip = g.panel
+      ? { x: box.x, y: box.y, width: box.width, height: Math.ceil(box.bottom - box.y) }
+      : { x: 0, y: 0, width: s.width + 32, height: Math.ceil(box.bottom) };
     const dir = mkdtempSync(join(tmpdir(), "gh-frames-"));
     const frames = Math.round((FPS * LOOP) / 1000);
     for (let i = 0; i < frames; i++) {
@@ -268,7 +277,7 @@ for (const g of GIFS) {
     // A deterministic GIF: palette from the frames only, ordered dithering, bit-exact muxing.
     execFileSync("ffmpeg", [
       "-y", "-loglevel", "error", "-framerate", String(FPS), "-i", join(dir, "f%03d.png"),
-      "-vf", `scale=${s.width + 32}:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=4`,
+      "-vf", `scale=${Math.round(clip.width)}:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=4`,
       "-fflags", "+bitexact", "-flags", "+bitexact", "-loop", "0", join(dir, "out.gif"),
     ]);
     const written = writeIfChanged(`${root}screenshots/${file}.gif`, readFileSync(join(dir, "out.gif")));

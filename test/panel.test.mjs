@@ -303,3 +303,31 @@ test("title bar hidden: from the panel's registration until the settings arrive,
   p._syncBare();
   assert.deepEqual({ loading, saved, menu, hiddenSidebar: attrs.has("menu") }, { loading: true, saved: false, menu: true, hiddenSidebar: true });
 });
+
+test("repository filter: chips only for the busiest five repositories with open items, the rest behind + N more", () => {
+  const p = new lib.GitHubPanel();
+  p._hass = { language: "en" };
+  const followed = Array.from({ length: 40 }, (_, i) => `juju35/repo-${String(i).padStart(2, "0")}`);
+  p._overview = { configured: true, followed, offered: [] };
+  const totals = {};
+  followed.slice(0, 8).forEach((r, i) => {
+    totals[r] = { issues: 10 - i, pulls: 0 };
+  });
+  p._items = { issues: [], pulls: [], totals };
+  const host = { innerHTML: "", querySelector: () => null, querySelectorAll: () => [] };
+  p.shadowRoot = { getElementById: (id) => (id === "issues" ? host : null), querySelector: () => null };
+  p._renderHandle = () => {};
+  p._renderItems("issues");
+  const chips = host.innerHTML.match(/<button class="chip" data-repo="[^"]*" aria-pressed="[^"]*">/g) || [];
+  assert.equal(chips.length, 1 + 5 + 3, "All, the five busiest, and the three others in the overflow list");
+  assert.match(host.innerHTML, /data-repo="juju35\/repo-00"[^>]*>juju35\/repo-00 <em>10<\/em>/, "the busiest first");
+  assert.match(host.innerHTML, /<summary class="chip">\+ 3 more/);
+  assert.match(host.innerHTML, /data-repo="juju35\/repo-39"[^>]*hidden data-quiet/, "a repository at 0 only found by the search");
+  // Nothing open: no chips at all
+  p._items = { issues: [], pulls: [], totals: {} };
+  p._renderItems("pulls");
+  host.innerHTML = "";
+  p.shadowRoot.getElementById = (id) => (id === "pulls" ? host : null);
+  p._renderItems("pulls");
+  assert.doesNotMatch(host.innerHTML, /class="chip"/);
+});
