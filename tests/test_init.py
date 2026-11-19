@@ -70,6 +70,7 @@ async def test_config_flow_single_entry(hass):
         "notify_pulls": False,
         "notify_releases": False,
         "refresh_minutes": 15,
+        "hide_toolbar": False,
     }
     again = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
     assert again["type"] is FlowResultType.ABORT
@@ -159,6 +160,17 @@ async def test_repositories_own_then_starred_then_filter(hass, entry, github, ha
             archived.return_value = None
             msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/repositories"})
             assert msg["result"]["offered"] == ["home-assistant/core", "juju35/ha-weather-card"]
+
+
+async def test_hide_toolbar_setting(hass, entry, hass_ws_client):
+    await _setup(hass, entry)
+    # Off by default, and given in the panel's registration (read before the settings arrive)
+    assert hass.data[DATA_PANELS][PANEL_PATH].config["hide_toolbar"] is False
+    msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/update_settings", "hide_toolbar": True})
+    assert msg["result"]["settings"]["hide_toolbar"] is True
+    assert entry.options["hide_toolbar"] is True
+    # Registered again with the new choice
+    assert hass.data[DATA_PANELS][PANEL_PATH].config["hide_toolbar"] is True
 
 
 async def test_refresh_minutes_setting(hass, entry, hass_ws_client):

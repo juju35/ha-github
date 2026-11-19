@@ -13,11 +13,11 @@
  *   GitHub API (github_card/items, cached 5 minutes by the integration; Refresh asks GitHub again);
  * - My pull requests: the open pull requests you authored, in any repository (not only the followed ones), from a
  *   GitHub search (github_card/mine, cached 5 minutes; loaded when the tab opens, Refresh asks GitHub again);
- * - Settings: which repositories are offered (name patterns, starred ones, archived ones ignored) and the new issue / pull request
- *   notifications.
+ * - Settings: which repositories are offered (name patterns, starred ones, archived ones ignored), the new issue / pull request
+ *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-const GITHUB_PANEL_VERSION = "2.12.2";
+const GITHUB_PANEL_VERSION = "2.13.0";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
@@ -51,6 +51,8 @@ const GITHUB_PANEL_KEYS = [
   "mine", "no_mine", "checks_passing", "checks_failing", "checks_pending",
   // Downloads of the followed repositories: a row counter and the page total
   "downloads", "total_downloads",
+  // The panel's title bar hidden (the tabs stay)
+  "s_hide_toolbar", "s_hide_toolbar_hint",
 ];
 
 const GITHUB_PANEL_TRANSLATIONS = {
@@ -80,6 +82,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "My pull requests", "You have no open pull request.", "Checks passing", "Checks failing", "Checks running",
     // Downloads: row counter + page total
     "Downloads", "Total downloads: {n}",
+    "Hide the top bar", "The title bar goes, the tabs stay; the menu button stays wherever Home Assistant shows it.",
   ],
   fr: [
     "GitHub", "Dépôts", "Activité", "Réglages", "Intégration GitHub", "Chargement…",
@@ -107,6 +110,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Mes pull requests", "Vous n’avez aucune pull request ouverte.", "Tests réussis", "Tests en échec", "Tests en cours",
     // Downloads: row counter + page total
     "Téléchargements", "Total des téléchargements : {n}",
+    "Masquer la barre du haut", "La barre de titre disparaît, les onglets restent ; le bouton menu reste là où Home Assistant l’affiche.",
   ],
   de: [
     "GitHub", "Repositorys", "Aktivität", "Einstellungen", "GitHub-Integration", "Wird geladen…",
@@ -134,6 +138,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Meine Pull Requests", "Du hast keinen offenen Pull Request.", "Prüfungen bestanden", "Prüfungen fehlgeschlagen", "Prüfungen laufen",
     // Downloads: row counter + page total
     "Downloads", "Downloads insgesamt: {n}",
+    "Obere Leiste ausblenden", "Die Titelleiste verschwindet, die Tabs bleiben; der Menüknopf bleibt, wo Home Assistant ihn zeigt.",
   ],
   es: [
     "GitHub", "Repositorios", "Actividad", "Ajustes", "Integración GitHub", "Cargando…",
@@ -161,6 +166,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Mis pull requests", "No tienes ninguna pull request abierta.", "Comprobaciones correctas", "Comprobaciones fallidas", "Comprobaciones en curso",
     // Downloads: row counter + page total
     "Descargas", "Descargas totales: {n}",
+    "Ocultar la barra superior", "La barra de título desaparece, las pestañas se quedan; el botón de menú sigue donde Home Assistant lo muestra.",
   ],
   sr: [
     "GitHub", "Репозиторијуми", "Активност", "Подешавања", "Интеграција GitHub", "Учитавање…",
@@ -188,6 +194,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Моји pull захтеви", "Немате отворених pull захтева.", "Провере успешне", "Провере неуспешне", "Провере у току",
     // Downloads: row counter + page total
     "Преузимања", "Укупно преузимања: {n}",
+    "Сакриј горњу траку", "Трака наслова нестаје, картице остају; дугме менија остаје где га Home Assistant приказује.",
   ],
   "sr-Latn": [
     "GitHub", "Repozitorijumi", "Aktivnost", "Podešavanja", "Integracija GitHub", "Učitavanje…",
@@ -215,6 +222,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Moji pull zahtevi", "Nemate otvorenih pull zahteva.", "Provere uspešne", "Provere neuspešne", "Provere u toku",
     // Downloads: row counter + page total
     "Preuzimanja", "Ukupno preuzimanja: {n}",
+    "Sakrij gornju traku", "Traka naslova nestaje, kartice ostaju; dugme menija ostaje gde ga Home Assistant prikazuje.",
   ],
   it: [
     "GitHub", "Repository", "Attività", "Impostazioni", "Integrazione GitHub", "Caricamento…",
@@ -242,6 +250,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Le mie pull request", "Non hai nessuna pull request aperta.", "Controlli superati", "Controlli falliti", "Controlli in corso",
     // Downloads: row counter + page total
     "Download", "Download totali: {n}",
+    "Nascondi la barra superiore", "La barra del titolo sparisce, le schede restano; il pulsante del menu resta dove Home Assistant lo mostra.",
   ],
   nl: [
     "GitHub", "Repositories", "Activiteit", "Instellingen", "GitHub-integratie", "Laden…",
@@ -269,6 +278,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Mijn pull requests", "Je hebt geen open pull request.", "Controles geslaagd", "Controles mislukt", "Controles bezig",
     // Downloads: row counter + page total
     "Downloads", "Totaal aantal downloads: {n}",
+    "Bovenbalk verbergen", "De titelbalk verdwijnt, de tabbladen blijven; de menuknop blijft waar Home Assistant hem toont.",
   ],
   pt: [
     "GitHub", "Repositórios", "Atividade", "Definições", "Integração GitHub", "A carregar…",
@@ -296,6 +306,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Os meus pull requests", "Não tem nenhum pull request em aberto.", "Verificações aprovadas", "Verificações falhadas", "Verificações em curso",
     // Downloads: row counter + page total
     "Transferências", "Total de transferências: {n}",
+    "Ocultar a barra superior", "A barra de título desaparece, os separadores ficam; o botão de menu fica onde o Home Assistant o mostra.",
   ],
   pl: [
     "GitHub", "Repozytoria", "Aktywność", "Ustawienia", "Integracja GitHub", "Ładowanie…",
@@ -323,6 +334,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Moje pull requesty", "Nie masz żadnego otwartego pull requesta.", "Testy zaliczone", "Testy nieudane", "Testy w toku",
     // Downloads: row counter + page total
     "Pobrania", "Łączna liczba pobrań: {n}",
+    "Ukryj górny pasek", "Pasek tytułu znika, karty zostają; przycisk menu zostaje tam, gdzie pokazuje go Home Assistant.",
   ],
   ro: [
     "GitHub", "Depozite", "Activitate", "Setări", "Integrarea GitHub", "Se încarcă…",
@@ -350,6 +362,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Pull request-urile mele", "Nu ai niciun pull request deschis.", "Verificări reușite", "Verificări eșuate", "Verificări în curs",
     // Downloads: row counter + page total
     "Descărcări", "Total descărcări: {n}",
+    "Ascunde bara de sus", "Bara de titlu dispare, filele rămân; butonul de meniu rămâne acolo unde îl afișează Home Assistant.",
   ],
   da: [
     "GitHub", "Repositories", "Aktivitet", "Indstillinger", "GitHub-integration", "Indlæser…",
@@ -377,6 +390,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Mine pull requests", "Du har ingen åbne pull requests.", "Tjek bestået", "Tjek mislykkedes", "Tjek i gang",
     // Downloads: row counter + page total
     "Downloads", "Downloads i alt: {n}",
+    "Skjul topbjælken", "Titellinjen forsvinder, fanerne bliver; menuknappen bliver, hvor Home Assistant viser den.",
   ],
   sv: [
     "GitHub", "Repon", "Aktivitet", "Inställningar", "GitHub-integration", "Laddar…",
@@ -404,6 +418,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Mina pull requests", "Du har inga öppna pull requests.", "Kontroller godkända", "Kontroller misslyckades", "Kontroller pågår",
     // Downloads: row counter + page total
     "Nedladdningar", "Totalt antal nedladdningar: {n}",
+    "Dölj översta fältet", "Namnlisten försvinner, flikarna stannar; menyknappen stannar där Home Assistant visar den.",
   ],
   bg: [
     "GitHub", "Хранилища", "Активност", "Настройки", "Интеграция GitHub", "Зареждане…",
@@ -431,6 +446,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Моите pull заявки", "Нямате отворени pull заявки.", "Проверките успешни", "Проверките неуспешни", "Проверките текат",
     // Downloads: row counter + page total
     "Изтегляния", "Общо изтегляния: {n}",
+    "Скрий горната лента", "Лентата със заглавие изчезва, разделите остават; бутонът на менюто остава там, където Home Assistant го показва.",
   ],
   ru: [
     "GitHub", "Репозитории", "Активность", "Настройки", "Интеграция GitHub", "Загрузка…",
@@ -458,6 +474,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Мои pull-запросы", "У вас нет открытых pull-запросов.", "Проверки пройдены", "Проверки не пройдены", "Проверки выполняются",
     // Downloads: row counter + page total
     "Загрузки", "Всего загрузок: {n}",
+    "Скрыть верхнюю панель", "Строка заголовка исчезает, вкладки остаются; кнопка меню остаётся там, где её показывает Home Assistant.",
   ],
   uk: [
     "GitHub", "Репозиторії", "Активність", "Налаштування", "Інтеграція GitHub", "Завантаження…",
@@ -485,6 +502,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Мої pull-запити", "У вас немає відкритих pull-запитів.", "Перевірки пройдено", "Перевірки не пройдено", "Перевірки виконуються",
     // Downloads: row counter + page total
     "Завантаження", "Усього завантажень: {n}",
+    "Приховати верхню панель", "Рядок заголовка зникає, вкладки лишаються; кнопка меню лишається там, де її показує Home Assistant.",
   ],
   hu: [
     "GitHub", "Tárolók", "Tevékenység", "Beállítások", "GitHub integráció", "Betöltés…",
@@ -512,6 +530,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Saját pull requestjeim", "Nincs nyitott pull requested.", "Ellenőrzések rendben", "Ellenőrzések sikertelenek", "Ellenőrzések folyamatban",
     // Downloads: row counter + page total
     "Letöltések", "Letöltések összesen: {n}",
+    "Felső sáv elrejtése", "A címsor eltűnik, a lapok maradnak; a menügomb ott marad, ahol a Home Assistant mutatja.",
   ],
   sk: [
     "GitHub", "Repozitáre", "Aktivita", "Nastavenia", "Integrácia GitHub", "Načítava sa…",
@@ -539,6 +558,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Moje pull requesty", "Nemáte žiadny otvorený pull request.", "Kontroly prešli", "Kontroly zlyhali", "Kontroly prebiehajú",
     // Downloads: row counter + page total
     "Stiahnutia", "Stiahnutí spolu: {n}",
+    "Skryť hornú lištu", "Lišta s názvom zmizne, karty zostanú; tlačidlo ponuky zostane tam, kde ho Home Assistant zobrazuje.",
   ],
   cs: [
     "GitHub", "Repozitáře", "Aktivita", "Nastavení", "Integrace GitHub", "Načítání…",
@@ -566,6 +586,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Moje pull requesty", "Nemáte žádný otevřený pull request.", "Kontroly prošly", "Kontroly selhaly", "Kontroly probíhají",
     // Downloads: row counter + page total
     "Stažení", "Stažení celkem: {n}",
+    "Skrýt horní lištu", "Lišta s názvem zmizí, karty zůstanou; tlačítko nabídky zůstane tam, kde ho Home Assistant zobrazuje.",
   ],
   sl: [
     "GitHub", "Repozitoriji", "Dejavnost", "Nastavitve", "Integracija GitHub", "Nalaganje…",
@@ -593,6 +614,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Moji pull requesti", "Nimate odprtega pull requesta.", "Preverjanja uspešna", "Preverjanja neuspešna", "Preverjanja potekajo",
     // Downloads: row counter + page total
     "Prenosi", "Skupaj prenosov: {n}",
+    "Skrij zgornjo vrstico", "Naslovna vrstica izgine, zavihki ostanejo; gumb menija ostane tam, kjer ga prikaže Home Assistant.",
   ],
   lv: [
     "GitHub", "Krātuves", "Aktivitāte", "Iestatījumi", "GitHub integrācija", "Ielādē…",
@@ -620,6 +642,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Mani pull pieprasījumi", "Jums nav neviena atvērta pull pieprasījuma.", "Pārbaudes nokārtotas", "Pārbaudes neizdevās", "Pārbaudes norisinās",
     // Downloads: row counter + page total
     "Lejupielādes", "Lejupielādes kopā: {n}",
+    "Paslēpt augšējo joslu", "Virsraksta josla pazūd, cilnes paliek; izvēlnes poga paliek tur, kur to rāda Home Assistant.",
   ],
   el: [
     "GitHub", "Αποθετήρια", "Δραστηριότητα", "Ρυθμίσεις", "Ενσωμάτωση GitHub", "Φόρτωση…",
@@ -647,6 +670,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Τα pull requests μου", "Δεν έχετε κανένα ανοιχτό pull request.", "Έλεγχοι επιτυχείς", "Έλεγχοι απέτυχαν", "Έλεγχοι σε εξέλιξη",
     // Downloads: row counter + page total
     "Λήψεις", "Σύνολο λήψεων: {n}",
+    "Απόκρυψη επάνω γραμμής", "Η γραμμή τίτλου φεύγει, οι καρτέλες μένουν· το κουμπί μενού μένει όπου το δείχνει το Home Assistant.",
   ],
 };
 
@@ -694,6 +718,12 @@ class GitHubPanel extends HTMLElement {
            padding:12px 14px; font:inherit; font-size:14px; cursor:pointer; white-space:nowrap; }
     .tab:hover, .tab:focus-visible { opacity:1; outline:none; }
     .tab.active { opacity:1; border-bottom-color:var(--app-header-text-color, #fff); }
+    /* Title bar hidden (Settings): the tabs stay at the top; the menu button stays where Home Assistant shows it
+       (narrow screen or sidebar hidden), at the start of the tabs */
+    :host([bare]) .toolbar { display:none; }
+    :host([bare]) .tabs { top:0; }
+    .tabmenu { display:none; color:var(--app-header-text-color, #fff); align-self:center; margin-inline-end:4px; }
+    :host([bare][menu]) .tabmenu { display:flex; }
     /* Count badge on the Issues and Pull requests tabs */
     .tab .badge { display:inline-block; margin-inline-start:6px; min-width:18px; padding:0 5px; border-radius:9px; font-size:12px;
                   line-height:18px; text-align:center; font-weight:600; vertical-align:middle;
@@ -846,11 +876,26 @@ class GitHubPanel extends HTMLElement {
 
   set panel(panel) {
     this._panel = panel;
+    this._syncBare();
   }
 
   set narrow(narrow) {
     this._narrow = narrow;
     if (this._menu) this._menu.narrow = narrow;
+    if (this._tabMenu) this._tabMenu.narrow = narrow;
+    this._syncBare();
+  }
+
+  // The title bar hidden as saved (Settings); until the settings arrive, the panel's registration says it, so the bar
+  // is never shown then hidden while loading. The tabs stay.
+  _bare() {
+    return Boolean(this._settings?.hide_toolbar ?? this._panel?.config?.hide_toolbar);
+  }
+
+  _syncBare() {
+    this.toggleAttribute?.("bare", this._bare());
+    // Where Home Assistant shows the menu button: narrow screen, or the sidebar set to always hidden
+    this.toggleAttribute?.("menu", Boolean(this._narrow) || this._hass?.dockedSidebar === "always_hidden");
   }
 
   set hass(hass) {
@@ -858,6 +903,8 @@ class GitHubPanel extends HTMLElement {
     const before = this._lang();
     this._hass = hass;
     if (this._menu) this._menu.hass = hass;
+    if (this._tabMenu) this._tabMenu.hass = hass;
+    this._syncBare();
     if (!first) this._updateInfo();
     if (first) this._start();
     else if (this._lang() !== before) this._render();
@@ -1000,6 +1047,7 @@ class GitHubPanel extends HTMLElement {
       this._settings = this._settings || { filter: "", include_starred: false, ignore_archived: false, notify_issues: false, notify_pulls: false, notify_releases: false, refresh_minutes: 15 };
       this._loadFailed = true;
     }
+    this._syncBare();
     this._renderSettings();
   }
 
@@ -1051,7 +1099,7 @@ class GitHubPanel extends HTMLElement {
         <span class="grow">${githubPanelEsc(this._t("title"))}</span>
         <a href="/config/integrations/integration/github" title="${githubPanelEsc(this._t("open_integration"))}" aria-label="${githubPanelEsc(this._t("open_integration"))}">${githubPanelIcon("cog")}</a>
       </div>
-      <div class="tabs" role="tablist">${tabs}</div>
+      <div class="tabs" role="tablist"><ha-menu-button class="tabmenu"></ha-menu-button>${tabs}</div>
       <main>
         <section id="tab-repos" role="tabpanel" aria-labelledby="tabbtn-repos"><div id="repos"></div></section>
         <section id="tab-issues" role="tabpanel" aria-labelledby="tabbtn-issues"><div id="issues"></div></section>
@@ -1059,10 +1107,12 @@ class GitHubPanel extends HTMLElement {
         <section id="tab-mine" role="tabpanel" aria-labelledby="tabbtn-mine"><div id="mine"></div></section>
         <section id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings"><div id="settings"></div></section>
       </main>`;
-    this._menu = root.querySelector("ha-menu-button");
-    if (this._menu) {
-      this._menu.hass = this._hass;
-      this._menu.narrow = this._narrow;
+    this._menu = root.querySelector(".toolbar ha-menu-button");
+    this._tabMenu = root.querySelector(".tabmenu");
+    for (const menu of [this._menu, this._tabMenu]) {
+      if (!menu) continue;
+      menu.hass = this._hass;
+      menu.narrow = this._narrow;
     }
     for (const button of root.querySelectorAll(".tab")) {
       button.addEventListener("click", () => this._goTab(button.dataset.tab));
@@ -1596,6 +1646,7 @@ class GitHubPanel extends HTMLElement {
         <label class="ctl"><span>${esc(this._t("s_refresh"))}</span>
           <div class="field"><input type="number" inputmode="numeric" data-key="refresh_minutes" min="${GITHUB_PANEL_MIN_REFRESH}" max="${GITHUB_PANEL_MAX_REFRESH}" step="1" value="${esc(String(this._value("refresh_minutes")))}"></div>
           <small>${esc(this._t("s_refresh_hint"))}</small></label>
+        ${toggle("hide_toolbar", "s_hide_toolbar", "s_hide_toolbar_hint")}
         <div class="bar"><button class="act" data-action="save"${changed ? "" : " disabled"}>${esc(this._t("save"))}</button>
           ${this._saved ? `<span class="note good" role="status">${esc(this._t("saved"))}</span>` : ""}</div>
       </div>`;
@@ -1627,6 +1678,7 @@ class GitHubPanel extends HTMLElement {
         this._settings = res.settings;
         this._draft = {};
         this._saved = true;
+        this._syncBare();
       }
     } catch (err) {
       console.error("GitHub panel: could not save the settings", err);

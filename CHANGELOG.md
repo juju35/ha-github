@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.13.0 - 2026-11-19
+
+### Features
+- **Hide the top bar** (Settings tab): the panel's title bar goes, the tabs stay at the top; the menu button stays wherever Home Assistant shows it (narrow screen or sidebar hidden), at the start of the tabs. The choice also comes with the panel's registration, so the bar is never shown then hidden while the panel loads.
+
 ## 2.12.2 - 2026-11-18
 
 ### Fixes
