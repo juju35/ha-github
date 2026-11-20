@@ -64,12 +64,17 @@ const panelMock = {
     followed: ["home-assistant/core", "juju35/ha-parcel", "juju35/ha-weather-card"],
     offered: ["juju35/ha-alarm-card", "juju35/ha-calendar-card", "juju35/ha-energy-card", "juju35/ha-iptv", "juju35/ha-mower-card"],
     offered_error: false,
+    // The account's counters (sensor.<login>_<key>)
+    account: Object.fromEntries(
+      ["followers", "following", "public_repos", "public_gists"].map((key) => [key, `sensor.octocat_${key}`]).filter(([, id]) => states[id]),
+    ),
     // The row sensors of the followed repositories: the mock states' entity ids (sensor.<owner>_<repo>_<key>)
     sensors: Object.fromEntries(
       ["home-assistant/core", "juju35/ha-parcel", "juju35/ha-weather-card"].map((repo) => [
         repo,
         Object.fromEntries(
-          ["stargazers_count", "forks_count", "issues_count", "pulls_count", "latest_release", "latest_release_downloads"]
+          ["stargazers_count", "forks_count", "subscribers_count", "issues_count", "pulls_count", "merged_pulls_count", "discussions_count",
+            "latest_release_downloads", "latest_release", "latest_tag", "latest_commit", "latest_pull_request", "latest_issue", "latest_discussion"]
             .map((key) => [key, `sensor.${repo.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_${key}`])
             .filter(([, id]) => states[id]),
         ),

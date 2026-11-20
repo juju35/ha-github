@@ -141,3 +141,21 @@ async def test_new_release_notified_by_tag(hass):
     [note] = (await _notifications(hass)).values()
     assert note["message"] == "v1.3.0"
     stop()
+
+
+async def test_title_cannot_break_out_of_the_link(hass):
+    _registry(hass)
+    stop = NewItemNotifier(hass, lambda: {"notify_issues": True}).async_start()
+    hass.states.async_set(ISSUE, "Old", {"number": 5, "url": "https://github.com/juju35/ha-parcel/issues/5"})
+    await hass.async_block_till_done()
+    hass.states.async_set(
+        ISSUE,
+        "Click](https://evil.example) <img src=x>",
+        {"number": 6, "url": "https://github.com/juju35/ha-parcel/issues/6 (x)"},
+    )
+    await hass.async_block_till_done()
+    [note] = (await _notifications(hass)).values()
+    assert note["message"] == (
+        "[#6 Click\\](https://evil.example) \\<img src=x\\>](https://github.com/juju35/ha-parcel/issues/6%20%28x%29)"
+    )
+    stop()

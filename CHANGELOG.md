@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.16.2 - 2026-11-20
+
+### Fixes
+- New issue / pull request notifications: the title (written by anyone on GitHub) is escaped as Markdown link text, so a title holding `](…)` or HTML can no longer end the link early, add a link of its own or show markup; spaces and parentheses in the link target are percent-encoded.
+
+### Maintenance
+- Panel, Repositories: the unfolded repository (its counters and latest activity) and the account are drawn by the panel itself, no longer by a GitHub Card embedded in it, as in the other ha-* panels. Same look, same more-info on a click (or Enter / Space) and links to GitHub; the panel no longer loads the card's bundle. The integration now gives the panel the entity ids of these sensors.
+- CI: Validate runs in a Debian 12 container with Chromium, so the browser tests (card status pill placement) now run on every pull request instead of being skipped; a missing browser fails the job.
+- CI: the branch cleanup recognises the commits of the `juju35-screenshots` app.
+- Tests: the card resource kept up to date (older version, duplicates, a storage error, YAML dashboards, registered once Home Assistant has started).
+
 ## 2.16.1 - 2026-11-20
 
 ### Fixes
