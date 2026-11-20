@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.16.1 - 2026-11-20
+
+### Fixes
+- Panel, Repositories: the **Downloads** tile lost its icon after the first state update — its pastille shared the `info` class with the rows' counters, so the refresh of those counters emptied it (and the rows' `justify-content` pushed the icon off-centre). The pastille now uses its own class.
+
 ## 2.16.0 - 2026-11-19
 
 ### Features

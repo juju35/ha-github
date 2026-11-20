@@ -17,7 +17,7 @@
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-const GITHUB_PANEL_VERSION = "2.16.0";
+const GITHUB_PANEL_VERSION = "2.16.1";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
@@ -1017,7 +1017,7 @@ class GitHubPanel extends HTMLElement {
     .ic.acc { color:var(--gh-ink); background:color-mix(in srgb, var(--gh-accent) 16%, transparent); }
     .ic.good { color:color-mix(in srgb, var(--tone-good) 70%, var(--primary-text-color)); background:color-mix(in srgb, var(--tone-good) 16%, transparent); }
     .ic.gold { color:#9a6b00; background:rgba(232,168,0,.18); }
-    .ic.info { color:color-mix(in srgb, #3b82f6 75%, var(--primary-text-color)); background:color-mix(in srgb, #3b82f6 16%, transparent); }
+    .ic.blue { color:color-mix(in srgb, #3b82f6 75%, var(--primary-text-color)); background:color-mix(in srgb, #3b82f6 16%, transparent); }
     .row { border-top:0; padding:8px 10px 8px 8px; min-height:56px; border-radius:12px; background:var(--gh-sec); box-sizing:border-box; border:1px solid transparent; }
     .row.open { border-color:color-mix(in srgb, var(--gh-accent) 40%, transparent); }
     .row.sel { background:color-mix(in srgb, var(--gh-accent) 9%, var(--gh-sec)); border-color:color-mix(in srgb, var(--gh-accent) 26%, transparent); }
@@ -1486,7 +1486,7 @@ class GitHubPanel extends HTMLElement {
       tile("stargazers_count", "star", "gold", "stars"),
       tile("issues_count", "issue", "good", "sort_issues"),
       tile("pulls_count", "pr", "acc", "sort_pulls"),
-      tile("latest_release_downloads", "download", "info", "downloads"),
+      tile("latest_release_downloads", "download", "blue", "downloads"),
     ].join("");
   }
 
