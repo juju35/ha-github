@@ -145,6 +145,43 @@ test("followed rows: live counters from the GitHub sensors, one row unfolded at 
   assert.equal(p._expanded, null);
 });
 
+test("the panel draws the unfolded repository and the account itself: tiles, latest activity, safe links", () => {
+  const p = panel();
+  p._overview.login = "juju35";
+  p._overview.sensors = {
+    "juju35/ha-parcel": { stargazers_count: "sensor.s", forks_count: "sensor.f", latest_release: "sensor.r", latest_commit: "sensor.c", latest_issue: "sensor.x" },
+  };
+  p._overview.account = { followers: "sensor.fo", public_gists: "sensor.g" };
+  p._hass.states = {
+    "sensor.s": { state: "1840" },
+    "sensor.f": { state: "unavailable" },
+    "sensor.r": { state: "Version <b>1.4</b>", attributes: { tag: "v1.4.0", url: "https://github.com/juju35/ha-parcel/releases/v1.4.0" } },
+    "sensor.c": { state: "fix: a\nsecond line", attributes: { sha: "c0ffee42d1b7", url: "javascript:alert(1)" } },
+  };
+  const html = p._detailHtml("juju35/ha-parcel");
+  assert.match(html, /class="dt-tile c-star" data-entity="sensor\.s"[^>]*title="Étoiles: 1\s?840"/);
+  assert.match(html, />1,8\s?k</);
+  // An unavailable counter shows a dash; the release's markup is escaped, its tag and link shown
+  assert.match(html, /data-entity="sensor\.f"[\s\S]*?<div class="v">—</);
+  assert.match(html, /Version &lt;b&gt;1\.4&lt;\/b&gt;<small>v1\.4\.0<\/small>/);
+  assert.match(html, /href="https:\/\/github\.com\/juju35\/ha-parcel\/releases\/v1\.4\.0"/);
+  // The commit's first line and short sha; a javascript: link is not drawn
+  assert.match(html, /fix: a<small>c0ffee4<\/small>/);
+  assert.doesNotMatch(html, /javascript:/);
+  // A sensor without a state: a dash and no link
+  assert.match(html, /data-entity="sensor\.x"[\s\S]*?<span class="v">—<\/span><\/div>/);
+  assert.equal(p._detailHtml("juju35/ha-iptv"), "");
+  // The account: hidden while none of its sensors has a state, then its counters under "Account · login"
+  assert.equal(p._accountHtml(), "");
+  p._hass.states["sensor.fo"] = { state: "1240" };
+  const account = p._accountHtml();
+  assert.match(account, /Compte · juju35/);
+  assert.match(account, /data-entity="sensor\.fo"/);
+  assert.match(account, /href="https:\/\/github\.com\/juju35"/);
+  // No GitHub Card anywhere in the panel
+  assert.doesNotMatch(html + account, /github-card/);
+});
+
 test("sorts of the Repositories tab: followed first by default, name, and the followed ones by a live counter", () => {
   const p = panel();
   p._overview = {

@@ -59,6 +59,8 @@ const GITHUB_PANEL_KEYS = [
   "to_handle", "nothing_to_handle", "more_repos",
   // The top bar hidden for nobody, everyone or the users who are not administrators
   "hide_off", "hide_all", "hide_non_admin",
+  // The unfolded repository and the account, drawn by the panel: counters, latest activity, account (the card's words)
+  "d_stars", "d_forks", "d_watchers", "d_issues", "d_pulls", "d_merged_pulls", "d_discussions", "d_downloads", "d_latest_release", "d_latest_tag", "d_latest_commit", "d_latest_issue", "d_latest_pull_request", "d_latest_discussion", "d_account", "d_followers", "d_following", "d_public_repos", "d_public_gists",
 ];
 
 const GITHUB_PANEL_TRANSLATIONS = {
@@ -92,6 +94,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Followed", "To follow", "Unsaved changes", "Up to date", "Notifications", "Refresh", "Panel", "Name patterns", "Other",
     "To handle", "Nothing to handle on your followed repositories", "+ {n} more",
     "No", "For everyone", "For non-admins",
+    "Stars", "Forks", "Watchers", "Issues", "Pull requests", "Merged PRs", "Discussions", "Downloads", "Latest release", "Latest tag", "Latest commit", "Latest issue", "Latest pull request", "Latest discussion", "Account", "Followers", "Following", "Public repositories", "Public gists",
   ],
   fr: [
     "GitHub", "Dépôts", "Activité", "Réglages", "Intégration GitHub", "Chargement…",
@@ -123,6 +126,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Suivis", "À suivre", "Modifications non enregistrées", "À jour", "Notifications", "Actualisation", "Panneau", "Modèles de noms", "Autre",
     "À traiter", "Rien à traiter sur les dépôts suivis", "+ {n} autres",
     "Non", "Pour tout le monde", "Pour les non-admins",
+    "Étoiles", "Forks", "Observateurs", "Issues", "Pull requests", "PR fusionnées", "Discussions", "Téléchargements", "Dernière version", "Dernier tag", "Dernier commit", "Dernière issue", "Dernière pull request", "Dernière discussion", "Compte", "Abonnés", "Abonnements", "Dépôts publics", "Gists publics",
   ],
   de: [
     "GitHub", "Repositorys", "Aktivität", "Einstellungen", "GitHub-Integration", "Wird geladen…",
@@ -154,6 +158,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Verfolgt", "Zu verfolgen", "Nicht gespeicherte Änderungen", "Aktuell", "Benachrichtigungen", "Aktualisierung", "Panel", "Namensmuster", "Andere",
     "Zu erledigen", "Nichts zu erledigen in den verfolgten Repositorys", "+ {n} weitere",
     "Nein", "Für alle", "Für Nicht-Admins",
+    "Sterne", "Forks", "Beobachter", "Issues", "Pull Requests", "Gemergte PRs", "Diskussionen", "Downloads", "Neuestes Release", "Neuester Tag", "Letzter Commit", "Neuestes Issue", "Neuester Pull Request", "Neueste Diskussion", "Konto", "Follower", "Folgt", "Öffentliche Repositorys", "Öffentliche Gists",
   ],
   es: [
     "GitHub", "Repositorios", "Actividad", "Ajustes", "Integración GitHub", "Cargando…",
@@ -185,6 +190,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Seguidos", "Por seguir", "Cambios sin guardar", "Al día", "Notificaciones", "Actualización", "Panel", "Patrones de nombre", "Otro",
     "Por atender", "Nada por atender en los repositorios seguidos", "+ {n} más",
     "No", "Para todos", "Para no administradores",
+    "Estrellas", "Forks", "Observadores", "Issues", "Pull requests", "PR fusionadas", "Discusiones", "Descargas", "Última versión", "Última etiqueta", "Último commit", "Última issue", "Última pull request", "Última discusión", "Cuenta", "Seguidores", "Siguiendo", "Repositorios públicos", "Gists públicos",
   ],
   sr: [
     "GitHub", "Репозиторијуми", "Активност", "Подешавања", "Интеграција GitHub", "Учитавање…",
@@ -216,6 +222,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Праћени", "За праћење", "Несачуване измене", "Ажурно", "Обавештења", "Освежавање", "Панел", "Обрасци имена", "Друго",
     "За обраду", "Ништа за обраду у праћеним репозиторијумима", "+ још {n}",
     "Не", "За све", "За кориснике који нису администратори",
+    "Звездице", "Форкови", "Посматрачи", "Проблеми", "Pull захтеви", "Спојени PR", "Дискусије", "Преузимања", "Најновије издање", "Најновија ознака", "Последњи комит", "Последњи проблем", "Последњи pull захтев", "Последња дискусија", "Налог", "Пратиоци", "Прати", "Јавни репозиторијуми", "Јавни гистови",
   ],
   "sr-Latn": [
     "GitHub", "Repozitorijumi", "Aktivnost", "Podešavanja", "Integracija GitHub", "Učitavanje…",
@@ -247,6 +254,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Praćeni", "Za praćenje", "Nesačuvane izmene", "Ažurno", "Obaveštenja", "Osvežavanje", "Panel", "Obrasci imena", "Drugo",
     "Za obradu", "Ništa za obradu u praćenim repozitorijumima", "+ još {n}",
     "Ne", "Za sve", "Za korisnike koji nisu administratori",
+    "Zvezdice", "Forkovi", "Posmatrači", "Problemi", "Pull zahtevi", "Spojeni PR", "Diskusije", "Preuzimanja", "Najnovije izdanje", "Najnovija oznaka", "Poslednji komit", "Poslednji problem", "Poslednji pull zahtev", "Poslednja diskusija", "Nalog", "Pratioci", "Prati", "Javni repozitorijumi", "Javni gistovi",
   ],
   it: [
     "GitHub", "Repository", "Attività", "Impostazioni", "Integrazione GitHub", "Caricamento…",
@@ -278,6 +286,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Seguiti", "Da seguire", "Modifiche non salvate", "Aggiornato", "Notifiche", "Aggiornamento", "Pannello", "Modelli di nome", "Altro",
     "Da gestire", "Niente da gestire nei repository seguiti", "+ altri {n}",
     "No", "Per tutti", "Per i non amministratori",
+    "Stelle", "Fork", "Osservatori", "Issue", "Pull request", "PR unite", "Discussioni", "Download", "Ultima release", "Ultimo tag", "Ultimo commit", "Ultima issue", "Ultima pull request", "Ultima discussione", "Account", "Follower", "Seguiti", "Repository pubblici", "Gist pubblici",
   ],
   nl: [
     "GitHub", "Repositories", "Activiteit", "Instellingen", "GitHub-integratie", "Laden…",
@@ -309,6 +318,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Gevolgd", "Te volgen", "Niet-opgeslagen wijzigingen", "Bijgewerkt", "Meldingen", "Vernieuwen", "Paneel", "Naampatronen", "Anders",
     "Af te handelen", "Niets af te handelen in de gevolgde repositories", "+ {n} meer",
     "Nee", "Voor iedereen", "Voor niet-beheerders",
+    "Sterren", "Forks", "Kijkers", "Issues", "Pull requests", "Samengevoegde PR’s", "Discussies", "Downloads", "Nieuwste release", "Nieuwste tag", "Laatste commit", "Nieuwste issue", "Nieuwste pull request", "Nieuwste discussie", "Account", "Volgers", "Volgend", "Openbare repositories", "Openbare gists",
   ],
   pt: [
     "GitHub", "Repositórios", "Atividade", "Definições", "Integração GitHub", "A carregar…",
@@ -340,6 +350,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Seguidos", "Por seguir", "Alterações não guardadas", "Atualizado", "Notificações", "Atualização", "Painel", "Padrões de nome", "Outro",
     "Por tratar", "Nada por tratar nos repositórios seguidos", "+ {n} mais",
     "Não", "Para todos", "Para não administradores",
+    "Estrelas", "Forks", "Observadores", "Issues", "Pull requests", "PR integrados", "Discussões", "Transferências", "Versão mais recente", "Etiqueta mais recente", "Último commit", "Issue mais recente", "Pull request mais recente", "Discussão mais recente", "Conta", "Seguidores", "A seguir", "Repositórios públicos", "Gists públicos",
   ],
   pl: [
     "GitHub", "Repozytoria", "Aktywność", "Ustawienia", "Integracja GitHub", "Ładowanie…",
@@ -371,6 +382,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Obserwowane", "Do obserwowania", "Niezapisane zmiany", "Aktualne", "Powiadomienia", "Odświeżanie", "Panel", "Wzorce nazw", "Inne",
     "Do obsłużenia", "Nic do obsłużenia w obserwowanych repozytoriach", "+ {n} więcej",
     "Nie", "Dla wszystkich", "Dla nie-administratorów",
+    "Gwiazdki", "Forki", "Obserwatorzy", "Zgłoszenia", "Pull requesty", "Scalone PR", "Dyskusje", "Pobrania", "Najnowsze wydanie", "Najnowszy tag", "Ostatni commit", "Najnowsze zgłoszenie", "Najnowszy pull request", "Najnowsza dyskusja", "Konto", "Obserwujący", "Obserwowani", "Publiczne repozytoria", "Publiczne gisty",
   ],
   ro: [
     "GitHub", "Depozite", "Activitate", "Setări", "Integrarea GitHub", "Se încarcă…",
@@ -402,6 +414,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Urmărite", "De urmărit", "Modificări nesalvate", "La zi", "Notificări", "Reîmprospătare", "Panou", "Modele de nume", "Altul",
     "De rezolvat", "Nimic de rezolvat în depozitele urmărite", "+ încă {n}",
     "Nu", "Pentru toți", "Pentru non-administratori",
+    "Stele", "Fork-uri", "Observatori", "Issue-uri", "Pull request-uri", "PR-uri îmbinate", "Discuții", "Descărcări", "Cea mai recentă versiune", "Cea mai recentă etichetă", "Ultimul commit", "Cel mai recent issue", "Cel mai recent pull request", "Cea mai recentă discuție", "Cont", "Urmăritori", "Urmăriți", "Depozite publice", "Gist-uri publice",
   ],
   da: [
     "GitHub", "Repositories", "Aktivitet", "Indstillinger", "GitHub-integration", "Indlæser…",
@@ -433,6 +446,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Fulgt", "At følge", "Ikke-gemte ændringer", "Opdateret", "Notifikationer", "Opdatering", "Panel", "Navnemønstre", "Andet",
     "Skal håndteres", "Intet at håndtere i de fulgte repositories", "+ {n} mere",
     "Nej", "For alle", "For ikke-administratorer",
+    "Stjerner", "Forks", "Overvågere", "Issues", "Pull requests", "Flettede PR’er", "Diskussioner", "Downloads", "Seneste udgivelse", "Seneste tag", "Seneste commit", "Seneste issue", "Seneste pull request", "Seneste diskussion", "Konto", "Følgere", "Følger", "Offentlige repositories", "Offentlige gists",
   ],
   sv: [
     "GitHub", "Repon", "Aktivitet", "Inställningar", "GitHub-integration", "Laddar…",
@@ -464,6 +478,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Följda", "Att följa", "Osparade ändringar", "Uppdaterad", "Aviseringar", "Uppdatering", "Panel", "Namnmönster", "Annat",
     "Att hantera", "Inget att hantera i de följda förråden", "+ {n} till",
     "Nej", "För alla", "För icke-administratörer",
+    "Stjärnor", "Forks", "Bevakare", "Ärenden", "Pull requests", "Sammanfogade PR", "Diskussioner", "Nedladdningar", "Senaste release", "Senaste tagg", "Senaste commit", "Senaste ärende", "Senaste pull request", "Senaste diskussion", "Konto", "Följare", "Följer", "Publika repon", "Publika gists",
   ],
   bg: [
     "GitHub", "Хранилища", "Активност", "Настройки", "Интеграция GitHub", "Зареждане…",
@@ -495,6 +510,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Следвани", "За следване", "Незапазени промени", "Актуално", "Известия", "Опресняване", "Панел", "Шаблони за имена", "Друго",
     "За обработка", "Нищо за обработка в следваните хранилища", "+ още {n}",
     "Не", "За всички", "За неадминистратори",
+    "Звезди", "Форкове", "Наблюдаващи", "Проблеми", "Pull заявки", "Слети PR", "Дискусии", "Изтегляния", "Последна версия", "Последен таг", "Последен commit", "Последен проблем", "Последна pull заявка", "Последна дискусия", "Акаунт", "Последователи", "Следвани", "Публични хранилища", "Публични gist-ове",
   ],
   ru: [
     "GitHub", "Репозитории", "Активность", "Настройки", "Интеграция GitHub", "Загрузка…",
@@ -526,6 +542,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Отслеживаемые", "Для отслеживания", "Несохранённые изменения", "Актуально", "Уведомления", "Обновление", "Панель", "Шаблоны имён", "Другое",
     "К обработке", "Нечего обрабатывать в отслеживаемых репозиториях", "+ ещё {n}",
     "Нет", "Для всех", "Для не-администраторов",
+    "Звёзды", "Форки", "Наблюдатели", "Задачи", "Pull-запросы", "Слитые PR", "Обсуждения", "Загрузки", "Последний релиз", "Последний тег", "Последний коммит", "Последняя задача", "Последний pull-запрос", "Последнее обсуждение", "Аккаунт", "Подписчики", "Подписки", "Публичные репозитории", "Публичные gist",
   ],
   uk: [
     "GitHub", "Репозиторії", "Активність", "Налаштування", "Інтеграція GitHub", "Завантаження…",
@@ -557,6 +574,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Відстежувані", "Для відстеження", "Незбережені зміни", "Актуально", "Сповіщення", "Оновлення", "Панель", "Шаблони імен", "Інше",
     "До опрацювання", "Нічого опрацьовувати у відстежуваних репозиторіях", "+ ще {n}",
     "Ні", "Для всіх", "Для не-адміністраторів",
+    "Зірки", "Форки", "Спостерігачі", "Задачі", "Pull-запити", "Злиті PR", "Обговорення", "Завантаження", "Останній реліз", "Останній тег", "Останній коміт", "Остання задача", "Останній pull-запит", "Останнє обговорення", "Обліковий запис", "Підписники", "Стежить", "Публічні репозиторії", "Публічні gist",
   ],
   hu: [
     "GitHub", "Tárolók", "Tevékenység", "Beállítások", "GitHub integráció", "Betöltés…",
@@ -588,6 +606,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Követett", "Követendő", "Nem mentett módosítások", "Naprakész", "Értesítések", "Frissítés", "Panel", "Névminták", "Egyéb",
     "Teendő", "Nincs teendő a követett tárolókban", "+ még {n}",
     "Nem", "Mindenkinek", "Nem rendszergazdáknak",
+    "Csillagok", "Forkok", "Figyelők", "Hibajegyek", "Pull requestek", "Egyesített PR-ek", "Beszélgetések", "Letöltések", "Legújabb kiadás", "Legújabb címke", "Legutóbbi commit", "Legújabb hibajegy", "Legújabb pull request", "Legújabb beszélgetés", "Fiók", "Követők", "Követettek", "Nyilvános tárolók", "Nyilvános gistek",
   ],
   sk: [
     "GitHub", "Repozitáre", "Aktivita", "Nastavenia", "Integrácia GitHub", "Načítava sa…",
@@ -619,6 +638,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sledované", "Na sledovanie", "Neuložené zmeny", "Aktuálne", "Upozornenia", "Obnovovanie", "Panel", "Vzory názvov", "Iné",
     "Na vybavenie", "Nič na vybavenie v sledovaných repozitároch", "+ ďalších {n}",
     "Nie", "Pre všetkých", "Pre neadministrátorov",
+    "Hviezdičky", "Forky", "Pozorovatelia", "Problémy", "Pull requesty", "Zlúčené PR", "Diskusie", "Stiahnutia", "Najnovšie vydanie", "Najnovší tag", "Posledný commit", "Najnovší problém", "Najnovší pull request", "Najnovšia diskusia", "Účet", "Sledovatelia", "Sleduje", "Verejné repozitáre", "Verejné gisty",
   ],
   cs: [
     "GitHub", "Repozitáře", "Aktivita", "Nastavení", "Integrace GitHub", "Načítání…",
@@ -650,6 +670,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sledované", "Ke sledování", "Neuložené změny", "Aktuální", "Oznámení", "Obnovování", "Panel", "Vzory názvů", "Jiné",
     "K vyřízení", "Nic k vyřízení ve sledovaných repozitářích", "+ dalších {n}",
     "Ne", "Pro všechny", "Pro neadministrátory",
+    "Hvězdičky", "Forky", "Pozorovatelé", "Problémy", "Pull requesty", "Sloučené PR", "Diskuze", "Stažení", "Nejnovější vydání", "Nejnovější tag", "Poslední commit", "Nejnovější problém", "Nejnovější pull request", "Nejnovější diskuze", "Účet", "Sledující", "Sleduje", "Veřejné repozitáře", "Veřejné gisty",
   ],
   sl: [
     "GitHub", "Repozitoriji", "Dejavnost", "Nastavitve", "Integracija GitHub", "Nalaganje…",
@@ -681,6 +702,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Spremljani", "Za spremljanje", "Neshranjene spremembe", "Posodobljeno", "Obvestila", "Osveževanje", "Plošča", "Vzorci imen", "Drugo",
     "Za obravnavo", "Nič za obravnavo v spremljanih repozitorijih", "+ še {n}",
     "Ne", "Za vse", "Za neskrbnike",
+    "Zvezdice", "Forki", "Opazovalci", "Težave", "Pull requesti", "Združeni PR", "Razprave", "Prenosi", "Najnovejša izdaja", "Najnovejša oznaka", "Zadnji commit", "Najnovejša težava", "Najnovejši pull request", "Najnovejša razprava", "Račun", "Sledilci", "Sledi", "Javni repozitoriji", "Javni gisti",
   ],
   lv: [
     "GitHub", "Krātuves", "Aktivitāte", "Iestatījumi", "GitHub integrācija", "Ielādē…",
@@ -712,6 +734,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Sekotie", "Sekot", "Nesaglabātas izmaiņas", "Aktuāls", "Paziņojumi", "Atsvaidzināšana", "Panelis", "Nosaukumu paraugi", "Cits",
     "Jāapstrādā", "Sekotajos repozitorijos nav nekā, ko apstrādāt", "+ vēl {n}",
     "Nē", "Visiem", "Ne-administratoriem",
+    "Zvaigznes", "Forki", "Vērotāji", "Problēmas", "Pull pieprasījumi", "Apvienotie PR", "Diskusijas", "Lejupielādes", "Jaunākais laidiens", "Jaunākā birka", "Pēdējais commit", "Jaunākā problēma", "Jaunākais pull pieprasījums", "Jaunākā diskusija", "Konts", "Sekotāji", "Seko", "Publiskās krātuves", "Publiskie gist",
   ],
   el: [
     "GitHub", "Αποθετήρια", "Δραστηριότητα", "Ρυθμίσεις", "Ενσωμάτωση GitHub", "Φόρτωση…",
@@ -743,6 +766,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Παρακολουθούμενα", "Προς παρακολούθηση", "Μη αποθηκευμένες αλλαγές", "Ενημερωμένο", "Ειδοποιήσεις", "Ανανέωση", "Πίνακας", "Μοτίβα ονομάτων", "Άλλο",
     "Προς χειρισμό", "Τίποτα προς χειρισμό στα αποθετήρια που ακολουθείτε", "+ {n} ακόμη",
     "Όχι", "Για όλους", "Για μη διαχειριστές",
+    "Αστέρια", "Forks", "Παρατηρητές", "Ζητήματα", "Pull requests", "Συγχωνευμένα PR", "Συζητήσεις", "Λήψεις", "Τελευταία έκδοση", "Τελευταία ετικέτα", "Τελευταίο commit", "Τελευταίο ζήτημα", "Τελευταίο pull request", "Τελευταία συζήτηση", "Λογαριασμός", "Ακόλουθοι", "Ακολουθεί", "Δημόσια αποθετήρια", "Δημόσια gists",
   ],
 };
 
@@ -773,6 +797,15 @@ const GITHUB_PANEL_ICONS = {
   refresh: "M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z",
   download: "M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z",
   search: "M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z",
+  // The unfolded repository's counters and latest activity, and the account
+  fork: "M6,2A3,3 0 0,1 9,5C9,6.28 8.19,7.38 7.06,7.81C7.15,8.27 7.39,8.83 8,9.63C9,10.92 11,12.83 12,14.17C13,12.83 15,10.92 16,9.63C16.61,8.83 16.85,8.27 16.94,7.81C15.81,7.38 15,6.28 15,5A3,3 0 0,1 18,2A3,3 0 0,1 21,5C21,6.32 20.14,7.45 18.95,7.85C18.87,8.37 18.64,9 18,9.83C17,11.17 15,13.08 14,14.38C13.39,15.17 13.15,15.73 13.06,16.19C14.19,16.62 15,17.72 15,19A3,3 0 0,1 12,22A3,3 0 0,1 9,19C9,17.72 9.81,16.62 10.94,16.19C10.85,15.73 10.61,15.17 10,14.38C9,13.08 7,11.17 6,9.83C5.36,9 5.13,8.37 5.05,7.85C3.86,7.45 3,6.32 3,5A3,3 0 0,1 6,2M6,4A1,1 0 0,0 5,5A1,1 0 0,0 6,6A1,1 0 0,0 7,5A1,1 0 0,0 6,4M18,4A1,1 0 0,0 17,5A1,1 0 0,0 18,6A1,1 0 0,0 19,5A1,1 0 0,0 18,4M12,18A1,1 0 0,0 11,19A1,1 0 0,0 12,20A1,1 0 0,0 13,19A1,1 0 0,0 12,18Z",
+  eye: "M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z",
+  merge: "M7,3A3,3 0 0,1 10,6C10,7.29 9.19,8.39 8.04,8.81C8.58,13.81 13.08,14.77 15.19,14.96C15.61,13.81 16.71,13 18,13A3,3 0 0,1 21,16A3,3 0 0,1 18,19C16.69,19 15.57,18.16 15.16,17C10.91,16.8 9.44,15.19 8,13.39V15.17C9.17,15.58 10,16.69 10,18A3,3 0 0,1 7,21A3,3 0 0,1 4,18C4,16.69 4.83,15.58 6,15.17V8.83C4.83,8.42 4,7.31 4,6A3,3 0 0,1 7,3M7,5A1,1 0 0,0 6,6A1,1 0 0,0 7,7A1,1 0 0,0 8,6A1,1 0 0,0 7,5M7,17A1,1 0 0,0 6,18A1,1 0 0,0 7,19A1,1 0 0,0 8,18A1,1 0 0,0 7,17M18,15A1,1 0 0,0 17,16A1,1 0 0,0 18,17A1,1 0 0,0 19,16A1,1 0 0,0 18,15Z",
+  forum: "M17,12V3A1,1 0 0,0 16,2H3A1,1 0 0,0 2,3V17L6,13H16A1,1 0 0,0 17,12M21,6H19V15H6V17A1,1 0 0,0 7,18H18L22,22V7A1,1 0 0,0 21,6Z",
+  release: "M12,2L3,7V17L12,22L21,17V7L12,2M12,4.31L18.47,7.9L12,11.5L5.53,7.9L12,4.31M5,9.6L11,12.94V19.6L5,16.27V9.6M13,19.6V12.94L19,9.6V16.27L13,19.6Z",
+  commit: "M17,12C17,14.42 15.28,16.44 13,16.9V21H11V16.9C8.72,16.44 7,14.42 7,12C7,9.58 8.72,7.56 11,7.1V3H13V7.1C15.28,7.56 17,9.58 17,12M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z",
+  group: "M12,5.5A3.5,3.5 0 0,1 15.5,9A3.5,3.5 0 0,1 12,12.5A3.5,3.5 0 0,1 8.5,9A3.5,3.5 0 0,1 12,5.5M5,8C5.56,8 6.08,8.15 6.53,8.42C6.38,9.85 6.8,11.27 7.66,12.38C7.16,13.34 6.16,14 5,14A3,3 0 0,1 2,11A3,3 0 0,1 5,8M19,8A3,3 0 0,1 22,11A3,3 0 0,1 19,14C17.84,14 16.84,13.34 16.34,12.38C17.2,11.27 17.62,9.85 17.47,8.42C17.92,8.15 18.44,8 19,8M5.5,18.25C5.5,16.18 8.41,14.5 12,14.5C15.59,14.5 18.5,16.18 18.5,18.25V20H5.5V18.25M0,20V18.5C0,17.11 1.89,15.94 4.45,15.6C3.86,16.28 3.5,17.22 3.5,18.25V20H0M24,20H20.5V18.25C20.5,17.22 20.14,16.28 19.55,15.6C22.11,15.94 24,17.11 24,18.5V20Z",
+  account: "M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z",
 };
 // The tabs' illustrated banner (90 px, as the headers of the ha-* cards): a desk with a screen showing a branch
 // graph (the latest commit breathing), a mug and a plant on a parquet strip; night colours with a dark theme.
@@ -785,6 +818,33 @@ const GITHUB_PANEL_SCENE = `<svg class="scene" viewBox="0 0 360 80" preserveAspe
 <rect class="s-mug" x="250" y="44" width="12" height="12" rx="2" stroke-width="1.4"/><path class="s-handle" d="M262 47h3a3 3 0 0 1 0 6h-3" fill="none" stroke-width="1.4"/>
 <rect class="s-pot" x="310" y="60" width="16" height="20" rx="2"/><path class="s-leaf" d="M318 60C310 48 307 39 310 30C316 39 318 48 318 60ZM318 60C323 47 329 42 335 40C331 49 326 56 318 60Z"/>
 </svg><div class="ground" aria-hidden="true"></div>`;
+
+// The unfolded repository's counters (sensor key, label key, icon, colour) and latest activity (sensor key, icon),
+// and the account's counters, as the GitHub Card shows them.
+const GITHUB_PANEL_REPO_STATS = [
+  ["stargazers_count", "d_stars", "star", "star"],
+  ["forks_count", "d_forks", "fork", "blue"],
+  ["subscribers_count", "d_watchers", "eye", "blue"],
+  ["issues_count", "d_issues", "issue", "green"],
+  ["pulls_count", "d_pulls", "pr", "green"],
+  ["merged_pulls_count", "d_merged_pulls", "merge", "purple"],
+  ["discussions_count", "d_discussions", "forum", "blue"],
+  ["latest_release_downloads", "d_downloads", "download", "blue"],
+];
+const GITHUB_PANEL_LATEST = [
+  ["latest_release", "release"],
+  ["latest_tag", "tag"],
+  ["latest_commit", "commit"],
+  ["latest_pull_request", "pr"],
+  ["latest_issue", "issue"],
+  ["latest_discussion", "forum"],
+];
+const GITHUB_PANEL_USER_STATS = [
+  ["followers", "d_followers", "group", "blue"],
+  ["following", "d_following", "account", "blue"],
+  ["public_repos", "d_public_repos", "code", "blue"],
+  ["public_gists", "d_public_gists", "code", "blue"],
+];
 
 const githubPanelIcon = (name) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="${GITHUB_PANEL_ICONS[name]}"/></svg>`;
 
@@ -907,6 +967,33 @@ class GitHubPanel extends HTMLElement {
     .dl-total:not(:empty) { border-top:1px solid var(--divider-color, rgba(127,127,127,.15)); padding-top:10px; margin-top:2px; }
     .dl-total .i { width:16px; height:16px; color:#3b82f6; }
     .detail { padding:4px 0 12px 26px; }
+    /* The unfolded repository and the account, drawn by the panel as the GitHub Card draws them: counter tiles,
+       latest activity rows (each opens its more-info), links to GitHub as round icon buttons (never filled) */
+    .dt { display:flex; flex-direction:column; gap:8px; container:gh-dt / inline-size;
+          --dt-blue:#18bcf2; --dt-star:#e3a008; --dt-green:#2da44e; --dt-purple:#8957e5; }
+    .dt .c-star { --c:var(--dt-star); } .dt .c-blue { --c:var(--dt-blue); } .dt .c-green { --c:var(--dt-green); } .dt .c-purple { --c:var(--dt-purple); }
+    .dt [role="button"] { cursor:pointer; }
+    .dt [role="button"]:focus-visible { outline:2px solid var(--primary-color, #03a9f4); outline-offset:-2px; }
+    .dt-tiles { display:grid; grid-template-columns:repeat(auto-fill, minmax(124px, 1fr)); gap:6px; }
+    .dt-tile { display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:10px; min-width:0;
+               background:var(--secondary-background-color, rgba(127,127,127,.08)); }
+    .dt-tile > .i { color:var(--c, var(--dt-blue)); width:16px; height:16px; }
+    .dt-tile > div { min-width:0; }
+    .dt-tile .k { font-size:11px; color:var(--secondary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .dt-tile .v { font-size:14px; font-weight:500; }
+    .dt-link { flex:none; display:grid; place-items:center; width:24px; height:24px; border-radius:50%; color:var(--secondary-text-color); }
+    .dt-link .i { width:14px; height:14px; }
+    .dt-link:hover { background:color-mix(in srgb, var(--secondary-text-color) 16%, transparent); color:var(--primary-text-color); }
+    .dt-latest { display:flex; flex-direction:column; gap:2px; }
+    .dt-row { display:grid; grid-template-columns:18px minmax(0, max-content) minmax(0, 1fr) auto; align-items:center; gap:8px; font-size:13px; min-height:26px; }
+    .dt-row > .i { color:var(--secondary-text-color); }
+    .dt-row .k { color:var(--secondary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .dt-row .v { min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .dt-row .v small { color:var(--secondary-text-color); font-size:11px; margin-left:4px; }
+    .dt-sec { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; color:var(--secondary-text-color); margin:4px 0 2px; }
+    .dt-sec > .i { width:16px; height:16px; }
+    .dt-sec .label { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    @container gh-dt (max-width: 300px) { .dt-row { grid-template-columns:18px minmax(0, 1fr) auto; } .dt-row .k { display:none; } }
     @media (max-width: 600px) { .info .tag, .info .ok:nth-child(3) { display:none; } .detail { padding-left:0; } }
     /* Confirmation in place of the row, like the card popups (at the top of what they act on) */
     .confirm { flex-direction:column; align-items:stretch; gap:8px; padding:10px 12px; margin:4px 0; border-radius:10px;
@@ -1105,6 +1192,17 @@ class GitHubPanel extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    // The counters and latest activity of the unfolded repository and of the account open their more-info dialog
+    // (a click, or Enter / Space on the focused row); their GitHub links open as links.
+    const moreInfo = (ev) => {
+      const el = ev.target?.closest?.(".dt [data-entity]");
+      if (!el || ev.target.closest("a")) return;
+      if (ev.type === "keydown" && ev.key !== "Enter" && ev.key !== " ") return;
+      ev.preventDefault();
+      this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: el.dataset.entity }, bubbles: true, composed: true }));
+    };
+    this.shadowRoot.addEventListener?.("click", moreInfo);
+    this.shadowRoot.addEventListener?.("keydown", moreInfo);
     this._tab = "repos";
     this._overview = null;
     this._settings = null;
@@ -1239,22 +1337,12 @@ class GitHubPanel extends HTMLElement {
     return text;
   }
 
-  // The data and the card (only the account and the unfolded repository use it) load side by side: waiting for the
-  // card first held the whole panel empty until its bundle and its language file were in.
+  // The panel draws everything itself (the unfolded repository and the account too): no card to load.
   async _start() {
     this._render();
     this._subscribe();
     this._watchConnection(this.isConnected);
-    const version = this._panel?.config?.version || GITHUB_PANEL_VERSION;
-    const card = customElements.get("github-card")
-      ? null
-      : import(`/github_card/github-card.js?v=${version}`)
-          .then(() => customElements.whenDefined("github-card"))
-          .then(() => {
-            if (this._overview) this._renderRepos();
-          })
-          .catch((err) => console.error("GitHub panel: could not load the card", err));
-    await Promise.all([this._reload(), card]);
+    await this._reload();
   }
 
   // Reload the list when the GitHub integration changes (a repository followed elsewhere, a reload)
@@ -1550,11 +1638,12 @@ class GitHubPanel extends HTMLElement {
           <button class="who fold" data-action="expand" data-repo="${esc(r.name)}" aria-expanded="${open}" title="${esc(this._t("details"))}">${this._repoWho(r.name)}</button>
           <span class="info" data-repo="${esc(r.name)}">${this._infoHtml(r.name)}</span>${link}
           <button class="act quiet" data-action="unfollow" data-repo="${esc(r.name)}"${disabled}>${esc(this._t("unfollow"))}</button></div>
-        ${open ? `<div class="detail" data-repo="${esc(r.name)}"></div>` : ""}`;
+        ${open ? `<div class="detail" data-repo="${esc(r.name)}">${this._detailHtml(r.name)}</div>` : ""}`;
     };
     const followedRows = rows.filter((r) => r.followed);
     const offeredRows = rows.filter((r) => !r.followed);
     const loadFailed = this._message && this._message === this._loadError;
+    const account = this._accountHtml();
     const sorts = GITHUB_PANEL_SORTS.map(
       (v) => `<button data-sort="${v}" aria-pressed="${v === this._sort}">${esc(this._t(`sort_${v}`))}</button>`,
     ).join("");
@@ -1574,10 +1663,8 @@ class GitHubPanel extends HTMLElement {
         </div>
         <div class="rows">${offeredRows.length ? offeredRows.map(rowHtml).join("") : `<div class="note">${esc(this._t("empty"))}</div>`}</div>
       </div>
-      <div class="card list account-card" hidden><div class="account-slot"></div></div>`;
+      <div class="card list account-card"${account ? "" : " hidden"}><div class="account-slot">${account}</div></div>`;
     this._bindRepos(host);
-    this._mountDetail(host);
-    this._mountAccount(host);
     this._renderHead();
   }
 
@@ -1630,33 +1717,71 @@ class GitHubPanel extends HTMLElement {
     ].join("");
   }
 
-  /** The embedded GitHub Card of the unfolded repository, kept across re-renders (and its hass kept current). */
-  _mountDetail(host) {
-    const slot = host.querySelector(".detail");
-    if (!slot || !customElements.get("github-card")) return;
-    const repo = slot.dataset.repo;
-    if (this._detail?.repo !== repo) {
-      const card = document.createElement("github-card");
-      card.setConfig({ embed: true, repositories: [repo], show_account: false });
-      this._detail = { repo, card };
-    }
-    this._detail.card.hass = this._hass;
-    slot.appendChild(this._detail.card);
+  /** A GitHub sensor's live state object, or undefined. */
+  _state(id) {
+    return id ? this._hass?.states?.[id] : undefined;
   }
 
-  /** The GitHub account (followers, following, public repositories and gists) under the list: the card's section. */
-  _mountAccount(host) {
-    const slot = host.querySelector(".account-slot");
-    if (!slot || !customElements.get("github-card")) return;
-    if (!this._account) {
-      this._account = document.createElement("github-card");
-      this._account.setConfig({ embed: true });
-    }
-    this._account.hass = this._hass;
-    slot.appendChild(this._account);
-    // Its card only when the GitHub Card shows the account (its sensors are disabled by default)
-    const card = slot.closest?.(".account-card");
-    if (card) card.hidden = !this._account.shadowRoot?.innerHTML;
+  /** Counter tiles (icon in its colour, label, compact value, exact value in the tooltip) of the sensors given. */
+  _tilesHtml(ids, stats) {
+    const esc = githubPanelEsc;
+    const tiles = stats
+      .filter(([key]) => ids[key])
+      .map(([key, label, icon, cls]) => {
+        const s = this._state(ids[key]);
+        const v = s && s.state !== "" && Number.isFinite(Number(s.state)) ? Number(s.state) : null;
+        let full = v === null ? "—" : String(v);
+        try {
+          if (v !== null) full = new Intl.NumberFormat(this._lang()).format(v);
+        } catch (_err) {
+          // unknown locale: the plain number
+        }
+        const title = esc(`${this._t(label)}: ${full}`);
+        return `<div class="dt-tile c-${cls}" data-entity="${esc(ids[key])}" role="button" tabindex="0" title="${title}" aria-label="${title}">${githubPanelIcon(icon)}<div>
+          <div class="k">${esc(this._t(label))}</div><div class="v">${v === null ? "—" : esc(this._compact(v))}</div></div></div>`;
+      });
+    return tiles.length ? `<div class="dt-tiles">${tiles.join("")}</div>` : "";
+  }
+
+  /** A link to a GitHub page (web links only: a state attribute never becomes a javascript: URL). */
+  _ghLink(url) {
+    const u = /^https?:\/\//i.test(String(url || "")) ? String(url) : "";
+    const title = githubPanelEsc(this._t("open_github"));
+    return u ? `<a class="dt-link" href="${githubPanelEsc(u)}" target="_blank" rel="noopener noreferrer" title="${title}" aria-label="${title}">${githubPanelIcon("open")}</a>` : "";
+  }
+
+  /** The unfolded repository: its counters, then its latest release, tag, commit, pull request, issue and discussion. */
+  _detailHtml(repo) {
+    const esc = githubPanelEsc;
+    const ids = this._overview?.sensors?.[repo] || {};
+    const rows = GITHUB_PANEL_LATEST.filter(([key]) => ids[key]).map(([key, icon]) => {
+      const s = this._state(ids[key]);
+      const a = s?.attributes || {};
+      const unknown = !s || s.state === "unavailable" || s.state === "unknown";
+      let value = unknown ? "—" : esc(String(s.state).split("\n")[0]);
+      if (!unknown && key === "latest_commit" && a.sha) value += `<small>${esc(String(a.sha).slice(0, 7))}</small>`;
+      if (!unknown && a.number !== undefined) value += `<small>#${esc(a.number)}</small>`;
+      if (!unknown && key === "latest_release" && a.tag && a.tag !== s.state) value += `<small>${esc(a.tag)}</small>`;
+      const label = esc(this._t(`d_${key}`));
+      return `<div class="dt-row" data-entity="${esc(ids[key])}" role="button" tabindex="0" title="${label}">
+          ${githubPanelIcon(icon)}<span class="k">${label}</span><span class="v">${value}</span>${unknown ? "" : this._ghLink(a.url)}</div>`;
+    });
+    const latest = rows.length ? `<div class="dt-latest">${rows.join("")}</div>` : "";
+    const body = `${this._tilesHtml(ids, GITHUB_PANEL_REPO_STATS)}${latest}`;
+    return body ? `<div class="dt">${body}</div>` : "";
+  }
+
+  /** The GitHub account (followers, following, public repositories and gists) under the lists: empty without its
+   * sensors (disabled by default in the GitHub integration), and its card hidden then. */
+  _accountHtml() {
+    const ids = this._overview?.account || {};
+    if (!Object.values(ids).some((id) => this._state(id))) return "";
+    const tiles = this._tilesHtml(ids, GITHUB_PANEL_USER_STATS);
+    if (!tiles) return "";
+    const login = this._overview?.login || "";
+    const label = githubPanelEsc(login ? `${this._t("d_account")} · ${login}` : this._t("d_account"));
+    const link = login ? this._ghLink(`https://github.com/${login}`) : "";
+    return `<div class="dt"><div><div class="dt-sec">${githubPanelIcon("account")}<span class="label" title="${label}">${label}</span>${link}</div>${tiles}</div></div>`;
   }
 
   /** Totals of the followed repositories for the head: stars, and open issues and pull requests. */
@@ -1696,16 +1821,20 @@ class GitHubPanel extends HTMLElement {
       const html = this._kpisHtml();
       if (kpis.innerHTML !== html) kpis.innerHTML = html;
     }
-    if (this._account) {
-      this._account.hass = this._hass;
-      const card = this.shadowRoot.querySelector?.("#repos .account-card");
-      if (card) card.hidden = !this._account.shadowRoot?.innerHTML;
+    const slot = this.shadowRoot.querySelector?.("#repos .account-slot");
+    if (slot) {
+      const html = this._accountHtml();
+      if (slot.innerHTML !== html) slot.innerHTML = html;
+      slot.closest(".account-card").hidden = !html;
     }
     for (const span of this.shadowRoot.querySelectorAll?.("#repos .info") || []) {
       const html = this._infoHtml(span.dataset.repo);
       if (span.innerHTML !== html) span.innerHTML = html;
     }
-    if (this._detail) this._detail.card.hass = this._hass;
+    for (const detail of this.shadowRoot.querySelectorAll?.("#repos .detail") || []) {
+      const html = this._detailHtml(detail.dataset.repo);
+      if (detail.innerHTML !== html) detail.innerHTML = html;
+    }
   }
 
   _bindRepos(host) {

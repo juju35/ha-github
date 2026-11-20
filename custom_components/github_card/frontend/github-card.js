@@ -1215,7 +1215,7 @@ class GitHubCard extends GitHubBase {
 
   _render() {
     const repos = this._repos();
-    // `embed` (the GitHub panel's Repositories tab): only the counters and the latest activity of the repositories,
+    // `embed` (to place the blocks inside another card or a stack): only the counters and the latest activity of the repositories,
     // and the account section, without the card's frame, header or foldable sections.
     if (this._config.embed) {
       // The repositories listed in `repositories` (none without it), then the account unless `show_account: false`.
