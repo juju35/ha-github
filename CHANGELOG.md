@@ -5,6 +5,9 @@
 ### Fixes
 - New issue / pull request notifications: the title (written by anyone on GitHub) is escaped as Markdown link text, so a title holding `](…)` or HTML can no longer end the link early, add a link of its own or show markup; spaces and parentheses in the link target are percent-encoded.
 
+### Maintenance
+- CI: Validate runs in a Debian 12 container with Chromium, so the browser tests (card status pill placement) now run on every pull request instead of being skipped; a missing browser fails the job.
+
 ## 2.16.1 - 2026-11-20
 
 ### Fixes

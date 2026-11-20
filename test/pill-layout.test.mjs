@@ -18,6 +18,7 @@ before(async () => {
     const { chromium } = await import("playwright");
     browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
   } catch (err) {
+    if (process.env.REQUIRE_BROWSER === "1") throw err;
     skip = `Chromium not available: ${err.message.split("\n")[0]}`;
   }
 });
