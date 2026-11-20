@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.16.3 - 2026-11-21
+
+### Fixes
+- Panel: selecting a repository no longer sends the page back to the top (seen in Safari). Ticking a repository to follow and unfolding a followed one now update the list in place instead of redrawing the whole tab, and the redraws that remain (sort, repository filter of the Issues / Pull requests tabs, refreshes) keep the scroll position and the focus on the same control.
+
 ## 2.16.2 - 2026-11-20
 
 ### Fixes

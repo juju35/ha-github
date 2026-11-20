@@ -17,7 +17,7 @@
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-const GITHUB_PANEL_VERSION = "2.16.2";
+const GITHUB_PANEL_VERSION = "2.16.3";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
@@ -781,6 +781,34 @@ const githubPanelHideMode = (value) =>
 const githubPanelEsc = (value) =>
   String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
+// A selector finding again, after a redraw, the control that had the focus (its tag, first class and data-*), or null.
+const githubPanelFocusKey = (el) => {
+  const q = (v) => String(v).replace(/["\\]/g, "\\$&");
+  const attrs = [...(el.attributes || [])].filter((a) => a.name.startsWith("data-")).map((a) => `[${a.name}="${q(a.value)}"]`);
+  const cls = el.classList?.[0] ? `[class~="${q(el.classList[0])}"]` : "";
+  return attrs.length || cls ? `${el.localName}${cls}${attrs.join("")}` : null;
+};
+
+// Redraws `host` with `draw` keeping the page where it was scrolled and the focus on the same control: Safari (no
+// scroll anchoring) sent the page back to the top when a tab was rebuilt under the pointer. Every scrolled ancestor,
+// across the shadow roots up to the document, gets its position back.
+const githubPanelKeepView = (host, draw) => {
+  const scrolled = [];
+  for (let n = host; n; n = n.parentNode || n.host) if (n.nodeType === 1 && n.scrollTop > 0) scrolled.push([n, n.scrollTop]);
+  const root = host.getRootNode?.();
+  const active = root?.activeElement;
+  const key = active && host.contains?.(active) && active.type !== "search" ? githubPanelFocusKey(active) : null;
+  draw();
+  if (key) host.querySelector?.(key)?.focus?.({ preventScroll: true });
+  if (!scrolled.length) return;
+  for (const [n, top] of scrolled) if (n.scrollTop !== top) n.scrollTop = top;
+  // A jump back to the top after the redraw (the browser settling the layout) is undone too; a scroll by the user is not
+  if (typeof requestAnimationFrame === "function")
+    requestAnimationFrame(() => {
+      for (const [n, top] of scrolled) if (n.scrollTop === 0) n.scrollTop = top;
+    });
+};
+
 // mdi paths used by the panel (ha-icon is avoided so that the screenshots and tests need no frontend)
 const GITHUB_PANEL_ICONS = {
   code: "M8,3A2,2 0 0,0 6,5V9A2,2 0 0,1 4,11H3V13H4A2,2 0 0,1 6,15V19A2,2 0 0,0 8,21H10V19H8V14A2,2 0 0,0 6,12A2,2 0 0,0 8,10V5H10V3M16,3A2,2 0 0,1 18,5V9A2,2 0 0,0 20,11H21V13H20A2,2 0 0,0 18,15V19A2,2 0 0,1 16,21H14V19H16V14A2,2 0 0,1 18,12A2,2 0 0,1 16,10V5H14V3H16Z",
@@ -1056,6 +1084,7 @@ class GitHubPanel extends HTMLElement {
     .cbody { padding:12px 16px 16px; display:flex; flex-direction:column; gap:10px; }
     .cbody:empty { display:none; }
     .lhead { display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-height:36px; }
+    .pick-acts { display:contents; }
     .lname { flex:1 1 140px; margin:0; font-size:12px; font-weight:500; letter-spacing:.05em; text-transform:uppercase; color:var(--secondary-text-color); }
     .rows { display:flex; flex-direction:column; gap:6px; container-type:inline-size; }
     .grow { flex:1; }
@@ -1588,6 +1617,10 @@ class GitHubPanel extends HTMLElement {
   _renderRepos() {
     const host = this.shadowRoot.getElementById?.("repos");
     if (!host) return;
+    githubPanelKeepView(host, () => this._drawRepos(host));
+  }
+
+  _drawRepos(host) {
     const esc = githubPanelEsc;
     const o = this._overview;
     const top = (pill, sub, body) =>
@@ -1658,14 +1691,22 @@ class GitHubPanel extends HTMLElement {
       <div class="card list">
         <div class="lhead"><h2 class="lname">${esc(this._t("to_follow"))} · ${o.offered.length}</h2>
           <label class="search">${githubPanelIcon("search")}<input type="search" placeholder="${esc(this._t("search"))}" aria-label="${esc(this._t("search"))}" value="${esc(this._query)}"></label>
-          ${selected.length ? `<button class="act" data-action="follow-selected"${disabled}>${githubPanelIcon("plus")}${esc(this._t("follow_selected", { n: selected.length }))}</button>` : ""}
-          ${toFollow.length > 1 ? `<button class="act quiet" data-action="follow-all"${disabled}>${esc(this._t("follow_all", { n: toFollow.length }))}</button>` : ""}
+          <span class="pick-acts">${this._pickActsHtml(selected.length, toFollow.length)}</span>
         </div>
         <div class="rows">${offeredRows.length ? offeredRows.map(rowHtml).join("") : `<div class="note">${esc(this._t("empty"))}</div>`}</div>
       </div>
       <div class="card list account-card"${account ? "" : " hidden"}><div class="account-slot">${account}</div></div>`;
     this._bindRepos(host);
     this._renderHead();
+  }
+
+  /** Follow the selection / Follow all, redrawn alone when a box is ticked. */
+  _pickActsHtml(selected, toFollow) {
+    const esc = githubPanelEsc;
+    const disabled = this._busy ? " disabled" : "";
+    return `${selected ? `<button class="act" data-action="follow-selected"${disabled}>${githubPanelIcon("plus")}${esc(this._t("follow_selected", { n: selected }))}</button>` : ""}${
+      toFollow > 1 ? `<button class="act quiet" data-action="follow-all"${disabled}>${esc(this._t("follow_all", { n: toFollow }))}</button>` : ""
+    }`;
   }
 
   /** To handle: the latest open pull requests and issues of the followed repositories (the Issues and Pull
@@ -1861,7 +1902,13 @@ class GitHubPanel extends HTMLElement {
       box.addEventListener("change", () => {
         if (box.checked) this._selected.add(box.dataset.repo);
         else this._selected.delete(box.dataset.repo);
-        this._renderRepos();
+        // Updated in place, not redrawn: the list stays where it was scrolled (Safari jumped to the top)
+        const slot = host.querySelector(".pick-acts");
+        if (!slot) return this._renderRepos();
+        box.closest(".row")?.classList.toggle("sel", box.checked);
+        slot.innerHTML = this._pickActsHtml(this._selected.size, this._rows().filter((r) => !r.followed).length);
+        for (const button of slot.querySelectorAll("[data-action]"))
+          button.addEventListener("click", () => this._repoAction(button.dataset.action, button.dataset.repo));
       });
     for (const button of host.querySelectorAll("[data-action]"))
       button.addEventListener("click", () => this._repoAction(button.dataset.action, button.dataset.repo));
@@ -1883,12 +1930,40 @@ class GitHubPanel extends HTMLElement {
     if (action === "unfollow") this._confirm = repo;
     if (action === "cancel") this._confirm = null;
     // One repository unfolded at a time; its name again folds it
-    if (action === "expand") this._expanded = this._expanded === repo ? null : repo;
+    if (action === "expand") return this._toggleExpand(repo);
     if (action === "unfollow-confirmed") {
       this._confirm = null;
       return this._follow([], [repo]);
     }
     this._renderRepos();
+  }
+
+  /** Unfolds `repo` (folding the one open) in place, so the list keeps its scroll; redrawn if a row is missing. */
+  _toggleExpand(repo) {
+    const before = this._expanded;
+    this._expanded = before === repo ? null : repo;
+    const host = this.shadowRoot.getElementById?.("repos");
+    const rows = [before, this._expanded].filter(Boolean).map((name) => [name, this._repoRow(host, name)]);
+    if (!host?.querySelector || rows.some(([, row]) => !row)) return this._renderRepos();
+    for (const [name, row] of rows) {
+      const open = name === this._expanded;
+      row.classList.toggle("open", open);
+      for (const b of row.querySelectorAll('[data-action="expand"]')) b.setAttribute("aria-expanded", String(open));
+      if (row.nextElementSibling?.classList.contains("detail")) row.nextElementSibling.remove();
+      if (open) {
+        const detail = document.createElement("div");
+        detail.className = "detail";
+        detail.dataset.repo = name;
+        detail.innerHTML = this._detailHtml(name);
+        row.after(detail);
+      }
+    }
+  }
+
+  /** The followed row of `repo` in the Repositories tab, or null. */
+  _repoRow(host, repo) {
+    for (const b of host?.querySelectorAll?.(".chev[data-repo]") || []) if (b.dataset.repo === repo) return b.closest(".row");
+    return null;
   }
 
   /** Follows and unfollows in one command (one reload of the GitHub integration), then lists again. */
@@ -2036,6 +2111,10 @@ class GitHubPanel extends HTMLElement {
   _renderItems(kind) {
     const host = this.shadowRoot.getElementById?.(kind);
     if (!host) return;
+    githubPanelKeepView(host, () => this._drawItems(kind, host));
+  }
+
+  _drawItems(kind, host) {
     const esc = githubPanelEsc;
     const followed = this._overview?.followed || [];
     const icon = kind === "pulls" ? "pr" : "issue";
