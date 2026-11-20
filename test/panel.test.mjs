@@ -25,7 +25,7 @@ const load = () => {
     CustomEvent: class {},
   };
   vm.createContext(context);
-  return vm.runInContext(`${src}\n;({ GITHUB_PANEL_KEYS, GITHUB_PANEL_TRANSLATIONS, GITHUB_PANEL_STRINGS, GitHubPanel })`, context);
+  return vm.runInContext(`${src}\n;({ GITHUB_PANEL_KEYS, GITHUB_PANEL_TRANSLATIONS, GITHUB_PANEL_STRINGS, GitHubPanel, githubPanelKeepView, githubPanelFocusKey })`, context);
 };
 
 const lib = load();
@@ -383,4 +383,28 @@ test("repository filter: chips only for the busiest five repositories with open 
   p.shadowRoot.getElementById = (id) => (id === "pulls" ? host : null);
   p._renderItems("pulls");
   assert.doesNotMatch(host.innerHTML, /class="chip"/);
+});
+
+test("a redraw keeps every scrolled ancestor where it was, and the focus on the same control", () => {
+  // host (in the panel's shadow root) → panel → scroller (Home Assistant's) → document
+  const doc = { nodeType: 9 };
+  const scroller = { nodeType: 1, scrollTop: 1200, parentNode: doc };
+  const panelEl = { nodeType: 1, scrollTop: 0, parentNode: scroller };
+  const shadow = { nodeType: 11, host: panelEl };
+  let focused = null;
+  const again = { focus: (opts) => (focused = opts) };
+  const active = { localName: "button", classList: ["chev"], attributes: [{ name: "data-action", value: "expand" }, { name: "data-repo", value: 'a/"b' }] };
+  let asked = null;
+  const host = {
+    nodeType: 1, scrollTop: 0, parentNode: shadow,
+    getRootNode: () => ({ activeElement: active }),
+    contains: (el) => el === active,
+    querySelector: (sel) => ((asked = sel), again),
+  };
+  lib.githubPanelKeepView(host, () => (scroller.scrollTop = 0));
+  assert.equal(scroller.scrollTop, 1200);
+  assert.equal(asked, 'button[class~="chev"][data-action="expand"][data-repo="a/\\"b"]');
+  assert.deepEqual({ ...focused }, { preventScroll: true });
+  // A control without class nor data-* is not looked for
+  assert.equal(lib.githubPanelFocusKey({ localName: "div", classList: [], attributes: [] }), null);
 });
