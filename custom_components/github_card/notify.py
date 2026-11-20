@@ -7,6 +7,7 @@ or unknown (a reload) says nothing new.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable, Mapping
 from typing import Any
 
@@ -163,6 +164,16 @@ def _tag(state: Any) -> str | None:
     return str(tag) if tag else None
 
 
+def _md_text(text: str) -> str:
+    """An issue or pull request title (written by anyone) as Markdown link text: its brackets and HTML stay text."""
+    return re.sub(r"([\\\[\]<>*_`])", r"\\\1", text)
+
+
+def _md_url(url: str) -> str:
+    """A link target that a space or a parenthesis cannot end early."""
+    return url.replace(" ", "%20").replace("(", "%28").replace(")", "%29")
+
+
 class NewItemNotifier:
     """Watches the latest issue / pull request sensors of the GitHub integration."""
 
@@ -230,7 +241,9 @@ class NewItemNotifier:
         url = state.attributes.get("url")
         persistent_notification.async_create(
             self._hass,
-            f"[{text}]({url})" if isinstance(url, str) and url.startswith("https://") else text,
+            f"[{_md_text(text)}]({_md_url(url)})"
+            if isinstance(url, str) and url.startswith("https://")
+            else _md_text(text),
             title=title,
             notification_id=f"{DOMAIN}_{kind}_{repo}",
         )

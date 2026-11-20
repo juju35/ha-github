@@ -61,15 +61,27 @@ def followed(entry: ConfigEntry) -> dict[str, str]:
     }
 
 
-# Sensors of a followed repository shown on its row in the panel (the panel reads their live states)
+# Sensors of a followed repository shown by the panel (it reads their live states): the counters of its row, and
+# the counters and latest activity of its unfolded details
 ROW_KEYS = (
     "stargazers_count",
     "forks_count",
+    "subscribers_count",
     "issues_count",
     "pulls_count",
-    "latest_release",
+    "merged_pulls_count",
+    "discussions_count",
     "latest_release_downloads",
+    "latest_release",
+    "latest_tag",
+    "latest_commit",
+    "latest_pull_request",
+    "latest_issue",
+    "latest_discussion",
 )
+
+# Counters of the GitHub account (disabled by default in the GitHub integration)
+ACCOUNT_KEYS = ("followers", "following", "public_repos", "public_gists")
 
 
 def sensors(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, dict[str, str]]:
@@ -84,6 +96,20 @@ def sensors(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, dict[str, str]
         if repo and "/" in repo and e.translation_key in ROW_KEYS and not e.disabled_by:
             out.setdefault(repo, {})[e.translation_key] = e.entity_id
     return out
+
+
+def account_sensors(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, str]:
+    """Entity ids of the enabled account counters: translation key → entity id (the device that is not owner/repo)."""
+    devices = {
+        d.id
+        for d in dr.async_entries_for_config_entry(dr.async_get(hass), entry.entry_id)
+        if d.name and "/" not in d.name
+    }
+    return {
+        e.translation_key: e.entity_id
+        for e in er.async_entries_for_config_entry(er.async_get(hass), entry.entry_id)
+        if e.device_id in devices and e.translation_key in ACCOUNT_KEYS and not e.disabled_by
+    }
 
 
 def login(hass: HomeAssistant, entry: ConfigEntry) -> str | None:
@@ -168,6 +194,8 @@ class Overview:
     offered_error: bool = False
     # Row sensors of the followed repositories: full name → translation key → entity id
     sensors: dict[str, dict[str, str]] = field(default_factory=dict)
+    # Account counters: translation key → entity id
+    account: dict[str, str] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -178,6 +206,7 @@ class Overview:
             "offered": self.offered,
             "offered_error": self.offered_error,
             "sensors": self.sensors,
+            "account": self.account,
         }
 
 
@@ -208,6 +237,7 @@ async def async_overview(hass: HomeAssistant, options: dict[str, Any]) -> Overvi
         offered=sorted(names, key=str.casefold),
         offered_error=offered is None,
         sensors=sensors(hass, entry),
+        account=account_sensors(hass, entry),
     )
 
 

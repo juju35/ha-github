@@ -294,4 +294,76 @@ async def test_repositories_give_the_row_sensors(hass, entry, github, hass_ws_cl
     msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/repositories"})
     rows = msg["result"]["sensors"]
     assert set(rows) == {"juju35/ha-parcel"}
-    assert set(rows["juju35/ha-parcel"]) == {"stargazers_count", "issues_count", "latest_release"}
+    assert set(rows["juju35/ha-parcel"]) == {"stargazers_count", "issues_count", "latest_release", "latest_commit"}
+    assert msg["result"]["account"] == {}
+
+
+async def test_repositories_give_the_account_sensors(hass, entry, github, hass_ws_client):
+    """The enabled counters of the account's device (not owner/repo); disabled ones and other keys are left out."""
+    from homeassistant.helpers import entity_registry as er
+
+    await _setup(hass, entry)
+    device = dr.async_get(hass).async_get_or_create(
+        config_entry_id=github.entry_id, identifiers={("github", "juju35")}, name="juju35"
+    )
+    reg = er.async_get(hass)
+    ids = {}
+    for key in ("followers", "following", "public_gists", "stargazers_count"):
+        ids[key] = reg.async_get_or_create(
+            "sensor", "github", f"u_{key}", config_entry=github, device_id=device.id, translation_key=key
+        ).entity_id
+    reg.async_update_entity(ids["public_gists"], disabled_by=er.RegistryEntryDisabler.INTEGRATION)
+    msg = await _ws(hass, hass_ws_client, {"type": f"{DOMAIN}/repositories"})
+    assert msg["result"]["account"] == {"followers": ids["followers"], "following": ids["following"]}
+
+
+async def test_card_resource_updated_and_deduplicated(hass, entry):
+    """An older version's resource is moved to the current one, duplicates of it are removed."""
+    assert await async_setup_component(hass, "lovelace", {})
+    resources = hass.data["lovelace"].resources
+    await resources.async_get_info()
+    for version in ("1.0.0", "1.0.1"):
+        await resources.async_create_item({"res_type": "module", "url": f"{CARD_URL}?v={version}"})
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert [item["url"] for item in resources.async_items()] == [f"{CARD_URL}?v={VERSION}"]
+
+
+async def test_card_loaded_on_every_page_when_resources_fail_or_in_yaml(hass, entry):
+    """A resource that cannot be written, or dashboards in YAML mode: the card is loaded as an extra module."""
+    assert await async_setup_component(hass, "lovelace", {})
+    resources = hass.data["lovelace"].resources
+    with (
+        patch.object(resources, "async_create_item", AsyncMock(side_effect=RuntimeError("storage"))),
+        patch("custom_components.github_card.add_extra_js_url") as extra,
+    ):
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+    assert f"{CARD_URL}?v={VERSION}" in [call.args[1] for call in extra.call_args_list]
+
+
+async def test_yaml_dashboards(hass, entry):
+    assert await async_setup_component(hass, "lovelace", {"lovelace": {"mode": "yaml"}})
+    with patch("custom_components.github_card.add_extra_js_url") as extra:
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+    assert f"{CARD_URL}?v={VERSION}" in [call.args[1] for call in extra.call_args_list]
+    # Removing the entry has no resource to drop
+    await hass.config_entries.async_remove(entry.entry_id)
+
+
+async def test_card_registered_once_home_assistant_has_started(hass, entry):
+    from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
+    from homeassistant.core import CoreState
+
+    assert await async_setup_component(hass, "lovelace", {})
+    resources = hass.data["lovelace"].resources
+    hass.set_state(CoreState.starting)
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    await resources.async_get_info()
+    assert not list(resources.async_items())
+    hass.set_state(CoreState.running)
+    hass.bus.async_fire(EVENT_HOMEASSISTANT_STARTED)
+    await hass.async_block_till_done()
+    assert [item["url"] for item in resources.async_items()] == [f"{CARD_URL}?v={VERSION}"]
