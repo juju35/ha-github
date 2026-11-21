@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.18.0 - 2026-11-21
+
+### Features
+- **Copy the links** in the Issues and Pull requests tabs: a button next to **Refresh** puts the links of the items listed (the repository filter applied) on the clipboard, one per line, and says *Links copied* for two seconds. It works without the Clipboard API too (Home Assistant over plain http).
+
 ## 2.17.2 - 2026-11-21
 
 ### Fixes
