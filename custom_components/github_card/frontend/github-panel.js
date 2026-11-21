@@ -17,7 +17,7 @@
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-const GITHUB_PANEL_VERSION = "2.16.3";
+const GITHUB_PANEL_VERSION = "2.16.4";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
@@ -1895,7 +1895,7 @@ class GitHubPanel extends HTMLElement {
       const at = input.selectionStart;
       this._renderRepos();
       const again = this.shadowRoot.querySelector("#repos input[type=search]");
-      again?.focus();
+      again?.focus({ preventScroll: true });
       again?.setSelectionRange(at, at);
     });
     for (const box of host.querySelectorAll("input.pick-repo"))

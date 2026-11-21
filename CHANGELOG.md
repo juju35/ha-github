@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.16.4 - 2026-11-21
+
+### Fixes
+- Repositories tab: typing in the search field gives the focus back to it without scrolling (`preventScroll`), so Safari no longer moves the page to the field on each letter.
+
 ## 2.16.3 - 2026-11-21
 
 ### Fixes
