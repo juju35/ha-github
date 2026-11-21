@@ -899,7 +899,8 @@ const githubPanel_FOLD_CSS = `
   .pf-menu[hidden] { display:none; }
   .pf-ic { flex:none; width:40px; height:40px; border-radius:50%; display:grid; place-items:center; color:var(--pf-accent);
            background:color-mix(in srgb, var(--pf-accent) 14%, transparent); }
-  .pf-ic svg { width:22px; height:22px; fill:currentColor; }
+  .pf-ic svg, .pf-ic img { width:22px; height:22px; fill:currentColor; }
+  .pf-ic ha-icon, .pf-ic ha-svg-icon { --mdc-icon-size:22px; }
   .pf-names { display:flex; flex-direction:column; flex:0 1 auto; min-width:0; max-width:260px; }
   .pf-t { font-size:17px; font-weight:700; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .pf-s { font-size:12.5px; line-height:1.3; color:var(--secondary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -912,6 +913,7 @@ const githubPanel_FOLD_CSS = `
   .pf-pill[aria-selected="true"] { color:var(--pf-accent); border:1.5px solid var(--pf-accent); background:color-mix(in srgb, var(--pf-accent) 14%, transparent); }
   .pf-pill:focus-visible { outline:2px solid var(--pf-accent); outline-offset:2px; }
   .pf-pill svg { width:20px; height:20px; fill:currentColor; }
+  .pf-pill ha-icon { --mdc-icon-size:20px; display:flex; }
   .pf-pill .pf-l { font-size:14px; font-weight:700; }
   .pf-pill b { position:absolute; top:-5px; right:-5px; min-width:18px; height:18px; padding:0 4px; box-sizing:border-box; border-radius:999px;
                font-size:11px; font-weight:700; line-height:14px; text-align:center; color:#fff; background:var(--pf-accent);
@@ -928,6 +930,7 @@ const githubPanel_FOLD_CSS = `
   .pf-acts > *:focus-visible { outline:2px solid var(--pf-accent); outline-offset:2px; }
   .pf-acts > *[disabled] { opacity:.6; cursor:default; }
   .pf-acts svg { width:20px; height:20px; fill:currentColor; }
+  .pf-acts ha-icon { --mdc-icon-size:20px; display:flex; }
   .pf-acts .spin svg { animation:pf-spin 1s linear infinite; }
   @keyframes pf-spin { to { transform:rotate(360deg); } }
   .pf-extra:empty { display:none; }
@@ -947,7 +950,8 @@ const githubPanel_FOLD_CSS = `
  * row), `key` (a tab's id, from the button), `icons` (id → SVG path), `badge` (a tab's count, in it), `name`, `sub`,
  * `icon`, `status` (in the top bar), `acts` (its round buttons), `accent` (CSS colour), `extra` (an element shown
  * under the bar when folded, such as a sub-tab row: moved there while folded), `menu` (() => ({ hass, narrow,
- * show })) for Home Assistant's menu button. Returns { sync, detach }, or null when the panel has no top bar.
+ * show })) for Home Assistant's menu button, `css` (the panel's own rules while folded; the folded bar's height is
+ * `--pf-h` on the panel). Returns { sync, detach }, or null when the panel has no top bar.
  */
 function githubPanelFold(host, o) {
   const root = host.shadowRoot;
@@ -959,7 +963,7 @@ function githubPanelFold(host, o) {
   if (!root.getElementById?.("pf-style")) {
     const style = document.createElement("style");
     style.id = "pf-style";
-    style.textContent = githubPanel_FOLD_CSS;
+    style.textContent = githubPanel_FOLD_CSS + (o.css || "");
     root.appendChild(style);
   }
   top.classList.add("pf-top");
@@ -994,8 +998,8 @@ function githubPanelFold(host, o) {
   const sync = () => {
     queued = false;
     if (!folded) return;
-    const icon = q(o.icon)?.querySelector("svg");
-    el(".pf-ic").innerHTML = icon ? icon.outerHTML : "";
+    const icon = q(o.icon)?.querySelector("svg, ha-icon, ha-svg-icon, img");
+    el(".pf-ic").replaceChildren(...(icon ? [icon.cloneNode(true)] : []));
     el(".pf-t").textContent = (q(o.name)?.textContent || "").trim();
     el(".pf-s").textContent = (q(o.sub)?.textContent || "").trim();
     const st = q(o.status);
@@ -1014,7 +1018,11 @@ function githubPanelFold(host, o) {
         const label = tabLabel(b);
         const count = (b.querySelector(o.badge || ".badge")?.textContent || "").trim();
         const path = o.icons[id];
-        const glyph = path ? `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${path}"/></svg>` : `<span class="pf-l" aria-hidden="true">${esc(label.slice(0, 1))}</span>`;
+        const glyph = !path
+          ? `<span class="pf-l" aria-hidden="true">${esc(label.slice(0, 1))}</span>`
+          : path.startsWith("mdi:")
+            ? `<ha-icon icon="${esc(path)}" aria-hidden="true"></ha-icon>`
+            : `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${path}"/></svg>`;
         const on = isActive(b);
         return `<button class="pf-pill" role="tab" data-i="${i}" aria-selected="${on}" tabindex="${on ? 0 : -1}" title="${esc(label)}" aria-label="${esc(count ? `${label} (${count})` : label)}">${glyph}${count ? `<b aria-hidden="true">${esc(count)}</b>` : ""}</button>`;
       })
@@ -1070,6 +1078,7 @@ function githubPanelFold(host, o) {
       fold.classList.remove("pf-measure");
       fold.style.width = "";
       fold.style.marginBottom = `${Math.round(room - h)}px`;
+      host.style.setProperty("--pf-h", `${h}px`);
       host.setAttribute("pf-folded", "");
     } else {
       folded = false;
