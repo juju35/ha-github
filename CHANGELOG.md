@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.17.2 - 2026-11-21
+
+### Fixes
+- Panel: the icon of the top bar stays shown on a narrow screen (under 600 px), as on the other panels and the dashboards' illustrated headers.
+
 ## 2.17.1 - 2026-11-21
 
 ### Fixes

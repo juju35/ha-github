@@ -17,7 +17,7 @@
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-const GITHUB_PANEL_VERSION = "2.17.1";
+const GITHUB_PANEL_VERSION = "2.17.2";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
@@ -1267,7 +1267,7 @@ class GitHubPanel extends HTMLElement {
     .hacts .i { width:20px; height:20px; }
     .hacts .spin .i { animation:gh-spin 1s linear infinite; }
     @keyframes gh-spin { to { transform:rotate(360deg); } }
-    @media (max-width: 600px) { .topbar .scene { display:none; } .topbar .bhead { right:150px; } .topbar .badge-ic { display:none; } }
+    @media (max-width: 600px) { .topbar .scene { display:none; } .topbar .bhead { right:150px; } }
     .tabs { display:flex; align-items:center; gap:4px; padding:0 12px; overflow-x:auto; background:var(--primary-background-color);
             border-bottom:1px solid var(--divider-color, rgba(0,0,0,.12)); position:sticky; top:0; z-index:2; }
     .tab { background:none; border:none; border-bottom:2px solid transparent; color:var(--secondary-text-color); padding:12px 12px 10px; font:inherit;
