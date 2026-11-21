@@ -5,6 +5,8 @@ import { test } from "node:test";
 import vm from "node:vm";
 
 const timers = [];
+// What the panel wrote to the clipboard
+const clipboard = [];
 const load = () => {
   const src = readFileSync(new URL("../custom_components/github_card/frontend/github-panel.js", import.meta.url), "utf8");
   const defined = new Map();
@@ -23,6 +25,7 @@ const load = () => {
     history: { replaceState() {}, pushState() {} },
     window: { dispatchEvent() {} },
     CustomEvent: class {},
+    navigator: { clipboard: { writeText: async (text) => clipboard.push(text) } },
   };
   vm.createContext(context);
   return vm.runInContext(`${src}\n;({ GITHUB_PANEL_KEYS, GITHUB_PANEL_TRANSLATIONS, GITHUB_PANEL_STRINGS, GitHubPanel, githubPanelKeepView, githubPanelFocusKey })`, context);
@@ -383,6 +386,31 @@ test("repository filter: chips only for the busiest five repositories with open 
   p.shadowRoot.getElementById = (id) => (id === "pulls" ? host : null);
   p._renderItems("pulls");
   assert.doesNotMatch(host.innerHTML, /class="chip"/);
+});
+
+test("Copy the links: the links of the items listed, the repository filter applied, one per line", async () => {
+  const p = new lib.GitHubPanel();
+  p._hass = { language: "en" };
+  p._overview = { configured: true, followed: ["juju35/a", "juju35/b"], offered: [] };
+  const issues = [
+    { repo: "juju35/a", title: "One", url: "https://github.com/juju35/a/issues/1" },
+    { repo: "juju35/b", title: "Two", url: "https://github.com/juju35/b/issues/2" },
+    { repo: "juju35/a", title: "Bad", url: "javascript:alert(1)" },
+  ];
+  p._items = { issues, pulls: [], totals: { "juju35/a": { issues: 2 }, "juju35/b": { issues: 1 } } };
+  const host = { innerHTML: "", querySelector: () => null, querySelectorAll: () => [] };
+  p.shadowRoot = { getElementById: (id) => (id === "issues" ? host : null), querySelector: () => null };
+  p._renderHandle = () => {};
+  p._renderItems("issues");
+  assert.match(host.innerHTML, /data-action="copy-links">[\s\S]*Copy the links/);
+  const button = { isConnected: true, innerHTML: "" };
+  await p._copyLinks(issues.filter((i) => i.repo === "juju35/a"), button);
+  assert.equal(clipboard.at(-1), "https://github.com/juju35/a/issues/1\nhttps://github.com/juju35/a");
+  assert.match(button.innerHTML, /Links copied/);
+  // Nothing listed: no button
+  p._items = { issues: [], pulls: [], totals: {} };
+  p._renderItems("issues");
+  assert.doesNotMatch(host.innerHTML, /copy-links/);
 });
 
 test("a redraw keeps every scrolled ancestor where it was, and the focus on the same control", () => {

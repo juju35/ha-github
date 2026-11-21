@@ -17,7 +17,7 @@
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-const GITHUB_PANEL_VERSION = "2.17.2";
+const GITHUB_PANEL_VERSION = "2.18.0";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
@@ -61,6 +61,8 @@ const GITHUB_PANEL_KEYS = [
   "hide_off", "hide_all", "hide_non_admin",
   // The unfolded repository and the account, drawn by the panel: counters, latest activity, account (the card's words)
   "d_stars", "d_forks", "d_watchers", "d_issues", "d_pulls", "d_merged_pulls", "d_discussions", "d_downloads", "d_latest_release", "d_latest_tag", "d_latest_commit", "d_latest_issue", "d_latest_pull_request", "d_latest_discussion", "d_account", "d_followers", "d_following", "d_public_repos", "d_public_gists",
+  // Issues and Pull requests: the links of the listed items copied to the clipboard
+  "copy_links", "links_copied",
 ];
 
 const GITHUB_PANEL_TRANSLATIONS = {
@@ -95,6 +97,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "To handle", "Nothing to handle on your followed repositories", "+ {n} more",
     "No", "For everyone", "For non-admins",
     "Stars", "Forks", "Watchers", "Issues", "Pull requests", "Merged PRs", "Discussions", "Downloads", "Latest release", "Latest tag", "Latest commit", "Latest issue", "Latest pull request", "Latest discussion", "Account", "Followers", "Following", "Public repositories", "Public gists",
+    "Copy the links", "Links copied",
   ],
   fr: [
     "GitHub", "Dépôts", "Activité", "Réglages", "Intégration GitHub", "Chargement…",
@@ -127,6 +130,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "À traiter", "Rien à traiter sur les dépôts suivis", "+ {n} autres",
     "Non", "Pour tout le monde", "Pour les non-admins",
     "Étoiles", "Forks", "Observateurs", "Issues", "Pull requests", "PR fusionnées", "Discussions", "Téléchargements", "Dernière version", "Dernier tag", "Dernier commit", "Dernière issue", "Dernière pull request", "Dernière discussion", "Compte", "Abonnés", "Abonnements", "Dépôts publics", "Gists publics",
+    "Copier les liens", "Liens copiés",
   ],
   de: [
     "GitHub", "Repositorys", "Aktivität", "Einstellungen", "GitHub-Integration", "Wird geladen…",
@@ -159,6 +163,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Zu erledigen", "Nichts zu erledigen in den verfolgten Repositorys", "+ {n} weitere",
     "Nein", "Für alle", "Für Nicht-Admins",
     "Sterne", "Forks", "Beobachter", "Issues", "Pull Requests", "Gemergte PRs", "Diskussionen", "Downloads", "Neuestes Release", "Neuester Tag", "Letzter Commit", "Neuestes Issue", "Neuester Pull Request", "Neueste Diskussion", "Konto", "Follower", "Folgt", "Öffentliche Repositorys", "Öffentliche Gists",
+    "Links kopieren", "Links kopiert",
   ],
   es: [
     "GitHub", "Repositorios", "Actividad", "Ajustes", "Integración GitHub", "Cargando…",
@@ -191,6 +196,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Por atender", "Nada por atender en los repositorios seguidos", "+ {n} más",
     "No", "Para todos", "Para no administradores",
     "Estrellas", "Forks", "Observadores", "Issues", "Pull requests", "PR fusionadas", "Discusiones", "Descargas", "Última versión", "Última etiqueta", "Último commit", "Última issue", "Última pull request", "Última discusión", "Cuenta", "Seguidores", "Siguiendo", "Repositorios públicos", "Gists públicos",
+    "Copiar los enlaces", "Enlaces copiados",
   ],
   sr: [
     "GitHub", "Репозиторијуми", "Активност", "Подешавања", "Интеграција GitHub", "Учитавање…",
@@ -223,6 +229,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "За обраду", "Ништа за обраду у праћеним репозиторијумима", "+ још {n}",
     "Не", "За све", "За кориснике који нису администратори",
     "Звездице", "Форкови", "Посматрачи", "Проблеми", "Pull захтеви", "Спојени PR", "Дискусије", "Преузимања", "Најновије издање", "Најновија ознака", "Последњи комит", "Последњи проблем", "Последњи pull захтев", "Последња дискусија", "Налог", "Пратиоци", "Прати", "Јавни репозиторијуми", "Јавни гистови",
+    "Копирај везе", "Везе су копиране",
   ],
   "sr-Latn": [
     "GitHub", "Repozitorijumi", "Aktivnost", "Podešavanja", "Integracija GitHub", "Učitavanje…",
@@ -255,6 +262,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Za obradu", "Ništa za obradu u praćenim repozitorijumima", "+ još {n}",
     "Ne", "Za sve", "Za korisnike koji nisu administratori",
     "Zvezdice", "Forkovi", "Posmatrači", "Problemi", "Pull zahtevi", "Spojeni PR", "Diskusije", "Preuzimanja", "Najnovije izdanje", "Najnovija oznaka", "Poslednji komit", "Poslednji problem", "Poslednji pull zahtev", "Poslednja diskusija", "Nalog", "Pratioci", "Prati", "Javni repozitorijumi", "Javni gistovi",
+    "Kopiraj veze", "Veze su kopirane",
   ],
   it: [
     "GitHub", "Repository", "Attività", "Impostazioni", "Integrazione GitHub", "Caricamento…",
@@ -287,6 +295,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Da gestire", "Niente da gestire nei repository seguiti", "+ altri {n}",
     "No", "Per tutti", "Per i non amministratori",
     "Stelle", "Fork", "Osservatori", "Issue", "Pull request", "PR unite", "Discussioni", "Download", "Ultima release", "Ultimo tag", "Ultimo commit", "Ultima issue", "Ultima pull request", "Ultima discussione", "Account", "Follower", "Seguiti", "Repository pubblici", "Gist pubblici",
+    "Copia i link", "Link copiati",
   ],
   nl: [
     "GitHub", "Repositories", "Activiteit", "Instellingen", "GitHub-integratie", "Laden…",
@@ -319,6 +328,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Af te handelen", "Niets af te handelen in de gevolgde repositories", "+ {n} meer",
     "Nee", "Voor iedereen", "Voor niet-beheerders",
     "Sterren", "Forks", "Kijkers", "Issues", "Pull requests", "Samengevoegde PR’s", "Discussies", "Downloads", "Nieuwste release", "Nieuwste tag", "Laatste commit", "Nieuwste issue", "Nieuwste pull request", "Nieuwste discussie", "Account", "Volgers", "Volgend", "Openbare repositories", "Openbare gists",
+    "Links kopiëren", "Links gekopieerd",
   ],
   pt: [
     "GitHub", "Repositórios", "Atividade", "Definições", "Integração GitHub", "A carregar…",
@@ -351,6 +361,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Por tratar", "Nada por tratar nos repositórios seguidos", "+ {n} mais",
     "Não", "Para todos", "Para não administradores",
     "Estrelas", "Forks", "Observadores", "Issues", "Pull requests", "PR integrados", "Discussões", "Transferências", "Versão mais recente", "Etiqueta mais recente", "Último commit", "Issue mais recente", "Pull request mais recente", "Discussão mais recente", "Conta", "Seguidores", "A seguir", "Repositórios públicos", "Gists públicos",
+    "Copiar as ligações", "Ligações copiadas",
   ],
   pl: [
     "GitHub", "Repozytoria", "Aktywność", "Ustawienia", "Integracja GitHub", "Ładowanie…",
@@ -383,6 +394,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Do obsłużenia", "Nic do obsłużenia w obserwowanych repozytoriach", "+ {n} więcej",
     "Nie", "Dla wszystkich", "Dla nie-administratorów",
     "Gwiazdki", "Forki", "Obserwatorzy", "Zgłoszenia", "Pull requesty", "Scalone PR", "Dyskusje", "Pobrania", "Najnowsze wydanie", "Najnowszy tag", "Ostatni commit", "Najnowsze zgłoszenie", "Najnowszy pull request", "Najnowsza dyskusja", "Konto", "Obserwujący", "Obserwowani", "Publiczne repozytoria", "Publiczne gisty",
+    "Kopiuj linki", "Skopiowano linki",
   ],
   ro: [
     "GitHub", "Depozite", "Activitate", "Setări", "Integrarea GitHub", "Se încarcă…",
@@ -415,6 +427,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "De rezolvat", "Nimic de rezolvat în depozitele urmărite", "+ încă {n}",
     "Nu", "Pentru toți", "Pentru non-administratori",
     "Stele", "Fork-uri", "Observatori", "Issue-uri", "Pull request-uri", "PR-uri îmbinate", "Discuții", "Descărcări", "Cea mai recentă versiune", "Cea mai recentă etichetă", "Ultimul commit", "Cel mai recent issue", "Cel mai recent pull request", "Cea mai recentă discuție", "Cont", "Urmăritori", "Urmăriți", "Depozite publice", "Gist-uri publice",
+    "Copiază linkurile", "Linkuri copiate",
   ],
   da: [
     "GitHub", "Repositories", "Aktivitet", "Indstillinger", "GitHub-integration", "Indlæser…",
@@ -447,6 +460,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Skal håndteres", "Intet at håndtere i de fulgte repositories", "+ {n} mere",
     "Nej", "For alle", "For ikke-administratorer",
     "Stjerner", "Forks", "Overvågere", "Issues", "Pull requests", "Flettede PR’er", "Diskussioner", "Downloads", "Seneste udgivelse", "Seneste tag", "Seneste commit", "Seneste issue", "Seneste pull request", "Seneste diskussion", "Konto", "Følgere", "Følger", "Offentlige repositories", "Offentlige gists",
+    "Kopiér links", "Links kopieret",
   ],
   sv: [
     "GitHub", "Repon", "Aktivitet", "Inställningar", "GitHub-integration", "Laddar…",
@@ -479,6 +493,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Att hantera", "Inget att hantera i de följda förråden", "+ {n} till",
     "Nej", "För alla", "För icke-administratörer",
     "Stjärnor", "Forks", "Bevakare", "Ärenden", "Pull requests", "Sammanfogade PR", "Diskussioner", "Nedladdningar", "Senaste release", "Senaste tagg", "Senaste commit", "Senaste ärende", "Senaste pull request", "Senaste diskussion", "Konto", "Följare", "Följer", "Publika repon", "Publika gists",
+    "Kopiera länkarna", "Länkarna kopierade",
   ],
   bg: [
     "GitHub", "Хранилища", "Активност", "Настройки", "Интеграция GitHub", "Зареждане…",
@@ -511,6 +526,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "За обработка", "Нищо за обработка в следваните хранилища", "+ още {n}",
     "Не", "За всички", "За неадминистратори",
     "Звезди", "Форкове", "Наблюдаващи", "Проблеми", "Pull заявки", "Слети PR", "Дискусии", "Изтегляния", "Последна версия", "Последен таг", "Последен commit", "Последен проблем", "Последна pull заявка", "Последна дискусия", "Акаунт", "Последователи", "Следвани", "Публични хранилища", "Публични gist-ове",
+    "Копиране на връзките", "Връзките са копирани",
   ],
   ru: [
     "GitHub", "Репозитории", "Активность", "Настройки", "Интеграция GitHub", "Загрузка…",
@@ -543,6 +559,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "К обработке", "Нечего обрабатывать в отслеживаемых репозиториях", "+ ещё {n}",
     "Нет", "Для всех", "Для не-администраторов",
     "Звёзды", "Форки", "Наблюдатели", "Задачи", "Pull-запросы", "Слитые PR", "Обсуждения", "Загрузки", "Последний релиз", "Последний тег", "Последний коммит", "Последняя задача", "Последний pull-запрос", "Последнее обсуждение", "Аккаунт", "Подписчики", "Подписки", "Публичные репозитории", "Публичные gist",
+    "Копировать ссылки", "Ссылки скопированы",
   ],
   uk: [
     "GitHub", "Репозиторії", "Активність", "Налаштування", "Інтеграція GitHub", "Завантаження…",
@@ -575,6 +592,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "До опрацювання", "Нічого опрацьовувати у відстежуваних репозиторіях", "+ ще {n}",
     "Ні", "Для всіх", "Для не-адміністраторів",
     "Зірки", "Форки", "Спостерігачі", "Задачі", "Pull-запити", "Злиті PR", "Обговорення", "Завантаження", "Останній реліз", "Останній тег", "Останній коміт", "Остання задача", "Останній pull-запит", "Останнє обговорення", "Обліковий запис", "Підписники", "Стежить", "Публічні репозиторії", "Публічні gist",
+    "Копіювати посилання", "Посилання скопійовано",
   ],
   hu: [
     "GitHub", "Tárolók", "Tevékenység", "Beállítások", "GitHub integráció", "Betöltés…",
@@ -607,6 +625,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Teendő", "Nincs teendő a követett tárolókban", "+ még {n}",
     "Nem", "Mindenkinek", "Nem rendszergazdáknak",
     "Csillagok", "Forkok", "Figyelők", "Hibajegyek", "Pull requestek", "Egyesített PR-ek", "Beszélgetések", "Letöltések", "Legújabb kiadás", "Legújabb címke", "Legutóbbi commit", "Legújabb hibajegy", "Legújabb pull request", "Legújabb beszélgetés", "Fiók", "Követők", "Követettek", "Nyilvános tárolók", "Nyilvános gistek",
+    "Hivatkozások másolása", "Hivatkozások másolva",
   ],
   sk: [
     "GitHub", "Repozitáre", "Aktivita", "Nastavenia", "Integrácia GitHub", "Načítava sa…",
@@ -639,6 +658,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Na vybavenie", "Nič na vybavenie v sledovaných repozitároch", "+ ďalších {n}",
     "Nie", "Pre všetkých", "Pre neadministrátorov",
     "Hviezdičky", "Forky", "Pozorovatelia", "Problémy", "Pull requesty", "Zlúčené PR", "Diskusie", "Stiahnutia", "Najnovšie vydanie", "Najnovší tag", "Posledný commit", "Najnovší problém", "Najnovší pull request", "Najnovšia diskusia", "Účet", "Sledovatelia", "Sleduje", "Verejné repozitáre", "Verejné gisty",
+    "Kopírovať odkazy", "Odkazy skopírované",
   ],
   cs: [
     "GitHub", "Repozitáře", "Aktivita", "Nastavení", "Integrace GitHub", "Načítání…",
@@ -671,6 +691,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "K vyřízení", "Nic k vyřízení ve sledovaných repozitářích", "+ dalších {n}",
     "Ne", "Pro všechny", "Pro neadministrátory",
     "Hvězdičky", "Forky", "Pozorovatelé", "Problémy", "Pull requesty", "Sloučené PR", "Diskuze", "Stažení", "Nejnovější vydání", "Nejnovější tag", "Poslední commit", "Nejnovější problém", "Nejnovější pull request", "Nejnovější diskuze", "Účet", "Sledující", "Sleduje", "Veřejné repozitáře", "Veřejné gisty",
+    "Kopírovat odkazy", "Odkazy zkopírovány",
   ],
   sl: [
     "GitHub", "Repozitoriji", "Dejavnost", "Nastavitve", "Integracija GitHub", "Nalaganje…",
@@ -703,6 +724,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Za obravnavo", "Nič za obravnavo v spremljanih repozitorijih", "+ še {n}",
     "Ne", "Za vse", "Za neskrbnike",
     "Zvezdice", "Forki", "Opazovalci", "Težave", "Pull requesti", "Združeni PR", "Razprave", "Prenosi", "Najnovejša izdaja", "Najnovejša oznaka", "Zadnji commit", "Najnovejša težava", "Najnovejši pull request", "Najnovejša razprava", "Račun", "Sledilci", "Sledi", "Javni repozitoriji", "Javni gisti",
+    "Kopiraj povezave", "Povezave kopirane",
   ],
   lv: [
     "GitHub", "Krātuves", "Aktivitāte", "Iestatījumi", "GitHub integrācija", "Ielādē…",
@@ -735,6 +757,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Jāapstrādā", "Sekotajos repozitorijos nav nekā, ko apstrādāt", "+ vēl {n}",
     "Nē", "Visiem", "Ne-administratoriem",
     "Zvaigznes", "Forki", "Vērotāji", "Problēmas", "Pull pieprasījumi", "Apvienotie PR", "Diskusijas", "Lejupielādes", "Jaunākais laidiens", "Jaunākā birka", "Pēdējais commit", "Jaunākā problēma", "Jaunākais pull pieprasījums", "Jaunākā diskusija", "Konts", "Sekotāji", "Seko", "Publiskās krātuves", "Publiskie gist",
+    "Kopēt saites", "Saites nokopētas",
   ],
   el: [
     "GitHub", "Αποθετήρια", "Δραστηριότητα", "Ρυθμίσεις", "Ενσωμάτωση GitHub", "Φόρτωση…",
@@ -767,6 +790,7 @@ const GITHUB_PANEL_TRANSLATIONS = {
     "Προς χειρισμό", "Τίποτα προς χειρισμό στα αποθετήρια που ακολουθείτε", "+ {n} ακόμη",
     "Όχι", "Για όλους", "Για μη διαχειριστές",
     "Αστέρια", "Forks", "Παρατηρητές", "Ζητήματα", "Pull requests", "Συγχωνευμένα PR", "Συζητήσεις", "Λήψεις", "Τελευταία έκδοση", "Τελευταία ετικέτα", "Τελευταίο commit", "Τελευταίο ζήτημα", "Τελευταίο pull request", "Τελευταία συζήτηση", "Λογαριασμός", "Ακόλουθοι", "Ακολουθεί", "Δημόσια αποθετήρια", "Δημόσια gists",
+    "Αντιγραφή συνδέσμων", "Οι σύνδεσμοι αντιγράφηκαν",
   ],
 };
 
@@ -816,6 +840,7 @@ const GITHUB_PANEL_ICONS = {
   cog: "M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z",
   plus: "M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z",
   check: "M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z",
+  copy: "M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z",
   issue: "M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,9.5A2.5,2.5 0 0,0 9.5,12A2.5,2.5 0 0,0 12,14.5A2.5,2.5 0 0,0 14.5,12A2.5,2.5 0 0,0 12,9.5Z",
   pr: "M6,3A3,3 0 0,1 9,6C9,7.31 8.17,8.42 7,8.83V15.17C8.17,15.58 9,16.69 9,18A3,3 0 0,1 6,21A3,3 0 0,1 3,18C3,16.69 3.83,15.58 5,15.17V8.83C3.83,8.42 3,7.31 3,6A3,3 0 0,1 6,3M6,5A1,1 0 0,0 5,6A1,1 0 0,0 6,7A1,1 0 0,0 7,6A1,1 0 0,0 6,5M6,17A1,1 0 0,0 5,18A1,1 0 0,0 6,19A1,1 0 0,0 7,18A1,1 0 0,0 6,17M21,18A3,3 0 0,1 18,21A3,3 0 0,1 15,18C15,16.69 15.83,15.58 17,15.17V7H15V10.25L10.75,6L15,1.75V5H17A2,2 0 0,1 19,7V15.17C20.17,15.58 21,16.69 21,18M18,17A1,1 0 0,0 17,18A1,1 0 0,0 18,19A1,1 0 0,0 19,18A1,1 0 0,0 18,17Z",
   chevron: "M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z",
@@ -2552,7 +2577,7 @@ class GitHubPanel extends HTMLElement {
     if (this._items.error) notes.push(`<div class="note bad" role="status">${esc(this._t("items_error", { error: this._items.error }))}</div>`);
     host.innerHTML = `
       ${top({ tone: this._items.error ? "bad" : grand ? (kind === "pulls" ? "" : "good") : "muted", text: this._t("open_n", { n: this._compact(grand) }) }, this._fetchedLine(this._items),
-        `<div class="chips">${chips}<span class="grow"></span><button class="act quiet" data-action="refresh"${this._itemsBusy ? " disabled" : ""}>${githubPanelIcon("refresh")}${esc(this._t("refresh"))}</button></div>${notes.join("")}`)}
+        `<div class="chips">${chips}<span class="grow"></span>${items.length ? `<button class="act quiet" data-action="copy-links">${githubPanelIcon("copy")}${esc(this._t("copy_links"))}</button>` : ""}<button class="act quiet" data-action="refresh"${this._itemsBusy ? " disabled" : ""}>${githubPanelIcon("refresh")}${esc(this._t("refresh"))}</button></div>${notes.join("")}`)}
       <div class="card list">
         <div class="lhead"><h2 class="lname">${esc(this._t("open_n", { n: this._compact(total) }))}</h2></div>
         <div class="rows">${items.length ? items.map((i) => this._itemHtml(i, kind)).join("") : `<div class="note">${esc(this._t(kind === "pulls" ? "no_pulls" : "no_issues"))}</div>`}</div>
@@ -2574,6 +2599,41 @@ class GitHubPanel extends HTMLElement {
     this._renderHandle();
       });
     host.querySelector("[data-action=refresh]")?.addEventListener("click", () => this._refreshItems());
+    host.querySelector("[data-action=copy-links]")?.addEventListener("click", (ev) => this._copyLinks(items, ev.currentTarget));
+  }
+
+  /**
+   * The links of the items listed (the repository filter applied), one per line, to the clipboard; the button says
+   * "Links copied" for two seconds. Without the Clipboard API (Home Assistant over plain http), through a hidden
+   * text area.
+   */
+  async _copyLinks(items, button) {
+    const text = items.map((i) => (/^https:\/\/github\.com\//.test(i.url) ? i.url : `https://github.com/${i.repo}`)).join("\n");
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(text);
+      ok = true;
+    } catch (_err) {
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+      this.shadowRoot.appendChild(area);
+      area.select();
+      try {
+        ok = document.execCommand("copy");
+      } catch (_e) {
+        ok = false;
+      }
+      area.remove();
+    }
+    if (!ok || !button?.isConnected) return;
+    const label = githubPanelEsc(this._t("links_copied"));
+    button.innerHTML = `${githubPanelIcon("check")}${label}`;
+    clearTimeout(this._copyTimer);
+    this._copyTimer = setTimeout(() => {
+      if (button.isConnected) button.innerHTML = `${githubPanelIcon("copy")}${githubPanelEsc(this._t("copy_links"))}`;
+    }, 2000);
   }
 
   // ── My pull requests tab ──
