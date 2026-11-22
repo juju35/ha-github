@@ -8,7 +8,7 @@
  * entity registry (platform "github", translation key, device), whatever the language.
  */
 
-const VERSION = "2.18.0";
+const VERSION = "2.18.1";
 
 // Material Design Icons paths.
 // The width of an element's whole text in its own font, in fractional pixels (scrollWidth is rounded).
@@ -1533,7 +1533,7 @@ for (const card of [
   { type: "github-mini-card", name: "GitHub Mini Card", description: "Compact overview of your GitHub repositories: totals and one line per repository." },
 ]) {
   if (!window.customCards.some((c) => c.type === card.type))
-    window.customCards.push({ ...card, preview: true, documentationURL: "https://github.com/juju35/ha-github" });
+    window.customCards.push({ ...card, preview: false, documentationURL: "https://github.com/juju35/ha-github" });
 }
 
 console.info(`%c GITHUB-CARD %c v${VERSION} `, "color: white; background: #8957e5; font-weight: 700;", "color: #8957e5; background: white; font-weight: 700;");

@@ -17,7 +17,7 @@
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-const GITHUB_PANEL_VERSION = "2.18.0";
+const GITHUB_PANEL_VERSION = "2.18.1";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
