@@ -54,7 +54,7 @@ The panel opens on the card's desk across the page (as on the ENT ONE panel): Gi
 
 | Integration | What it is used for |
 |---|---|
-| [GitHub](https://www.home-assistant.io/integrations/github/) (built in) | The repositories followed (one per "repository" entry of the integration), their sensors for the cards and the notifications, and its access token for the open issues and pull requests |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/images/github.png" alt="" width="16"> [GitHub](https://www.home-assistant.io/integrations/github/) (built in) | The repositories followed (one per "repository" entry of the integration), their sensors for the cards and the notifications, and its access token for the open issues and pull requests |
 
 ## Prerequisites
 
