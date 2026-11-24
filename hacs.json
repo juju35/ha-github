@@ -1,5 +1,7 @@
 {
   "name": "GitHub Card",
   "render_readme": true,
+  "zip_release": true,
+  "filename": "github_card.zip",
   "homeassistant": "2026.11.0"
 }

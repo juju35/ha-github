@@ -35,8 +35,8 @@ jobs:
         run: |
           VERSION="$(jq -r .version custom_components/github_card/manifest.json)"
           grep -q "VERSION = \"$VERSION\"" custom_components/github_card/const.py || { echo "::error file=custom_components/github_card/const.py::version $VERSION not found in custom_components/github_card/const.py"; exit 1; }
-          grep -q "const VERSION = \"$VERSION\"" custom_components/github_card/frontend/github-card.js || { echo "::error file=custom_components/github_card/frontend/github-card.js::version $VERSION not found in custom_components/github_card/frontend/github-card.js"; exit 1; }
-          grep -q "GITHUB_PANEL_VERSION = \"$VERSION\"" custom_components/github_card/frontend/github-panel.js || { echo "::error file=custom_components/github_card/frontend/github-panel.js::version $VERSION not found in custom_components/github_card/frontend/github-panel.js"; exit 1; }
+          grep -q "const VERSION = \"$VERSION\"" src/github-card/core.js || { echo "::error file=src/github-card/core.js::version $VERSION not found in src/github-card/core.js"; exit 1; }
+          grep -q "GITHUB_PANEL_VERSION = \"$VERSION\"" src/github-panel/core.js || { echo "::error file=src/github-panel/core.js::version $VERSION not found in src/github-panel/core.js"; exit 1; }
           grep -q "\"version\": \"$VERSION\"" package.json || { echo "::error file=package.json::version $VERSION not found in package.json"; exit 1; }
           test "$(node -p "require('./package-lock.json').version")" = "$VERSION" || { echo "::error file=package-lock.json::package-lock.json is not at $VERSION (npm install)"; exit 1; }
           grep -q "^## $VERSION " CHANGELOG.md || { echo "::error file=CHANGELOG.md::no '## $VERSION' entry in CHANGELOG.md"; exit 1; }
@@ -64,6 +64,12 @@ jobs:
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.14"
+
+      # The served card and panel are assembled from src/ (not committed); the runner's Node is enough.
+      - name: Build the frontend
+        run: |
+          npm ci
+          node scripts/build-frontend.mjs
 
       - name: Install dependencies
         run: pip install -r requirements_test.txt
@@ -114,7 +120,8 @@ jobs:
         run: .github/scripts/install-chromium-deps.sh
 
       # REQUIRE_BROWSER=1: the browser tests (status pill) must run here, a missing Chromium fails the job.
+      # npm test assembles the card and the panel from src/ first (pretest)
       - name: Run card tests
-        run: node --test test/*.test.mjs
+        run: npm test
         env:
           REQUIRE_BROWSER: "1"
