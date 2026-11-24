@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.18.4 - 2026-11-24
+
+### Fixes
+- Panel: the Repositories tab no longer scrolls on its own. Every Home Assistant state update rewrote its counters,
+  the unfolded repository, the top bar and the folded bar (their markup was compared with `innerHTML`, which never
+  reads back the string set); they are now rewritten only when something changed, and the folded bar's pill row is
+  brought back to the active tab only when the tab changes.
+
 ## 2.18.3 - 2026-11-24
 
 ### Maintenance

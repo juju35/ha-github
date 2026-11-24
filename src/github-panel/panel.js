@@ -1,6 +1,6 @@
 // ── End of the folded top bar ──
 import { GITHUB_PANEL_MAX_REFRESH, GITHUB_PANEL_MIN_REFRESH, GITHUB_PANEL_SORTS, GITHUB_PANEL_TABS } from "./core.js";
-import { GITHUB_PANEL_ICONS, GITHUB_PANEL_LATEST, GITHUB_PANEL_REPO_STATS, GITHUB_PANEL_SCENE, GITHUB_PANEL_STRINGS, GITHUB_PANEL_USER_STATS, githubPanelEsc, githubPanelHideMode, githubPanelIcon, githubPanelKeepView } from "./helpers.js";
+import { GITHUB_PANEL_ICONS, GITHUB_PANEL_LATEST, GITHUB_PANEL_REPO_STATS, GITHUB_PANEL_SCENE, GITHUB_PANEL_STRINGS, GITHUB_PANEL_USER_STATS, githubPanelEsc, githubPanelHideMode, githubPanelIcon, githubPanelKeepView, githubPanelSetHtml } from "./helpers.js";
 import { githubPanelFold } from "./fold.js";
 
 export class GitHubPanel extends HTMLElement {
@@ -717,15 +717,17 @@ export class GitHubPanel extends HTMLElement {
     root.querySelector(".topbar .banner")?.classList.toggle("night", Boolean(this._hass?.themes?.darkMode));
     const pill = o?.configured ? `<span class="stpill" role="status">${esc(this._t("summary", { followed: o.followed.length, offered: o.offered.length }))}</span>` : "";
     const sub = [o?.login ? `github.com/${o.login}` : "", this._fetchedLine(this._items)].filter(Boolean).join(" · ");
-    info.innerHTML = `<span class="badge-ic">${githubPanelIcon("code")}</span>
-      <div class="btitles"><div class="brow"><span class="bname">${esc(this._t("title"))}</span>${pill}</div>${sub ? `<div class="bsub">${esc(sub)}</div>` : ""}</div>`;
+    githubPanelSetHtml(info, `<span class="badge-ic">${githubPanelIcon("code")}</span>
+      <div class="btitles"><div class="brow"><span class="bname">${esc(this._t("title"))}</span>${pill}</div>${sub ? `<div class="bsub">${esc(sub)}</div>` : ""}</div>`);
     const acts = root.querySelector(".topbar .hacts");
     const refresh = esc(this._t("refresh"));
     const cog = esc(this._t("open_integration"));
     const gh = esc(this._t("open_github"));
-    acts.innerHTML = `<button data-action="head-refresh" class="${this._itemsBusy ? "spin" : ""}" title="${refresh}" aria-label="${refresh}"${this._itemsBusy ? " disabled" : ""}>${githubPanelIcon("refresh")}</button>
+    const html = `<button data-action="head-refresh" class="${this._itemsBusy ? "spin" : ""}" title="${refresh}" aria-label="${refresh}"${this._itemsBusy ? " disabled" : ""}>${githubPanelIcon("refresh")}</button>
       ${o?.login ? `<a href="https://github.com/${esc(o.login)}" target="_blank" rel="noopener noreferrer" title="${gh}" aria-label="${gh}">${githubPanelIcon("open")}</a>` : ""}
       <a href="/config/integrations/integration/github" title="${cog}" aria-label="${cog}">${githubPanelIcon("cog")}</a>`;
+    // Rewritten (and its button bound again) only when it changed: a state update leaves the top bar alone
+    if (!githubPanelSetHtml(acts, html)) return;
     acts.querySelector("[data-action=head-refresh]")?.addEventListener("click", () => this._refreshItems());
   }
 
@@ -879,7 +881,7 @@ export class GitHubPanel extends HTMLElement {
   /** Redraw only the To handle card (the items changed): the Repositories tab's search keeps its focus. */
   _renderHandle() {
     const slot = this.shadowRoot?.getElementById?.("handle");
-    if (slot) slot.innerHTML = this._handleHtml();
+    githubPanelSetHtml(slot, this._handleHtml());
   }
 
   /** Live counters of a followed repository, from its GitHub sensors: stars, open issues, open pull requests, release. */
@@ -1009,25 +1011,16 @@ export class GitHubPanel extends HTMLElement {
 
   /** Counters of the rows follow the sensors without rebuilding the list (the search field keeps its focus). */
   _updateInfo() {
-    const kpis = this.shadowRoot.querySelector?.("#repos .kpis");
-    if (kpis) {
-      const html = this._kpisHtml();
-      if (kpis.innerHTML !== html) kpis.innerHTML = html;
-    }
+    // Compared with the markup last set, not innerHTML (never equal once parsed): rewritten only when a counter changed
+    githubPanelSetHtml(this.shadowRoot.querySelector?.("#repos .kpis"), this._kpisHtml());
     const slot = this.shadowRoot.querySelector?.("#repos .account-slot");
     if (slot) {
       const html = this._accountHtml();
-      if (slot.innerHTML !== html) slot.innerHTML = html;
+      githubPanelSetHtml(slot, html);
       slot.closest(".account-card").hidden = !html;
     }
-    for (const span of this.shadowRoot.querySelectorAll?.("#repos .info") || []) {
-      const html = this._infoHtml(span.dataset.repo);
-      if (span.innerHTML !== html) span.innerHTML = html;
-    }
-    for (const detail of this.shadowRoot.querySelectorAll?.("#repos .detail") || []) {
-      const html = this._detailHtml(detail.dataset.repo);
-      if (detail.innerHTML !== html) detail.innerHTML = html;
-    }
+    for (const span of this.shadowRoot.querySelectorAll?.("#repos .info") || []) githubPanelSetHtml(span, this._infoHtml(span.dataset.repo));
+    for (const detail of this.shadowRoot.querySelectorAll?.("#repos .detail") || []) githubPanelSetHtml(detail, this._detailHtml(detail.dataset.repo));
   }
 
   _bindRepos(host) {

@@ -20,6 +20,16 @@ export const githubPanelFocusKey = (el) => {
   return attrs.length || cls ? `${el.localName}${cls}${attrs.join("")}` : null;
 };
 
+// Sets `node`'s markup only when `html` differs from the markup it was last given (the browser's own serialisation
+// never matches the string: `<path/>` reads back `<path></path>`), so that a Home Assistant update with nothing new
+// leaves the page alone. Returns true when the node was rewritten.
+export const githubPanelSetHtml = (node, html) => {
+  if (!node || node._ghHtml === html) return false;
+  node._ghHtml = html;
+  node.innerHTML = html;
+  return true;
+};
+
 // Redraws `host` with `draw` keeping the page where it was scrolled and the focus on the same control: Safari (no
 // scroll anchoring) sent the page back to the top when a tab was rebuilt under the pointer. Every scrolled ancestor,
 // across the shadow roots up to the document, gets its position back.

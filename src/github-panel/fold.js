@@ -60,6 +60,7 @@ export function githubPanelFold(host, o) {
   let queued = false;
   let extraHome = null;
   let sideHome = null;
+  let shownActive = null;
 
   const tabButtons = () => [...tabs.querySelectorAll(o.tab)];
   const tabLabel = (b) => {
@@ -121,10 +122,13 @@ export function githubPanelFold(host, o) {
       })
       .join("");
     if (focused !== undefined) el(`.pf-pill[data-i="${focused}"]`)?.focus({ preventScroll: true });
-    // The active pill in sight in a scrolling row, without scrolling the page
+    // The active pill in sight in a scrolling row, without scrolling the page; only when the active tab changed, so
+    // that a row swiped by hand is not sent back at every update
     const row = el(".pf-pills");
     const act = el(".pf-pill[aria-selected=true]");
-    if (act && (act.offsetLeft < row.scrollLeft || act.offsetLeft + act.offsetWidth > row.scrollLeft + row.clientWidth)) {
+    const changed = act?.dataset.i !== shownActive;
+    shownActive = act?.dataset.i ?? null;
+    if (act && changed && (act.offsetLeft < row.scrollLeft || act.offsetLeft + act.offsetWidth > row.scrollLeft + row.clientWidth)) {
       row.scrollLeft = Math.max(0, act.offsetLeft - 16);
     }
     // The sub-tabs of the tab shown (in the page, under the top bar), mirrored in a row under the folded bar
@@ -214,6 +218,7 @@ export function githubPanelFold(host, o) {
       host.setAttribute("pf-folded", "");
     } else {
       folded = false;
+      shownActive = null;
       const extra = el(".pf-extra").firstElementChild;
       if (extra && extraHome) extraHome[0].insertBefore(extra, extraHome[1] && extraHome[1].parentNode === extraHome[0] ? extraHome[1] : null);
       extraHome = null;
