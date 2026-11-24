@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.18.3 - 2026-11-24
+
+### Maintenance
+- The card and the panel are split into ES modules: `src/github-card/` and `src/github-panel/` (entry `index.js` in each), cut at their sections, with the translations in one file per language (`i18n/<lang>.js`). `scripts/build-frontend.mjs` assembles them back, in their original order, into the same `github-card.js` and `github-panel.js` the integration serves; they are no longer committed. The release builds them into `github_card.zip`, which the Marketplace now installs (`zip_release`).
+
 ## 2.18.2 - 2026-11-22
 
 ### Performance

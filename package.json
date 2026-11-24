@@ -1,16 +1,20 @@
 {
   "name": "ha-github",
-  "version": "2.18.2",
+  "version": "2.18.3",
   "description": "Home Assistant integration with an admin sidebar panel to follow your GitHub repositories, and Lovelace cards.",
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check custom_components/github_card/frontend/github-card.js && node --check custom_components/github_card/frontend/github-panel.js",
+    "build": "node scripts/build-frontend.mjs",
+    "check": "node scripts/build-frontend.mjs && node --check custom_components/github_card/frontend/github-card.js && node --check custom_components/github_card/frontend/github-panel.js",
+    "prescreenshots": "node scripts/build-frontend.mjs",
     "screenshots": "node scripts/screenshots.mjs",
+    "pretest": "node scripts/build-frontend.mjs",
     "test": "node --test test/*.test.mjs"
   },
   "license": "MIT",
   "devDependencies": {
+    "acorn": "^8.19.0",
     "playwright": "^1.65.0"
   }
 }

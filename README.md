@@ -250,15 +250,15 @@ The compact card shows the totals of the repositories shown (stars, forks, open 
 
 ```bash
 pip install -r requirements_test.txt && pytest   # integration tests (Home Assistant test harness)
-npm ci && npm test                               # card and panel tests
+npm ci && npm test                               # assembles the card and the panel (npm run build), then their tests
 npm run screenshots                              # renders the cards and the panel with mock data into screenshots/, and the animated GIFs (needs ffmpeg)
 ```
 
-The card and the panel are plain JavaScript files in `custom_components/github_card/frontend/`, served by the integration: nothing to build.
+The card and the panel are plain JavaScript files served by the integration from `custom_components/github_card/frontend/`. Their source is split into ES modules under `src/github-card/` and `src/github-panel/` (entry `index.js`, translations one file per language in `i18n/`); `npm run build` (`scripts/build-frontend.mjs`) assembles each into the classic script `frontend/<stem>.js`, which is not committed (the release builds it into the zip). The modules share one scope, so top-level names stay unique across them, and a new module must be listed in its `index.js`.
 
 ### Releasing
 
-1. Bump the version in `custom_components/github_card/manifest.json`, `const.py` (`VERSION`), `frontend/github-card.js` (`VERSION`), `frontend/github-panel.js` (`GITHUB_PANEL_VERSION`) and `package.json`
+1. Bump the version in `custom_components/github_card/manifest.json`, `const.py` (`VERSION`), `src/github-card/core.js` (`VERSION`), `src/github-panel/core.js` (`GITHUB_PANEL_VERSION`) and `package.json`
 2. Add a `## <version>` section at the top of [CHANGELOG.md](https://github.com/juju35/ha-github/blob/main/CHANGELOG.md)
 3. Push to `main`: the **Release** workflow checks that the versions agree, creates the tag and the GitHub release with the changelog section as notes, and attaches `github_card.zip`
 

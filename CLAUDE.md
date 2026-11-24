@@ -42,8 +42,8 @@ carries the new version, updated together in one commit:
 1. `CHANGELOG.md` → add a "## X.Y.Z - YYYY-MM-DD" section at the top (`### Features` | `Fixes` | `Performance` | `Maintenance`).
 2. `custom_components/github_card/manifest.json` → `"version": "X.Y.Z"`.
 3. `custom_components/github_card/const.py` → `VERSION = "X.Y.Z"`.
-4. `custom_components/github_card/frontend/github-card.js` → `const VERSION = "X.Y.Z"`.
-5. `custom_components/github_card/frontend/github-panel.js` → `GITHUB_PANEL_VERSION = "X.Y.Z"`.
+4. `src/github-card/core.js` → `const VERSION = "X.Y.Z"`.
+5. `src/github-panel/core.js` → `GITHUB_PANEL_VERSION = "X.Y.Z"`.
 6. `package.json` → `"version": "X.Y.Z"`.
 7. `package-lock.json` → run `npm install` so its version matches (CI checks it).
 - Bump rule: `fix` → patch, `feat` → minor, breaking change → major.
@@ -63,6 +63,12 @@ carries the new version, updated together in one commit:
 
 ## Supported integrations
 This builds on other Home Assistant integrations, so keep the `## Supported integrations` section (title verbatim) listing the HA integrations it works on top of, with a link to each.
+
+## Source layout
+- The card and the panel are ES modules in `src/github-card/` and `src/github-panel/` (entry `src/<stem>/index.js`), assembled by `scripts/build-frontend.mjs` (`scripts/bundle.mjs`, `npm run build`) into `custom_components/github_card/frontend/<stem>.js`, the classic script the integration serves: modules concatenated in the order of the entry file, import lines removed, `export` dropped. The assembled files are **not committed** (gitignored); `npm test`, `npm run check`, `npm run screenshots`, CI and the release build them.
+- Modules share one scope, so top-level names stay unique across modules; a new module must be listed in its `index.js`.
+- Translations: one file per language in `src/<stem>/i18n/<lang>.js` (`export default [ … ];`, one string per key in the order of the keys), gathered by the table file next to them and rebuilt into a single literal at build.
+- `github-badge.js` (under 40 KB) stays committed as it is.
 
 ## Translations
 - English is the source. Keep every language in sync when a user-facing string changes.

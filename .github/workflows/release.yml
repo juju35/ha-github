@@ -45,8 +45,8 @@ jobs:
         run: |
           VERSION="$(jq -r .version custom_components/github_card/manifest.json)"
           grep -q "VERSION = \"$VERSION\"" custom_components/github_card/const.py
-          grep -q "const VERSION = \"$VERSION\"" custom_components/github_card/frontend/github-card.js
-          grep -q "GITHUB_PANEL_VERSION = \"$VERSION\"" custom_components/github_card/frontend/github-panel.js
+          grep -q "const VERSION = \"$VERSION\"" src/github-card/core.js
+          grep -q "GITHUB_PANEL_VERSION = \"$VERSION\"" src/github-panel/core.js
           grep -q "\"version\": \"$VERSION\"" package.json
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
@@ -54,6 +54,20 @@ jobs:
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Set up Node
+        if: steps.version.outputs.exists == 'false'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+
+      # The card and the panel are assembled from src/ (scripts/build-frontend.mjs, not committed): the zip carries
+      # them, and the Marketplace installs the zip (hacs.json zip_release).
+      - name: Build the frontend
+        if: steps.version.outputs.exists == 'false'
+        run: |
+          npm ci
+          node scripts/build-frontend.mjs
 
       - name: Build zip and notes
         if: steps.version.outputs.exists == 'false'
