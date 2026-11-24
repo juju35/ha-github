@@ -28,7 +28,7 @@ const load = () => {
     navigator: { clipboard: { writeText: async (text) => clipboard.push(text) } },
   };
   vm.createContext(context);
-  return vm.runInContext(`${src}\n;({ GITHUB_PANEL_KEYS, GITHUB_PANEL_TRANSLATIONS, GITHUB_PANEL_STRINGS, GitHubPanel, githubPanelKeepView, githubPanelFocusKey })`, context);
+  return vm.runInContext(`${src}\n;({ GITHUB_PANEL_KEYS, GITHUB_PANEL_TRANSLATIONS, GITHUB_PANEL_STRINGS, GitHubPanel, githubPanelKeepView, githubPanelFocusKey, githubPanelSetHtml })`, context);
 };
 
 const lib = load();
@@ -435,4 +435,27 @@ test("a redraw keeps every scrolled ancestor where it was, and the focus on the 
   assert.deepEqual({ ...focused }, { preventScroll: true });
   // A control without class nor data-* is not looked for
   assert.equal(lib.githubPanelFocusKey({ localName: "div", classList: [], attributes: [] }), null);
+});
+
+test("a state update with nothing new leaves the markup alone (the page no longer scrolls on its own)", () => {
+  const { githubPanelSetHtml } = load();
+  // innerHTML reads back the browser's serialisation, never the string set: compared with the string last given
+  let writes = 0;
+  const node = {
+    set innerHTML(v) {
+      writes++;
+      this._v = v.replace(/<path([^>]*)\/>/g, "<path$1></path>");
+    },
+    get innerHTML() {
+      return this._v;
+    },
+  };
+  const html = '<svg><path d="M0"/></svg>';
+  assert.equal(githubPanelSetHtml(node, html), true);
+  assert.equal(githubPanelSetHtml(node, html), false);
+  assert.equal(githubPanelSetHtml(node, html), false);
+  assert.equal(writes, 1);
+  assert.equal(githubPanelSetHtml(node, '<svg><path d="M1"/></svg>'), true);
+  assert.equal(writes, 2);
+  assert.equal(githubPanelSetHtml(null, html), false);
 });
