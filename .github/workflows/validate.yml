@@ -65,6 +65,12 @@ jobs:
         with:
           python-version: "3.14"
 
+      # The served card and panel are assembled from src/ (not committed); the runner's Node is enough.
+      - name: Build the frontend
+        run: |
+          npm ci
+          node scripts/build-frontend.mjs
+
       - name: Install dependencies
         run: pip install -r requirements_test.txt
 
