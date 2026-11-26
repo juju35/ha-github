@@ -2,6 +2,7 @@
   "domain": "github_card",
   "name": "GitHub Card",
   "after_dependencies": ["github"],
+  "categories": ["computers_network.cloud_developer_tools"],
   "codeowners": ["@juju35"],
   "config_flow": true,
   "dependencies": ["frontend", "http", "lovelace", "panel_custom", "persistent_notification"],
