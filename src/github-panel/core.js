@@ -23,7 +23,7 @@
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-export const GITHUB_PANEL_VERSION = "2.20.0";
+export const GITHUB_PANEL_VERSION = "2.20.1";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 export const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "branches", "create", "settings"];
 // Upper bound of the minimum age of the Branches tab, in days (kept in step with const.py)
