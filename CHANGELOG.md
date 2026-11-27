@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.20.3 - 2026-11-27
+
+### Fixes
+- Updates of Home Assistant no longer rewrite the whole card: it is brought up to date in place, so the page no longer jumps under you, the animations no longer start over and the focus, hover and inner scroll stay.
+
 ## 2.20.2 - 2026-11-27
 
 ### Fixes
