@@ -8,6 +8,7 @@ const pairs = [
   { light: "panel-issues", dark: "panel-issues-dark", width: 820, panel: "issues" },
   { light: "panel-pulls", dark: "panel-pulls-dark", width: 820, panel: "pulls" },
   { light: "panel-mine", dark: "panel-mine-dark", width: 820, panel: "mine" },
+  { light: "panel-branches", dark: "panel-branches-dark", width: 820, panel: "branches", branches: ["juju35/ha-parcel\nfeat/carrier-logos", "juju35/ha-iptv\nci/manual-release"] },
   { light: "panel-create", dark: "panel-create-dark", width: 820, panel: "create", form: { name: "ha-example-card", description: "Lovelace card for Home Assistant", topics: "home-assistant, lovelace, hacs" } },
   { light: "panel-settings", dark: "panel-settings-dark", width: 820, panel: "settings" },
   { light: "mini-card", dark: "mini-card-dark", type: "github-mini-card", width: 380, config: {} },

@@ -2,7 +2,7 @@
  * GitHub panel for Home Assistant (administrators only)
  * https://github.com/juju35/ha-github
  *
- * Six tabs under the toolbar, as in Smart Comfort and IPTV (text tabs, the active one underlined, the tab in the
+ * Seven tabs under the toolbar, as in Smart Comfort and IPTV (text tabs, the active one underlined, the tab in the
  * address, Settings last):
  * - Repositories: the repositories of your GitHub account (and your starred ones, if chosen), followed or not by the
  *   core GitHub integration; follow or stop following one, the ticked ones or all of them at once (one reload of the GitHub
@@ -13,6 +13,9 @@
  *   GitHub API (github_card/items, cached 5 minutes by the integration; Refresh asks GitHub again);
  * - My pull requests: the open pull requests you authored, in any repository (not only the followed ones), from a
  *   GitHub search (github_card/mine, cached 5 minutes; loaded when the tab opens, Refresh asks GitHub again);
+ * - Branches: the branches of your own repositories (the default ones left out) whose last commit is older than
+ *   the age set in Settings, with their open pull request; tick some and delete them (github_card/branches,
+ *   github_card/delete_branches);
  * - New repository: shown only when the GitHub CLI (gh) is installed on the Home Assistant host and signed in
  *   (github_card/gh_status); creates a repository with gh — name, owner, description, website, topics, visibility
  *   (github_card/create_repo);
@@ -22,7 +25,9 @@
 
 export const GITHUB_PANEL_VERSION = "2.19.0";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
-export const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "create", "settings"];
+export const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "branches", "create", "settings"];
+// Upper bound of the minimum age of the Branches tab, in days (kept in step with const.py)
+export const GITHUB_PANEL_MAX_BRANCH_AGE = 3650;
 // Topics of a new repository: at most this many (kept in step with gh_cli.py)
 export const GITHUB_PANEL_MAX_TOPICS = 20;
 // Protections of a new repository, in the order they are applied (kept in step with REPO_PROTECTIONS of const.py),
@@ -90,4 +95,7 @@ export const GITHUB_PANEL_KEYS = [
   "p_empty_commit", "p_empty_commit_hint", "p_squash_only", "p_squash_pr", "p_delete_branch", "p_auto_merge", "p_no_wiki",
   "p_protect_branch", "p_protect_branch_hint", "p_protect_tags", "p_protect_tags_hint", "p_rulesets_from", "p_rulesets_from_hint",
   "c_steps_failed", "c_step_failed", "step_empty_commit", "step_merge", "step_topics", "step_rulesets", "c_err_invalid_rulesets_from",
+  // Branches tab, and its minimum age in Settings
+  "branches", "b_summary", "b_repos", "b_none", "b_select_all", "b_delete", "b_confirm", "b_deleted", "b_failed", "b_open_pr", "b_days",
+  "b_default_branch", "b_invalid", "s_group_branches", "s_branch_age", "s_branch_age_hint",
 ];

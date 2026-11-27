@@ -3,6 +3,11 @@
 ## 2.19.0 - 2026-11-27
 
 ### Features
+- Panel: a **Branches** tab — the branches of your own repositories (archived ones left out), apart from their
+  default branch, whose last commit is older than the age set in Settings (**Minimum age of the branches**, 1 day by
+  default), oldest first, with their open pull request. Tick them (or select all shown) and delete them after a
+  confirmation, with the GitHub CLI (`gh`) — the GitHub integration's token may not delete branches, so deleting
+  shows only when `gh` is signed in, as the New repository tab; the default branch is never deleted. New commands `github_card/branches` and `github_card/delete_branches` (administrators only).
 - Panel: a **New repository** tab, shown only when the GitHub CLI (`gh`) is installed on the Home Assistant host and
   signed in (`gh auth status`). It creates a repository with `gh repo create` — name, owner (your account or an
   organization), description, website (`--homepage`) and visibility — then applies its protections: an empty first

@@ -115,12 +115,24 @@ const panelMock = {
     fetched_at: NOW / 1000,
     error: null,
   },
+  // Branches of my repositories (the default ones left out), oldest first
+  "github_card/branches": {
+    branches: [
+      { repo: "juju35/ha-parcel", branch: "feat/carrier-logos", date: "2026-03-02T10:00:00Z", default: "main", pr: null },
+      { repo: "juju35/ha-weather-card", branch: "fix/pollen-colors", date: "2026-08-14T10:00:00Z", default: "main", pr: { number: 42, url: "https://github.com/juju35/ha-weather-card/pull/42" } },
+      { repo: "juju35/ha-iptv", branch: "ci/manual-release", date: "2026-10-30T10:00:00Z", default: "main", pr: null },
+      { repo: "juju35/ha-calendar-card", branch: "docs/readme-layout", date: "2026-11-12T10:00:00Z", default: "main", pr: null },
+    ],
+    repositories: 24,
+    fetched_at: Date.UTC(2026, 10, 27, 9, 0) / 1000,
+    error: null,
+  },
   // The GitHub CLI signed in on the Home Assistant host: the New repository tab shows
   "github_card/gh_status": { installed: true, authenticated: true, login: "juju35", error: null },
   "github_card/settings": { settings: { filter: "juju35/ha-*", include_starred: true, ignore_archived: true, notify_issues: true, notify_pulls: false, notify_releases: false, refresh_minutes: 15, hide_toolbar: false,
     repo_visibility: "public", repo_homepage: "https://example.org/projects/{name}/", repo_topics: "home-assistant", repo_empty_commit: true,
     repo_squash_only: true, repo_squash_pr: true, repo_delete_branch: true, repo_auto_merge: false, repo_no_wiki: true,
-    repo_protect_branch: true, repo_protect_tags: true, repo_rulesets_from: "" } },
+    repo_protect_branch: true, repo_protect_tags: true, repo_rulesets_from: "", branch_age_days: 7 } },
 };
 
 const browser = await chromium.launch(
@@ -137,7 +149,7 @@ async function openCard(s) {
   await page.addScriptTag({ content: cardJs });
   if (s.panel) await page.addScriptTag({ content: panelJs });
   await page.evaluate(
-    ({ type, config, states, entities, devices, open, zoom, merge, panel, mock, expand, select, form, sidebar, dark }) => {
+    ({ type, config, states, entities, devices, open, zoom, merge, panel, mock, expand, select, form, branches, sidebar, dark }) => {
       if (sidebar) {
         // A faithful mock of Home Assistant's sidebar entry with the count badge (open issues + pull requests),
         // amber here because there are open issues, like the native notifications count. No real sidebar is mounted.
@@ -176,6 +188,8 @@ async function openCard(s) {
         if (select) el._selected = new Set(select);
         // The New repository form, filled in
         if (form) el._form = { ...el._form, ...form };
+        // Branches ticked to delete them together
+        if (branches) el._branchSel = new Set(branches);
         el.hass = {
           states, entities, devices, language: "en", locale: { language: "en" },
           themes: { darkMode: dark },
@@ -207,7 +221,7 @@ async function openCard(s) {
         el._update();
       }
     },
-    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, merge: s.merge, panel: s.panel, mock: panelMock, expand: s.expand, select: s.select, form: s.form, sidebar: s.sidebar, dark: s.theme === "dark" }
+    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, merge: s.merge, panel: s.panel, mock: panelMock, expand: s.expand, select: s.select, form: s.form, branches: s.branches, sidebar: s.sidebar, dark: s.theme === "dark" }
   );
   await page.waitForTimeout(800);
   return page;

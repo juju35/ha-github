@@ -22,6 +22,9 @@ custom_components/github_card/
 │                    # any repository (a GitHub search, author:@me), cached in hass.data[DOMAIN]["mine"]
 ├── archived.py    # Which offered repositories are archived (GraphQL, 50 per query, cached 10 minutes), for the
 │                    # ignore_archived setting
+├── branches.py      # Branches tab: one paginated GraphQL query (viewer's own repos, not archived) with the github
+│                    # entry's token, default branches left out, cached 5 min; deleted with gh api DELETE git/refs/heads/…
+│                    # only (the integration's token may not), default branch refused
 ├── gh_cli.py        # The GitHub CLI on the HA host: gh auth status (cached 1 min); gh repo create, then the protections in
 │                    # steps (empty commit on main via git + gh auth git-credential, merge settings via gh api PATCH,
 │                    # topics, rulesets built-in or copied from a template) — no shell, values checked first; defaults
@@ -29,7 +32,7 @@ custom_components/github_card/
 ├── notify.py        # Persistent notification when a github latest_issue / latest_pull_request number grows
 ├── translations/    # Config flow strings, 22 languages
 ├── brand/           # Integration icon
-└── frontend/        # github-card.js (cards), github-panel.js (panel, 6 tabs — Create only when gh is signed in, 22 languages)
+└── frontend/        # github-card.js (cards), github-panel.js (panel, 7 tabs — Create only when gh is signed in, 22 languages)
 ```
 
 ## Rules

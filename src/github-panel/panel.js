@@ -1,5 +1,5 @@
 // ── End of the folded top bar ──
-import { GITHUB_PANEL_MAX_REFRESH, GITHUB_PANEL_MAX_TOPICS, GITHUB_PANEL_MIN_REFRESH, GITHUB_PANEL_PROTECTION_DEFAULTS, GITHUB_PANEL_PROTECTIONS, GITHUB_PANEL_SORTS, GITHUB_PANEL_TABS } from "./core.js";
+import { GITHUB_PANEL_MAX_BRANCH_AGE, GITHUB_PANEL_MAX_REFRESH, GITHUB_PANEL_MAX_TOPICS, GITHUB_PANEL_MIN_REFRESH, GITHUB_PANEL_PROTECTION_DEFAULTS, GITHUB_PANEL_PROTECTIONS, GITHUB_PANEL_SORTS, GITHUB_PANEL_TABS } from "./core.js";
 import { GITHUB_PANEL_ICONS, GITHUB_PANEL_LATEST, GITHUB_PANEL_REPO_STATS, GITHUB_PANEL_SCENE, GITHUB_PANEL_STRINGS, GITHUB_PANEL_USER_STATS, githubPanelEsc, githubPanelHideMode, githubPanelIcon, githubPanelKeepView, githubPanelSetHtml } from "./helpers.js";
 import { githubPanelFold } from "./fold.js";
 
@@ -299,6 +299,10 @@ export class GitHubPanel extends HTMLElement {
     .seg button[aria-pressed="true"] { background:var(--card-background-color, #fff); color:var(--gh-ink); box-shadow:0 1px 2px rgba(0,0,0,.14); }
     .seg button:focus-visible, .chip:focus-visible { outline:2px solid var(--gh-accent); outline-offset:1px; }
     .chips { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    /* Branches: the date and age of the last commit, the select-all box */
+    .row .bdate { cursor:default; min-height:24px; font-size:12px; font-variant-numeric:tabular-nums; background:var(--gh-sec); }
+    .row a.rev { text-decoration:none; display:inline-flex; align-items:center; gap:3px; }
+    .ball { display:inline-flex; align-items:center; gap:8px; font-size:13px; cursor:pointer; }
     /* New repository: the topics typed as chips (not buttons), the result next to the Create button */
     .ctopics:empty { display:none; }
     .ctopics .chip { cursor:default; min-height:26px; font-size:12px; background:var(--gh-sec); }
@@ -379,6 +383,13 @@ export class GitHubPanel extends HTMLElement {
     this._mine = null; // my open pull requests (any repository), loaded when the My pull requests tab opens
     this._mineBusy = false;
     this._sort = "followed"; // order of the Repositories tab
+    this._branches = null; // branches of my repositories, loaded when the Branches tab opens
+    this._branchesBusy = false;
+    this._branchBusy = false; // deleting
+    this._branchSel = new Set(); // ticked branches, "owner/repo\nbranch"
+    this._branchQuery = "";
+    this._branchConfirm = false;
+    this._branchResult = null; // the last deletion's results
     this._gh = null; // the GitHub CLI on the Home Assistant host: { installed, authenticated, login, error }
     this._form = GitHubPanel.emptyForm(); // New repository
     this._creating = false;
@@ -570,6 +581,7 @@ export class GitHubPanel extends HTMLElement {
     this._syncBare();
     this._renderSettings();
     this._renderCreate();
+    this._renderBranches();
   }
 
   // ── Tabs ──
@@ -613,6 +625,7 @@ export class GitHubPanel extends HTMLElement {
     // interval and pushes them here (see _subscribeItems).
     // My pull requests are not followed repositories, so they load the first time their tab opens (then cached).
     if (tab === "mine" && !this._mine && !this._mineBusy) this._loadMine();
+    if (tab === "branches" && !this._branches && !this._branchesBusy) this._loadBranches();
   }
 
   _render() {
@@ -635,6 +648,7 @@ export class GitHubPanel extends HTMLElement {
         <section id="tab-issues" role="tabpanel" aria-labelledby="tabbtn-issues"><div id="issues"></div></section>
         <section id="tab-pulls" role="tabpanel" aria-labelledby="tabbtn-pulls"><div id="pulls"></div></section>
         <section id="tab-mine" role="tabpanel" aria-labelledby="tabbtn-mine"><div id="mine"></div></section>
+        <section id="tab-branches" role="tabpanel" aria-labelledby="tabbtn-branches"><div id="branches"></div></section>
         <section id="tab-create" role="tabpanel" aria-labelledby="tabbtn-create"><div id="create"></div></section>
         <section id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings"><div id="settings"></div></section>
       </main>`;
@@ -664,6 +678,7 @@ export class GitHubPanel extends HTMLElement {
     this._renderItems("pulls");
     this._renderHandle();
     this._renderMine();
+    this._renderBranches();
     this._renderCreate();
     this._renderSettings();
     this._attachFold();
@@ -678,7 +693,7 @@ export class GitHubPanel extends HTMLElement {
       tabs: ".tabs",
       tab: ".tab:not([hidden])",
       key: (b) => b.dataset.tab,
-      icons: { repos: I.code, issues: I.issue, pulls: I.pr, mine: I.account, create: I.plus, settings: I.cog },
+      icons: { repos: I.code, issues: I.issue, pulls: I.pr, mine: I.account, branches: I.branch, create: I.plus, settings: I.cog },
       badge: ".badge",
       name: ".topbar .bname",
       sub: ".topbar .bsub",
@@ -1427,6 +1442,176 @@ export class GitHubPanel extends HTMLElement {
     host.querySelector("[data-action=refresh]")?.addEventListener("click", () => this._loadMine(true));
   }
 
+  // ── Branches tab ──
+
+  // The branches of my own repositories, apart from the default ones; loaded the first time the tab opens (cached by
+  // the integration a few minutes), Refresh asks GitHub again.
+  async _loadBranches(refresh = false) {
+    if (!this._hass) return;
+    this._branchesBusy = true;
+    this._renderBranches();
+    try {
+      this._branches = await this._hass.callWS({ type: "github_card/branches", refresh });
+    } catch (err) {
+      this._branches = { branches: [], error: err?.message || String(err) };
+    }
+    this._branchesBusy = false;
+    // A branch no longer listed is no longer ticked
+    const keys = new Set((this._branches.branches || []).map((b) => this._branchKey(b)));
+    for (const key of [...this._branchSel]) if (!keys.has(key)) this._branchSel.delete(key);
+    this._renderBranches();
+  }
+
+  _branchKey(b) {
+    return `${b.repo}\n${b.branch}`;
+  }
+
+  /** The minimum age of Settings, in days (0: every branch). */
+  _branchAge() {
+    const n = Number(this._settings?.branch_age_days ?? 1);
+    return Number.isFinite(n) && n >= 0 ? n : 1;
+  }
+
+  /** The branches older than the age of Settings and matching the search, oldest first. */
+  _branchRows() {
+    const days = this._branchAge();
+    const cutoff = Date.now() - days * 86400000;
+    const q = this._branchQuery.trim().toLowerCase();
+    return (this._branches?.branches || []).filter((b) => {
+      const t = Date.parse(b.date || "");
+      if (days > 0 && !(t < cutoff)) return false;
+      return !q || `${b.repo}/${b.branch}`.toLowerCase().includes(q);
+    });
+  }
+
+  _branchHtml(b) {
+    const esc = githubPanelEsc;
+    const key = this._branchKey(b);
+    const on = this._branchSel.has(key);
+    const [owner, repo] = String(b.repo).split("/");
+    const t = Date.parse(b.date || "");
+    const days = Number.isFinite(t) ? Math.max(0, Math.floor((Date.now() - t) / 86400000)) : null;
+    const label = esc(`${b.repo}/${b.branch}`);
+    const tree = `https://github.com/${b.repo}/tree/${String(b.branch).split("/").map(encodeURIComponent).join("/")}`;
+    const pr = b.pr
+      ? `<a class="rev warn" href="${esc(b.pr.url)}" target="_blank" rel="noopener noreferrer" title="${esc(this._t("b_open_pr", { number: b.pr.number }))}">${githubPanelIcon("pr")}#${esc(b.pr.number)}</a>`
+      : "";
+    const box = this._gh?.authenticated
+      ? `<input type="checkbox" class="pick-repo" data-branch="${esc(key)}" aria-label="${label}" title="${label}"${on ? " checked" : ""}${this._branchBusy ? " disabled" : ""}>`
+      : "";
+    return `<div class="row${on && box ? " sel" : ""}">${box}
+      <span class="ic">${githubPanelIcon("branch")}</span>
+      <div class="who"><span class="n" title="${label}">${esc(b.branch)}</span><span class="s">${esc(repo || b.repo)} · ${esc(owner)}</span></div>
+      ${pr}<span class="chip bdate" title="${esc(b.date || "")}">${esc((b.date || "").slice(0, 10))}${days === null ? "" : ` · ${esc(this._t("b_days", { n: days }))}`}</span>
+      <a class="link" href="${esc(tree)}" target="_blank" rel="noopener noreferrer" title="${esc(this._t("open_github"))}" aria-label="${esc(this._t("open_github"))}">${githubPanelIcon("open")}</a></div>`;
+  }
+
+  _renderBranches() {
+    const host = this.shadowRoot?.getElementById?.("branches");
+    if (!host) return;
+    const esc = githubPanelEsc;
+    const days = this._branchAge();
+    const top = (pill, sub, body) => `<div class="card top">${this._banner("branch", this._t("branches"), pill, sub)}<div class="cbody">${body}</div></div>`;
+    if (!this._branches || (this._branchesBusy && !this._branches.branches)) {
+      host.innerHTML = top(null, this._t("loading"), "");
+      return;
+    }
+    const rows = this._branchRows();
+    const shown = new Set(rows.map((b) => this._branchKey(b)));
+    const selected = [...this._branchSel].filter((k) => shown.has(k));
+    const all = rows.length > 0 && selected.length === rows.length;
+    const notes = [];
+    if (this._branches.error) notes.push(`<div class="note bad" role="status">${esc(this._t("items_error", { error: this._branches.error }))}</div>`);
+    const r = this._branchResult;
+    if (r) {
+      const ok = r.results.filter((x) => x.ok).length;
+      const failed = r.results.filter((x) => !x.ok);
+      if (ok) notes.push(`<div class="note good" role="status">${esc(this._t("b_deleted", { n: ok }))}</div>`);
+      if (failed.length) {
+        const why = (e) =>
+          e === "default_branch" ? this._t("b_default_branch") : e === "invalid" ? this._t("b_invalid") : /^gh_(missing|not_authenticated)$/.test(e) ? this._t(`c_err_${e}`) : e;
+        notes.push(`<div class="note bad" role="status">${esc(this._t("b_failed", { n: failed.length }))}</div>`);
+        notes.push(...failed.map((x) => `<div class="note bad">${esc(`${x.repo}/${x.branch} — ${why(x.error)}`)}</div>`));
+      }
+    }
+    // Deleting goes through the GitHub CLI (the GitHub integration's token may not delete branches): the boxes and the
+    // Delete button show on the same condition as the New repository tab, gh signed in
+    const gh = Boolean(this._gh?.authenticated);
+    const busy = this._branchBusy || this._branchesBusy;
+    const actions = this._branchConfirm
+      ? `<div class="row confirm"><div class="note">${esc(this._t("b_confirm", { n: selected.length }))}</div>
+          <div class="b"><button class="act quiet" data-action="branch-cancel">${esc(this._t("cancel"))}</button>
+          <button class="act bad" data-action="branch-delete-confirmed"${busy ? " disabled" : ""}>${esc(this._t("b_delete", { n: selected.length }))}</button></div></div>`
+      : `<div class="bar"><label class="ball"><input type="checkbox" class="pick-repo" data-action="branch-all"${all ? " checked" : ""}${rows.length && !busy ? "" : " disabled"}>${esc(this._t("b_select_all"))}</label>
+          <span class="grow"></span><button class="act bad" data-action="branch-delete"${selected.length && !busy ? "" : " disabled"}>${esc(this._t("b_delete", { n: selected.length }))}</button></div>`;
+    const sub = [this._fetchedLine(this._branches), this._branches.repositories ? this._t("b_repos", { n: this._branches.repositories }) : ""].filter(Boolean).join(" · ");
+    host.innerHTML = `
+      ${top({ tone: this._branches.error ? "bad" : rows.length ? "warn" : "good", text: this._t("b_summary", { n: rows.length, days }) }, sub,
+        `<div class="chips"><label class="search">${githubPanelIcon("search")}<input type="search" data-branch-search placeholder="${esc(this._t("search"))}" aria-label="${esc(this._t("search"))}" value="${esc(this._branchQuery)}"></label>
+          <span class="grow"></span><button class="act quiet" data-action="refresh"${busy ? " disabled" : ""}>${githubPanelIcon("refresh")}${esc(this._t("refresh"))}</button></div>${notes.join("")}`)}
+      <div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("branches"))} · ${rows.length}</h2></div>
+        ${rows.length && gh ? actions : ""}
+        <div class="rows">${rows.length ? rows.map((b) => this._branchHtml(b)).join("") : `<div class="note">${esc(this._t("b_none", { days }))}</div>`}</div>
+      </div>`;
+    host.querySelector("[data-action=refresh]")?.addEventListener("click", () => {
+      this._branchResult = null;
+      this._loadBranches(true);
+    });
+    const search = host.querySelector("input[data-branch-search]");
+    search?.addEventListener("input", () => {
+      this._branchQuery = search.value;
+      githubPanelKeepView(host, () => this._renderBranches());
+    });
+    for (const box of host.querySelectorAll("input[data-branch]"))
+      box.addEventListener("change", () => {
+        if (box.checked) this._branchSel.add(box.dataset.branch);
+        else this._branchSel.delete(box.dataset.branch);
+        this._branchConfirm = false;
+        githubPanelKeepView(host, () => this._renderBranches());
+      });
+    host.querySelector("[data-action=branch-all]")?.addEventListener("change", (ev) => {
+      for (const b of rows) {
+        if (ev.target.checked) this._branchSel.add(this._branchKey(b));
+        else this._branchSel.delete(this._branchKey(b));
+      }
+      githubPanelKeepView(host, () => this._renderBranches());
+    });
+    host.querySelector("[data-action=branch-delete]")?.addEventListener("click", () => {
+      this._branchConfirm = true;
+      this._renderBranches();
+    });
+    host.querySelector("[data-action=branch-cancel]")?.addEventListener("click", () => {
+      this._branchConfirm = false;
+      this._renderBranches();
+    });
+    host.querySelector("[data-action=branch-delete-confirmed]")?.addEventListener("click", () => this._deleteBranches());
+  }
+
+  /** Delete the ticked branches that are shown (the search and the age applied), after the confirmation. */
+  async _deleteBranches() {
+    const shown = this._branchRows().filter((b) => this._branchSel.has(this._branchKey(b)));
+    if (!shown.length || this._branchBusy || !this._gh?.authenticated) return;
+    this._branchBusy = true;
+    this._branchConfirm = false;
+    this._branchResult = null;
+    this._renderBranches();
+    try {
+      this._branchResult = await this._hass.callWS({
+        type: "github_card/delete_branches",
+        branches: shown.map((b) => ({ repo: b.repo, branch: b.branch })),
+      });
+      if (!this._branchResult?.ok) this._branchResult = { results: shown.map((b) => ({ repo: b.repo, branch: b.branch, ok: false, error: this._branchResult?.error || "error" })) };
+    } catch (err) {
+      this._branchResult = { results: shown.map((b) => ({ repo: b.repo, branch: b.branch, ok: false, error: err?.message || String(err) })) };
+    }
+    const gone = new Set(this._branchResult.results.filter((x) => x.ok).map((x) => `${x.repo}\n${x.branch}`));
+    if (this._branches?.branches) this._branches = { ...this._branches, branches: this._branches.branches.filter((b) => !gone.has(this._branchKey(b))) };
+    for (const key of gone) this._branchSel.delete(key);
+    this._branchBusy = false;
+    this._renderBranches();
+  }
+
   // ── New repository tab (GitHub CLI) ──
 
   /** Whether gh is installed and signed in on the Home Assistant host: the New repository tab shows only then. */
@@ -1443,6 +1628,7 @@ export class GitHubPanel extends HTMLElement {
     if (this._tab === "create" && !this._gh.authenticated) this._goTab("repos");
     this._renderCreate();
     this._renderSettings();
+    this._renderBranches();
   }
 
   /** A value of the form: what was typed, else the default of Settings. `homepage`: the website template of
@@ -1707,6 +1893,12 @@ export class GitHubPanel extends HTMLElement {
           <small class="note">${esc(this._t("s_refresh_hint"))}</small>
         </div>
       </div>
+      <div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("s_group_branches"))}</h2></div>
+        <label class="ctl"><span>${esc(this._t("s_branch_age"))}</span>
+          <div class="field"><input type="number" inputmode="numeric" data-key="branch_age_days" min="0" max="${GITHUB_PANEL_MAX_BRANCH_AGE}" step="1" value="${esc(String(this._value("branch_age_days") ?? 1))}"></div>
+          <small>${esc(this._t("s_branch_age_hint"))}</small></label>
+      </div>
       ${this._newRepoSettingsHtml()}
       <div class="card list">
         <div class="lhead"><h2 class="lname">${esc(this._t("s_group_panel"))}</h2></div>
@@ -1779,6 +1971,10 @@ export class GitHubPanel extends HTMLElement {
         ? Math.min(GITHUB_PANEL_MAX_REFRESH, Math.max(GITHUB_PANEL_MIN_REFRESH, n))
         : this._settings.refresh_minutes;
     }
+    if ("branch_age_days" in draft) {
+      const n = Math.round(Number(draft.branch_age_days));
+      draft.branch_age_days = Number.isFinite(n) ? Math.min(GITHUB_PANEL_MAX_BRANCH_AGE, Math.max(0, n)) : this._settings.branch_age_days;
+    }
     try {
       const res = await this._hass.callWS({ type: "github_card/update_settings", ...draft });
       if (res.ok) {
@@ -1792,6 +1988,7 @@ export class GitHubPanel extends HTMLElement {
     }
     this._renderSettings();
     this._renderCreate();
+    this._renderBranches();
     // The settings choose the repositories offered
     await this._load();
   }

@@ -71,6 +71,7 @@ async def test_config_flow_single_entry(hass):
         "notify_releases": False,
         "refresh_minutes": 15,
         "hide_toolbar": "off",
+        "branch_age_days": 1,
         **REPO_DEFAULTS,
     }
     again = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})

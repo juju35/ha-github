@@ -470,7 +470,7 @@ test("New repository: the tab only once gh is signed in; an address to it waits 
   assert.ok(!p._tabShown("create"));
   p._hass.callWS = async () => ({ installed: true, authenticated: true, login: "juju35", error: null });
   await p._loadGh();
-  assert.deepEqual([...p._tabs()], ["repos", "issues", "pulls", "mine", "create", "settings"]);
+  assert.deepEqual([...p._tabs()], ["repos", "issues", "pulls", "mine", "branches", "create", "settings"]);
   // An older integration without the command: no tab
   p._hass.callWS = async () => {
     throw new Error("unknown_command");
@@ -556,4 +556,72 @@ test("New repository: the defaults of Settings, the website template, and this r
   // The step that failed is said, the repository created all the same
   assert.match(p._createNoteHtml(), /Ruleset · main : HTTP 403/);
   assert.equal(p._settings.repo_protect_tags, false);
+});
+
+test("Branches: loaded when the tab opens, the age of Settings applied, oldest first, searched", async () => {
+  const calls = [];
+  const p = panel(calls);
+  const day = 86400000;
+  const iso = (daysAgo) => new Date(Date.now() - daysAgo * day).toISOString();
+  p._hass.callWS = async (msg) => {
+    calls.push(msg);
+    return {
+      branches: [
+        { repo: "juju35/ha-a", branch: "old", date: iso(40), default: "main", pr: null },
+        { repo: "juju35/ha-b", branch: "feat/x", date: iso(10), default: "main", pr: { number: 3, url: "https://github.com/juju35/ha-b/pull/3" } },
+        { repo: "juju35/ha-a", branch: "fresh", date: iso(0.2), default: "main", pr: null },
+      ],
+      repositories: 2,
+      fetched_at: Date.now() / 1000,
+      error: null,
+    };
+  };
+  p._showTab("branches");
+  await new Promise((r) => setImmediate(r));
+  assert.ok(calls.some((c) => c.type === "github_card/branches" && c.refresh === false));
+  // Default age: 1 day
+  assert.deepEqual([...p._branchRows().map((b) => b.branch)], ["old", "feat/x"]);
+  p._settings = { branch_age_days: 30 };
+  assert.deepEqual([...p._branchRows().map((b) => b.branch)], ["old"]);
+  p._settings = { branch_age_days: 0 };
+  assert.equal(p._branchRows().length, 3);
+  p._branchQuery = "HA-B";
+  assert.deepEqual([...p._branchRows().map((b) => b.branch)], ["feat/x"]);
+  assert.match(p._branchHtml(p._branchRows()[0]), /tree\/feat\/x/);
+  assert.match(p._branchHtml(p._branchRows()[0]), /#3/);
+  // The boxes (deleting) only with gh signed in, as the New repository tab
+  assert.doesNotMatch(p._branchHtml(p._branchRows()[0]), /data-branch=/);
+  p._gh = { installed: true, authenticated: true, login: "juju35" };
+  assert.match(p._branchHtml(p._branchRows()[0]), /data-branch=/);
+});
+
+test("Branches: only the ticked branches shown are deleted, then leave the list", async () => {
+  const calls = [];
+  const p = panel(calls);
+  const iso = new Date(Date.now() - 5 * 86400000).toISOString();
+  p._settings = { branch_age_days: 1 };
+  p._branches = {
+    branches: [
+      { repo: "juju35/ha-a", branch: "a", date: iso, default: "main", pr: null },
+      { repo: "juju35/ha-a", branch: "b", date: iso, default: "main", pr: null },
+      { repo: "juju35/ha-c", branch: "c", date: iso, default: "main", pr: null },
+    ],
+  };
+  p._branchSel = new Set(["juju35/ha-a\na", "juju35/ha-a\nb", "juju35/ha-c\nc"]);
+  p._branchQuery = "ha-a"; // c is ticked but not shown: kept
+  // Without gh signed in, nothing is sent
+  p._gh = { installed: true, authenticated: false };
+  await p._deleteBranches();
+  assert.equal(calls.length, 0);
+  p._gh = { installed: true, authenticated: true, login: "juju35" };
+  p._hass.callWS = async (msg) => {
+    calls.push(msg);
+    return { ok: true, results: [{ repo: "juju35/ha-a", branch: "a", ok: true }, { repo: "juju35/ha-a", branch: "b", ok: false, error: "HTTP 403" }] };
+  };
+  await p._deleteBranches();
+  const sent = calls.find((c) => c.type === "github_card/delete_branches");
+  assert.deepEqual(JSON.parse(JSON.stringify(sent.branches)), [{ repo: "juju35/ha-a", branch: "a" }, { repo: "juju35/ha-a", branch: "b" }]);
+  assert.deepEqual([...p._branches.branches.map((b) => b.branch)], ["b", "c"]);
+  assert.deepEqual([...p._branchSel].sort(), ["juju35/ha-a\nb", "juju35/ha-c\nc"]);
+  assert.equal(p._branchResult.results.filter((r) => !r.ok).length, 1);
 });

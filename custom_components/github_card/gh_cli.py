@@ -110,6 +110,12 @@ def _error(out: str, err: str) -> str:
     return " ".join(line.strip() for line in text if line.strip())[:300] or "gh failed"
 
 
+async def async_api(*args: str) -> str | None:
+    """``gh api`` with these arguments: None, or gh's error."""
+    code, out, err = await _run("api", *args)
+    return None if code == 0 else _error(out, err)
+
+
 async def async_status(hass: HomeAssistant, refresh: bool = False) -> dict[str, Any]:
     """Whether gh is installed and signed in on github.com, with the account's login. Cached a minute."""
     data = hass.data.setdefault(DOMAIN, {})
