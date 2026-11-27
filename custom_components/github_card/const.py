@@ -33,6 +33,45 @@ CONF_REFRESH_MINUTES = "refresh_minutes"
 CONF_HIDE_TOOLBAR = "hide_toolbar"
 HIDE_TOOLBAR_OFF = "off"
 HIDE_TOOLBAR_CHOICES = (HIDE_TOOLBAR_OFF, "all", "non_admin")
+# Defaults of a repository created with the GitHub CLI (New repository tab), edited in Settings and overridable for
+# each repository in the form: visibility, website template ({name}, {owner}), topics, and the usual protections
+CONF_REPO_VISIBILITY = "repo_visibility"
+CONF_REPO_HOMEPAGE = "repo_homepage"
+CONF_REPO_TOPICS = "repo_topics"
+# Protections, applied after the creation in this order
+CONF_REPO_EMPTY_COMMIT = "repo_empty_commit"  # an empty first commit on main, so the branch exists
+CONF_REPO_SQUASH_ONLY = "repo_squash_only"  # squash merges only (no merge commit, no rebase)
+CONF_REPO_SQUASH_PR = "repo_squash_pr"  # squash commit = pull request title + description
+CONF_REPO_DELETE_BRANCH = "repo_delete_branch"  # head branches deleted once merged
+CONF_REPO_AUTO_MERGE = "repo_auto_merge"  # auto-merge allowed
+CONF_REPO_NO_WIKI = "repo_no_wiki"  # no wiki and no projects
+CONF_REPO_PROTECT_BRANCH = "repo_protect_branch"  # ruleset on the default branch
+CONF_REPO_PROTECT_TAGS = "repo_protect_tags"  # ruleset on the v* tags
+CONF_REPO_RULESETS_FROM = "repo_rulesets_from"  # owner/repo whose rulesets are copied instead of the two above
+REPO_PROTECTIONS = (
+    CONF_REPO_EMPTY_COMMIT,
+    CONF_REPO_SQUASH_ONLY,
+    CONF_REPO_SQUASH_PR,
+    CONF_REPO_DELETE_BRANCH,
+    CONF_REPO_AUTO_MERGE,
+    CONF_REPO_NO_WIKI,
+    CONF_REPO_PROTECT_BRANCH,
+    CONF_REPO_PROTECT_TAGS,
+)
+REPO_DEFAULTS = {
+    CONF_REPO_VISIBILITY: "public",
+    CONF_REPO_HOMEPAGE: "",
+    CONF_REPO_TOPICS: "",
+    CONF_REPO_EMPTY_COMMIT: True,
+    CONF_REPO_SQUASH_ONLY: True,
+    CONF_REPO_SQUASH_PR: True,
+    CONF_REPO_DELETE_BRANCH: True,
+    CONF_REPO_AUTO_MERGE: False,
+    CONF_REPO_NO_WIKI: True,
+    CONF_REPO_PROTECT_BRANCH: True,
+    CONF_REPO_PROTECT_TAGS: True,
+    CONF_REPO_RULESETS_FROM: "",
+}
 DEFAULT_REFRESH_MINUTES = 15
 MIN_REFRESH_MINUTES = 1
 MAX_REFRESH_MINUTES = 1440
@@ -45,6 +84,7 @@ DEFAULTS = {
     CONF_NOTIFY_RELEASES: False,
     CONF_REFRESH_MINUTES: DEFAULT_REFRESH_MINUTES,
     CONF_HIDE_TOOLBAR: HIDE_TOOLBAR_OFF,
+    **REPO_DEFAULTS,
 }
 MAX_FILTER_LENGTH = 500
 

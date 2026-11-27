@@ -117,7 +117,10 @@ const panelMock = {
   },
   // The GitHub CLI signed in on the Home Assistant host: the New repository tab shows
   "github_card/gh_status": { installed: true, authenticated: true, login: "juju35", error: null },
-  "github_card/settings": { settings: { filter: "juju35/ha-*", include_starred: true, ignore_archived: true, notify_issues: true, notify_pulls: false, notify_releases: false, refresh_minutes: 15, hide_toolbar: false } },
+  "github_card/settings": { settings: { filter: "juju35/ha-*", include_starred: true, ignore_archived: true, notify_issues: true, notify_pulls: false, notify_releases: false, refresh_minutes: 15, hide_toolbar: false,
+    repo_visibility: "public", repo_homepage: "https://example.org/projects/{name}/", repo_topics: "home-assistant", repo_empty_commit: true,
+    repo_squash_only: true, repo_squash_pr: true, repo_delete_branch: true, repo_auto_merge: false, repo_no_wiki: true,
+    repo_protect_branch: true, repo_protect_tags: true, repo_rulesets_from: "" } },
 };
 
 const browser = await chromium.launch(

@@ -483,12 +483,12 @@ test("New repository: topics split, lower case and once; values checked; one cre
   const calls = [];
   const p = panel(calls);
   p._gh = { installed: true, authenticated: true, login: "juju35" };
-  p._form = { name: "ha-test-card", owner: "", description: " A card ", homepage: " https://example.org/x ", topics: "Home-Assistant, lovelace  lovelace;hacs", visibility: "private" };
+  p._form = { ...lib.GitHubPanel.emptyForm(), name: "ha-test-card", description: " A card ", homepage: " https://example.org/x ", topics: "Home-Assistant, lovelace  lovelace;hacs", visibility: "private" };
   assert.deepEqual([...p._topics()], ["home-assistant", "lovelace", "hacs"]);
   assert.equal(p._formError(), null);
   p._hass.callWS = async (msg) => {
     calls.push(msg);
-    return { ok: true, full_name: "juju35/ha-test-card", url: "https://github.com/juju35/ha-test-card", topics: msg.topics };
+    return { ok: true, full_name: "juju35/ha-test-card", url: "https://github.com/juju35/ha-test-card", topics: msg.topics, steps: [] };
   };
   await p._createRepo();
   const sent = calls.find((c) => c.type === "github_card/create_repo");
@@ -500,10 +500,14 @@ test("New repository: topics split, lower case and once; values checked; one cre
     homepage: "https://example.org/x",
     topics: ["home-assistant", "lovelace", "hacs"],
     visibility: "private",
+    protect: {
+      repo_empty_commit: true, repo_squash_only: true, repo_squash_pr: true, repo_delete_branch: true, repo_auto_merge: false,
+      repo_no_wiki: true, repo_protect_branch: true, repo_protect_tags: true, repo_rulesets_from: "",
+    },
   });
   assert.ok(p._created.ok);
-  assert.equal(p._form.name, "");
-  assert.equal(p._form.visibility, "private");
+  // The form starts again from the defaults
+  assert.deepEqual(JSON.parse(JSON.stringify(p._form)), JSON.parse(JSON.stringify(lib.GitHubPanel.emptyForm())));
   for (const [form, error] of [
     [{ name: "-bad" }, "invalid_name"],
     [{ name: "ok", owner: "a/b" }, "invalid_owner"],
@@ -511,12 +515,45 @@ test("New repository: topics split, lower case and once; values checked; one cre
     [{ name: "ok", topics: "Not_ok" }, "invalid_topics"],
     [{ name: "ok", homepage: "ftp://x" }, "invalid_homepage"],
     [{ name: "ok", topics: Array.from({ length: 21 }, (_, i) => `t${i}`).join(",") }, "invalid_topics"],
+    [{ name: "ok", protect: { repo_rulesets_from: "nope" } }, "invalid_rulesets_from"],
   ]) {
-    p._form = { name: "", owner: "", description: "", homepage: "", topics: "", visibility: "public", ...form };
+    p._form = { ...lib.GitHubPanel.emptyForm(), ...form };
     assert.equal(p._formError(), error, JSON.stringify(form));
   }
   // An invalid form sends nothing
   calls.length = 0;
   await p._createRepo();
   assert.equal(calls.length, 0);
+});
+
+test("New repository: the defaults of Settings, the website template, and this repository's own protections", async () => {
+  const calls = [];
+  const p = panel(calls);
+  p._gh = { installed: true, authenticated: true, login: "juju35" };
+  p._settings = {
+    repo_visibility: "private", repo_homepage: "https://juju35.github.io/homeassistant-projects/projects/{name}/", repo_topics: "home-assistant hacs",
+    repo_empty_commit: false, repo_squash_only: true, repo_squash_pr: true, repo_delete_branch: true, repo_auto_merge: false,
+    repo_no_wiki: true, repo_protect_branch: true, repo_protect_tags: false, repo_rulesets_from: "juju35/ha-room-card",
+  };
+  p._form = { ...lib.GitHubPanel.emptyForm(), name: "ha-new-card" };
+  assert.equal(p._formValue("visibility"), "private");
+  assert.equal(p._formValue("homepage"), "https://juju35.github.io/homeassistant-projects/projects/ha-new-card/");
+  assert.deepEqual([...p._topics()], ["home-assistant", "hacs"]);
+  // Changed for this repository only
+  p._form.protect = { repo_protect_tags: true, repo_rulesets_from: "" };
+  p._form.homepage = "";
+  p._hass.callWS = async (msg) => {
+    calls.push(msg);
+    return { ok: true, full_name: "juju35/ha-new-card", url: "https://github.com/juju35/ha-new-card", steps: [{ step: "ruleset:main", ok: false, error: "HTTP 403" }] };
+  };
+  await p._createRepo();
+  const sent = calls.find((c) => c.type === "github_card/create_repo");
+  assert.equal(sent.homepage, "");
+  assert.equal(sent.visibility, "private");
+  assert.equal(sent.protect.repo_empty_commit, false);
+  assert.equal(sent.protect.repo_protect_tags, true);
+  assert.equal(sent.protect.repo_rulesets_from, "");
+  // The step that failed is said, the repository created all the same
+  assert.match(p._createNoteHtml(), /Ruleset · main : HTTP 403/);
+  assert.equal(p._settings.repo_protect_tags, false);
 });

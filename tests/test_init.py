@@ -10,7 +10,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.github_card.const import CARD_URL, DOMAIN, PANEL_PATH, PANEL_URL, VERSION
+from custom_components.github_card.const import CARD_URL, DOMAIN, PANEL_PATH, PANEL_URL, REPO_DEFAULTS, VERSION
 
 OWN = ["juju35/ha-parcel", "juju35/ha-weather-card", "juju35/aaos-parcel"]
 STARRED = ["home-assistant/core"]
@@ -71,6 +71,7 @@ async def test_config_flow_single_entry(hass):
         "notify_releases": False,
         "refresh_minutes": 15,
         "hide_toolbar": "off",
+        **REPO_DEFAULTS,
     }
     again = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
     assert again["type"] is FlowResultType.ABORT

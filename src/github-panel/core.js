@@ -25,6 +25,16 @@ export const GITHUB_PANEL_VERSION = "2.19.0";
 export const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "create", "settings"];
 // Topics of a new repository: at most this many (kept in step with gh_cli.py)
 export const GITHUB_PANEL_MAX_TOPICS = 20;
+// Protections of a new repository, in the order they are applied (kept in step with REPO_PROTECTIONS of const.py),
+// and their defaults when the settings are not loaded yet
+export const GITHUB_PANEL_PROTECTIONS = [
+  "repo_empty_commit", "repo_squash_only", "repo_squash_pr", "repo_delete_branch", "repo_auto_merge", "repo_no_wiki",
+  "repo_protect_branch", "repo_protect_tags",
+];
+export const GITHUB_PANEL_PROTECTION_DEFAULTS = {
+  repo_empty_commit: true, repo_squash_only: true, repo_squash_pr: true, repo_delete_branch: true, repo_auto_merge: false,
+  repo_no_wiki: true, repo_protect_branch: true, repo_protect_tags: true,
+};
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
 export const GITHUB_PANEL_MIN_REFRESH = 1;
 export const GITHUB_PANEL_MAX_REFRESH = 1440;
@@ -70,9 +80,14 @@ export const GITHUB_PANEL_KEYS = [
   "copy_links", "links_copied",
   // New repository tab (GitHub CLI): the form, its result and its errors
   "create", "c_name", "c_owner", "c_owner_hint", "c_description", "c_topics", "c_topics_hint", "c_visibility", "c_public", "c_private",
-  "c_submit", "c_creating", "c_created", "c_topics_failed", "c_gh_ready",
+  "c_submit", "c_creating", "c_created", "c_gh_ready",
   "c_err_invalid_name", "c_err_invalid_owner", "c_err_invalid_description", "c_err_invalid_topics", "c_err_invalid_visibility",
   "c_err_gh_missing", "c_err_gh_not_authenticated", "c_err_gh_failed",
   // New repository: its website (gh repo create --homepage)
   "c_homepage", "c_homepage_hint", "c_err_invalid_homepage",
+  // New repository: its protections (this repository in the tab, the defaults in Settings) and the steps that failed
+  "s_group_new_repo", "s_new_repo_hint", "c_homepage_template_hint", "c_topics_default_hint", "c_protections", "c_defaults_hint",
+  "p_empty_commit", "p_empty_commit_hint", "p_squash_only", "p_squash_pr", "p_delete_branch", "p_auto_merge", "p_no_wiki",
+  "p_protect_branch", "p_protect_branch_hint", "p_protect_tags", "p_protect_tags_hint", "p_rulesets_from", "p_rulesets_from_hint",
+  "c_steps_failed", "c_step_failed", "step_empty_commit", "step_merge", "step_topics", "step_rulesets", "c_err_invalid_rulesets_from",
 ];

@@ -1,5 +1,5 @@
 // ── End of the folded top bar ──
-import { GITHUB_PANEL_MAX_REFRESH, GITHUB_PANEL_MAX_TOPICS, GITHUB_PANEL_MIN_REFRESH, GITHUB_PANEL_SORTS, GITHUB_PANEL_TABS } from "./core.js";
+import { GITHUB_PANEL_MAX_REFRESH, GITHUB_PANEL_MAX_TOPICS, GITHUB_PANEL_MIN_REFRESH, GITHUB_PANEL_PROTECTION_DEFAULTS, GITHUB_PANEL_PROTECTIONS, GITHUB_PANEL_SORTS, GITHUB_PANEL_TABS } from "./core.js";
 import { GITHUB_PANEL_ICONS, GITHUB_PANEL_LATEST, GITHUB_PANEL_REPO_STATS, GITHUB_PANEL_SCENE, GITHUB_PANEL_STRINGS, GITHUB_PANEL_USER_STATS, githubPanelEsc, githubPanelHideMode, githubPanelIcon, githubPanelKeepView, githubPanelSetHtml } from "./helpers.js";
 import { githubPanelFold } from "./fold.js";
 
@@ -380,7 +380,7 @@ export class GitHubPanel extends HTMLElement {
     this._mineBusy = false;
     this._sort = "followed"; // order of the Repositories tab
     this._gh = null; // the GitHub CLI on the Home Assistant host: { installed, authenticated, login, error }
-    this._form = { name: "", owner: "", description: "", homepage: "", topics: "", visibility: "public" }; // New repository
+    this._form = GitHubPanel.emptyForm(); // New repository
     this._creating = false;
     this._created = null; // the last creation's result, or { ok: false, error }
     try {
@@ -569,6 +569,7 @@ export class GitHubPanel extends HTMLElement {
     }
     this._syncBare();
     this._renderSettings();
+    this._renderCreate();
   }
 
   // ── Tabs ──
@@ -1441,12 +1442,32 @@ export class GitHubPanel extends HTMLElement {
     if (button) button.hidden = !this._gh.authenticated;
     if (this._tab === "create" && !this._gh.authenticated) this._goTab("repos");
     this._renderCreate();
+    this._renderSettings();
+  }
+
+  /** A value of the form: what was typed, else the default of Settings. `homepage`: the website template of
+   * Settings with {name} and {owner} replaced, until the field is edited. */
+  _formValue(key) {
+    const f = this._form;
+    const s = this._settings || {};
+    if (key === "visibility") return f.visibility ?? s.repo_visibility ?? "public";
+    if (key === "topics") return f.topics ?? s.repo_topics ?? "";
+    if (key === "homepage") {
+      if (f.homepage !== null && f.homepage !== undefined) return f.homepage;
+      const template = s.repo_homepage || "";
+      const name = f.name.trim();
+      if (!template || !name) return "";
+      return template.replaceAll("{name}", name).replaceAll("{owner}", f.owner.trim() || this._gh?.login || "");
+    }
+    if (key === "repo_rulesets_from") return f.protect?.[key] ?? s[key] ?? "";
+    if (GITHUB_PANEL_PROTECTIONS.includes(key)) return Boolean(f.protect?.[key] ?? s[key] ?? GITHUB_PANEL_PROTECTION_DEFAULTS[key]);
+    return f[key];
   }
 
   /** The topics typed: split on commas and spaces, lower case, each once. */
-  _topics() {
+  _topics(text = this._formValue("topics")) {
     const seen = [];
-    for (const t of String(this._form.topics || "").toLowerCase().split(/[\s,;]+/)) if (t && !seen.includes(t)) seen.push(t);
+    for (const t of String(text || "").toLowerCase().split(/[\s,;]+/)) if (t && !seen.includes(t)) seen.push(t);
     return seen;
   }
 
@@ -1457,11 +1478,49 @@ export class GitHubPanel extends HTMLElement {
     if (!/^[A-Za-z0-9_][A-Za-z0-9._-]{0,99}$/.test(name)) return "invalid_name";
     if (f.owner.trim() && !/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/.test(f.owner.trim())) return "invalid_owner";
     if (f.description.trim().length > 350) return "invalid_description";
-    const homepage = (f.homepage || "").trim();
+    const homepage = this._formValue("homepage").trim();
     if (homepage && (homepage.length > 255 || !/^https?:\/\/[^\s/$.?#]\S*$/i.test(homepage))) return "invalid_homepage";
     const topics = this._topics();
     if (topics.length > GITHUB_PANEL_MAX_TOPICS || topics.some((t) => !/^[a-z0-9][a-z0-9-]{0,49}$/.test(t))) return "invalid_topics";
+    const from = String(this._formValue("repo_rulesets_from")).trim();
+    if (from && !/^[A-Za-z0-9][A-Za-z0-9-]*\/[A-Za-z0-9_][A-Za-z0-9._-]*$/.test(from)) return "invalid_rulesets_from";
     return null;
+  }
+
+  /** The protections' switches, from `value(key)`; shared by the tab (this repository) and Settings (defaults). */
+  _protectionRows(value, attr) {
+    const esc = githubPanelEsc;
+    const toggle = (key) => {
+      const hint = GITHUB_PANEL_STRINGS.en[`${key.replace("repo_", "p_")}_hint`] ? this._t(`${key.replace("repo_", "p_")}_hint`) : "";
+      return `<label class="row toggle"><div class="who"><span class="n">${esc(this._t(key.replace("repo_", "p_")))}</span>${hint ? `<small>${esc(hint)}</small>` : ""}</div>
+        <input type="checkbox" class="sw" role="switch" ${attr}="${key}"${value(key) ? " checked" : ""}></label>`;
+    };
+    return `<div class="rows">${GITHUB_PANEL_PROTECTIONS.map(toggle).join("")}</div>`;
+  }
+
+  _createTopicsHtml() {
+    const list = this._topics();
+    return list.length ? `<div class="chips">${list.map((t) => `<span class="chip">${githubPanelEsc(t)}</span>`).join("")}</div>` : "";
+  }
+
+  _createNoteHtml() {
+    const esc = githubPanelEsc;
+    const r = this._created;
+    if (this._creating) return `<span class="note" role="status">${esc(this._t("c_creating"))}</span>`;
+    if (r?.ok) {
+      const link = `<a class="link" href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.full_name)}</a>`;
+      let note = `<span class="note good" role="status">${this._t("c_created", { repo: link })}</span>`;
+      const failed = (r.steps || []).filter((s) => !s.ok);
+      if (failed.length) {
+        const label = (step) => (step.startsWith("ruleset:") ? `${this._t("step_rulesets")} · ${step.slice(8)}` : this._t(`step_${step}`));
+        note += `<span class="note warn" role="status">${esc(this._t("c_steps_failed"))}</span>`;
+        note += failed.map((s) => `<span class="note warn">${esc(this._t("c_step_failed", { step: label(s.step), error: s.error || "" }))}</span>`).join("");
+      }
+      return note;
+    }
+    if (r && !r.ok) return `<span class="note bad" role="status">${esc(this._t(`c_err_${r.error}`, { error: r.message || r.error }))}</span>`;
+    const invalid = this._formError();
+    return this._form.name.trim() && invalid ? `<span class="note warn" role="status">${esc(this._t(`c_err_${invalid}`, { error: "" }))}</span>` : "";
   }
 
   _renderCreate() {
@@ -1474,23 +1533,12 @@ export class GitHubPanel extends HTMLElement {
       host.innerHTML = `<div class="card top">${top(null, this._gh ? this._t("c_err_gh_not_authenticated") : this._t("loading"))}</div>`;
       return;
     }
-    const f = this._form;
     const field = (key, label, hint, attrs = "") => `<label class="ctl"><span>${esc(this._t(label))}</span>
-        <div class="field"><input type="text" data-form="${key}" value="${esc(f[key])}" spellcheck="false" autocomplete="off"${attrs}></div>
+        <div class="field"><input type="text" data-form="${key}" value="${esc(this._formValue(key))}" spellcheck="false" autocomplete="off"${attrs}></div>
         ${hint ? `<small>${esc(hint)}</small>` : ""}</label>`;
-    const topics = this._topics();
-    const chips = topics.length ? `<div class="chips">${topics.map((t) => `<span class="chip">${esc(t)}</span>`).join("")}</div>` : "";
     const vis = ["public", "private"]
-      .map((v) => `<button data-visibility="${v}" aria-pressed="${f.visibility === v}">${esc(this._t(`c_${v}`))}</button>`)
+      .map((v) => `<button data-visibility="${v}" aria-pressed="${this._formValue("visibility") === v}">${esc(this._t(`c_${v}`))}</button>`)
       .join("");
-    const r = this._created;
-    let note = "";
-    if (this._creating) note = `<span class="note" role="status">${esc(this._t("c_creating"))}</span>`;
-    else if (r?.ok) {
-      const link = `<a class="link" href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.full_name)}</a>`;
-      note = `<span class="note good" role="status">${this._t("c_created", { repo: link })}</span>`;
-      if (r.topics_error) note += `<span class="note warn" role="status">${esc(this._t("c_topics_failed", { error: r.topics_error }))}</span>`;
-    } else if (r && !r.ok) note = `<span class="note bad" role="status">${esc(this._t(`c_err_${r.error}`, { error: r.message || r.error }))}</span>`;
     const invalid = this._formError();
     const disabled = this._creating || invalid ? " disabled" : "";
     host.innerHTML = `
@@ -1501,29 +1549,42 @@ export class GitHubPanel extends HTMLElement {
         ${field("description", "c_description", "", ' maxlength="350"')}
         ${field("homepage", "c_homepage", this._t("c_homepage_hint"), ' inputmode="url" maxlength="255" placeholder="https://"')}
         ${field("topics", "c_topics", this._t("c_topics_hint"), ' placeholder="home-assistant, lovelace"')}
-        <div class="ctopics">${chips}</div>
+        <div class="ctopics">${this._createTopicsHtml()}</div>
         <div class="row toggle"><div class="who"><span class="n">${esc(this._t("c_visibility"))}</span></div>
           <div class="seg" role="group" aria-label="${esc(this._t("c_visibility"))}">${vis}</div></div>
       </div>
+      <div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("c_protections"))}</h2><small class="note">${esc(this._t("c_defaults_hint"))}</small></div>
+        ${this._protectionRows((k) => this._formValue(k), "data-protect")}
+        <label class="ctl"><span>${esc(this._t("p_rulesets_from"))}</span>
+          <div class="field"><input type="text" data-protect-text="repo_rulesets_from" value="${esc(this._formValue("repo_rulesets_from"))}" spellcheck="false" autocomplete="off" maxlength="140" placeholder="${esc(login || "owner")}/ha-template"></div>
+          <small>${esc(this._t("p_rulesets_from_hint"))}</small></label>
+      </div>
       <div class="card savebar"><button class="act" data-action="create-repo"${disabled}>${githubPanelIcon("plus")}${esc(this._t("c_submit"))}</button>
-        <span class="cnote">${note || (f.name.trim() && invalid ? `<span class="note warn" role="status">${esc(this._t(`c_err_${invalid}`, { error: "" }))}</span>` : "")}</span></div>`;
-    for (const input of host.querySelectorAll("input[data-form]")) {
+        <span class="cnote">${this._createNoteHtml()}</span></div>`;
+    // Typing refreshes the computed website, the topics, the button and the message only, so the field keeps its focus
+    const refresh = () => {
+      const homepage = host.querySelector('input[data-form="homepage"]');
+      if (homepage && this._form.homepage == null && homepage !== this.shadowRoot.activeElement) homepage.value = this._formValue("homepage");
+      const ct = host.querySelector(".ctopics");
+      if (ct) ct.innerHTML = this._createTopicsHtml();
+      const button = host.querySelector("[data-action=create-repo]");
+      if (button) button.disabled = this._creating || Boolean(this._formError());
+      if (!this._creating) this._created = null;
+      const cnote = host.querySelector(".cnote");
+      if (cnote) cnote.innerHTML = this._createNoteHtml();
+    };
+    for (const input of host.querySelectorAll("input[data-form]"))
       input.addEventListener("input", () => {
         this._form[input.dataset.form] = input.value;
-        // Typing refreshes the topics, the button and the message only, so the field keeps its focus
-        const ct = host.querySelector(".ctopics");
-        if (ct && input.dataset.form === "topics") {
-          const list = this._topics();
-          ct.innerHTML = list.length ? `<div class="chips">${list.map((t) => `<span class="chip">${esc(t)}</span>`).join("")}</div>` : "";
-        }
-        const err = this._formError();
-        const button = host.querySelector("[data-action=create-repo]");
-        if (button) button.disabled = this._creating || Boolean(err);
-        const cnote = host.querySelector(".cnote");
-        if (cnote && !this._creating)
-          cnote.innerHTML = this._form.name.trim() && err ? `<span class="note warn" role="status">${esc(this._t(`c_err_${err}`, { error: "" }))}</span>` : "";
+        refresh();
       });
-    }
+    const protect = (key, value) => {
+      this._form.protect = { ...(this._form.protect || {}), [key]: value };
+      refresh();
+    };
+    for (const input of host.querySelectorAll("input[data-protect]")) input.addEventListener("change", () => protect(input.dataset.protect, input.checked));
+    for (const input of host.querySelectorAll("input[data-protect-text]")) input.addEventListener("input", () => protect(input.dataset.protectText, input.value));
     for (const button of host.querySelectorAll("[data-visibility]"))
       button.addEventListener("click", () => {
         this._form.visibility = button.dataset.visibility;
@@ -1535,6 +1596,9 @@ export class GitHubPanel extends HTMLElement {
   async _createRepo() {
     if (this._creating || this._formError()) return;
     const f = this._form;
+    const protect = {};
+    for (const key of GITHUB_PANEL_PROTECTIONS) protect[key] = this._formValue(key);
+    protect.repo_rulesets_from = String(this._formValue("repo_rulesets_from")).trim();
     this._creating = true;
     this._created = null;
     this._renderCreate();
@@ -1544,17 +1608,46 @@ export class GitHubPanel extends HTMLElement {
         name: f.name.trim(),
         owner: f.owner.trim(),
         description: f.description.trim(),
-        homepage: (f.homepage || "").trim(),
+        homepage: this._formValue("homepage").trim(),
         topics: this._topics(),
-        visibility: f.visibility,
+        visibility: this._formValue("visibility"),
+        protect,
       });
     } catch (err) {
       this._created = { ok: false, error: "gh_failed", message: err?.message || String(err) };
     }
     this._creating = false;
-    // Created: the form is emptied for the next one (the visibility and owner kept)
-    if (this._created.ok) this._form = { ...this._form, name: "", description: "", homepage: "", topics: "" };
+    // Created: the form starts again from the defaults of Settings (the owner kept)
+    if (this._created.ok) this._form = { ...GitHubPanel.emptyForm(), owner: f.owner };
     this._renderCreate();
+  }
+
+  static emptyForm() {
+    // null: the default of Settings (visibility, website, topics, protections)
+    return { name: "", owner: "", description: "", homepage: null, topics: null, visibility: null, protect: null };
+  }
+
+  /** Settings: the defaults of the New repository tab (shown when gh is signed in). */
+  _newRepoSettingsHtml() {
+    if (!this._gh?.authenticated) return "";
+    const esc = githubPanelEsc;
+    const text = (key, label, hint, attrs = "") => `<label class="ctl"><span>${esc(this._t(label))}</span>
+        <div class="field"><input type="text" data-key="${key}" value="${esc(this._value(key) ?? "")}" spellcheck="false" autocomplete="off"${attrs}></div>
+        <small>${esc(hint)}</small></label>`;
+    const vis = ["public", "private"]
+      .map((v) => `<button data-repo-visibility="${v}" aria-pressed="${(this._value("repo_visibility") || "public") === v}">${esc(this._t(`c_${v}`))}</button>`)
+      .join("");
+    return `<div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("s_group_new_repo"))}</h2></div>
+        <small class="note">${esc(this._t("s_new_repo_hint"))}</small>
+        <div class="row toggle"><div class="who"><span class="n">${esc(this._t("c_visibility"))}</span></div>
+          <div class="seg" role="group" aria-label="${esc(this._t("c_visibility"))}">${vis}</div></div>
+        ${text("repo_homepage", "c_homepage", this._t("c_homepage_template_hint"), ' inputmode="url" maxlength="255" placeholder="https://example.org/projects/{name}/"')}
+        ${text("repo_topics", "c_topics", this._t("c_topics_default_hint"), ' placeholder="home-assistant, lovelace"')}
+        <div class="lhead"><h2 class="lname">${esc(this._t("c_protections"))}</h2></div>
+        ${this._protectionRows((k) => this._value(k) ?? GITHUB_PANEL_PROTECTION_DEFAULTS[k], "data-key")}
+        ${text("repo_rulesets_from", "p_rulesets_from", this._t("p_rulesets_from_hint"), ` maxlength="140" placeholder="${esc(this._gh?.login || "owner")}/ha-template"`)}
+      </div>`;
   }
 
   // ── Settings tab ──
@@ -1614,6 +1707,7 @@ export class GitHubPanel extends HTMLElement {
           <small class="note">${esc(this._t("s_refresh_hint"))}</small>
         </div>
       </div>
+      ${this._newRepoSettingsHtml()}
       <div class="card list">
         <div class="lhead"><h2 class="lname">${esc(this._t("s_group_panel"))}</h2></div>
         <div class="rows"><div class="row toggle"><div class="who"><span class="n">${esc(this._t("s_hide_toolbar"))}</span><small>${esc(this._t("s_hide_toolbar_hint"))}</small></div>
@@ -1655,6 +1749,13 @@ export class GitHubPanel extends HTMLElement {
         }
         this._renderSettings();
       });
+    for (const button of host.querySelectorAll("[data-repo-visibility]"))
+      button.addEventListener("click", () => {
+        this._draft.repo_visibility = button.dataset.repoVisibility;
+        if (this._draft.repo_visibility === this._settings?.repo_visibility) delete this._draft.repo_visibility;
+        this._saved = false;
+        this._renderSettings();
+      });
     for (const button of host.querySelectorAll("[data-hide]"))
       button.addEventListener("click", () => {
         this._draft.hide_toolbar = button.dataset.hide;
@@ -1690,6 +1791,7 @@ export class GitHubPanel extends HTMLElement {
       console.error("GitHub panel: could not save the settings", err);
     }
     this._renderSettings();
+    this._renderCreate();
     // The settings choose the repositories offered
     await this._load();
   }
