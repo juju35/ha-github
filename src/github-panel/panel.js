@@ -250,7 +250,7 @@ export class GitHubPanel extends HTMLElement {
     @container (max-width:420px) { .scene { display:none; } .bhead { right:0; } }
     /* Tiles and rows */
     .kpis { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:8px; }
-    .tile { display:flex; align-items:center; gap:10px; min-height:56px; padding:8px 10px 8px 8px; border-radius:12px; background:var(--gh-sec); box-sizing:border-box; min-width:0; }
+    .tile { display:flex; align-items:center; gap:10px; min-height:56px; padding:8px 10px 8px 8px; border-radius: 10px; background:var(--gh-sec); box-sizing:border-box; min-width:0; }
     .kv { display:flex; flex-direction:column; min-width:0; }
     .kv b { font-size:17px; font-weight:500; line-height:1.2; }
     .kv span { font-size:12px; color:var(--secondary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -1493,8 +1493,9 @@ export class GitHubPanel extends HTMLElement {
     const days = Number.isFinite(t) ? Math.max(0, Math.floor((Date.now() - t) / 86400000)) : null;
     const label = esc(`${b.repo}/${b.branch}`);
     const tree = `https://github.com/${b.repo}/tree/${String(b.branch).split("/").map(encodeURIComponent).join("/")}`;
+    const prUrl = /^https:\/\/github\.com\//.test(String(b.pr?.url || "")) ? b.pr.url : `https://github.com/${b.repo}/pull/${encodeURIComponent(b.pr?.number ?? "")}`;
     const pr = b.pr
-      ? `<a class="rev warn" href="${esc(b.pr.url)}" target="_blank" rel="noopener noreferrer" title="${esc(this._t("b_open_pr", { number: b.pr.number }))}">${githubPanelIcon("pr")}#${esc(b.pr.number)}</a>`
+      ? `<a class="rev warn" href="${esc(prUrl)}" target="_blank" rel="noopener noreferrer" title="${esc(this._t("b_open_pr", { number: b.pr.number }))}">${githubPanelIcon("pr")}#${esc(b.pr.number)}</a>`
       : "";
     const box = this._gh?.authenticated
       ? `<input type="checkbox" class="pick-repo" data-branch="${esc(key)}" aria-label="${label}" title="${label}"${on ? " checked" : ""}${this._branchBusy ? " disabled" : ""}>`
