@@ -115,6 +115,8 @@ const panelMock = {
     fetched_at: NOW / 1000,
     error: null,
   },
+  // The GitHub CLI signed in on the Home Assistant host: the New repository tab shows
+  "github_card/gh_status": { installed: true, authenticated: true, login: "juju35", error: null },
   "github_card/settings": { settings: { filter: "juju35/ha-*", include_starred: true, ignore_archived: true, notify_issues: true, notify_pulls: false, notify_releases: false, refresh_minutes: 15, hide_toolbar: false } },
 };
 
@@ -132,7 +134,7 @@ async function openCard(s) {
   await page.addScriptTag({ content: cardJs });
   if (s.panel) await page.addScriptTag({ content: panelJs });
   await page.evaluate(
-    ({ type, config, states, entities, devices, open, zoom, merge, panel, mock, expand, select, sidebar, dark }) => {
+    ({ type, config, states, entities, devices, open, zoom, merge, panel, mock, expand, select, form, sidebar, dark }) => {
       if (sidebar) {
         // A faithful mock of Home Assistant's sidebar entry with the count badge (open issues + pull requests),
         // amber here because there are open issues, like the native notifications count. No real sidebar is mounted.
@@ -169,6 +171,8 @@ async function openCard(s) {
         el._expanded = expand || null;
         // Repositories ticked to follow them together
         if (select) el._selected = new Set(select);
+        // The New repository form, filled in
+        if (form) el._form = { ...el._form, ...form };
         el.hass = {
           states, entities, devices, language: "en", locale: { language: "en" },
           themes: { darkMode: dark },
@@ -200,7 +204,7 @@ async function openCard(s) {
         el._update();
       }
     },
-    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, merge: s.merge, panel: s.panel, mock: panelMock, expand: s.expand, select: s.select, sidebar: s.sidebar, dark: s.theme === "dark" }
+    { type: s.type, config: s.config, states, entities: s.accountOnly ? accountOnly : entities, devices, open: s.open, zoom: s.zoom, merge: s.merge, panel: s.panel, mock: panelMock, expand: s.expand, select: s.select, form: s.form, sidebar: s.sidebar, dark: s.theme === "dark" }
   );
   await page.waitForTimeout(800);
   return page;

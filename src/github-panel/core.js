@@ -2,7 +2,7 @@
  * GitHub panel for Home Assistant (administrators only)
  * https://github.com/juju35/ha-github
  *
- * Five tabs under the toolbar, as in Smart Comfort and IPTV (text tabs, the active one underlined, the tab in the
+ * Six tabs under the toolbar, as in Smart Comfort and IPTV (text tabs, the active one underlined, the tab in the
  * address, Settings last):
  * - Repositories: the repositories of your GitHub account (and your starred ones, if chosen), followed or not by the
  *   core GitHub integration; follow or stop following one, the ticked ones or all of them at once (one reload of the GitHub
@@ -13,13 +13,18 @@
  *   GitHub API (github_card/items, cached 5 minutes by the integration; Refresh asks GitHub again);
  * - My pull requests: the open pull requests you authored, in any repository (not only the followed ones), from a
  *   GitHub search (github_card/mine, cached 5 minutes; loaded when the tab opens, Refresh asks GitHub again);
+ * - New repository: shown only when the GitHub CLI (gh) is installed on the Home Assistant host and signed in
+ *   (github_card/gh_status); creates a repository with gh — name, owner, description, topics, visibility
+ *   (github_card/create_repo);
  * - Settings: which repositories are offered (name patterns, starred ones, archived ones ignored), the new issue / pull request
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-export const GITHUB_PANEL_VERSION = "2.18.4";
+export const GITHUB_PANEL_VERSION = "2.19.0";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
-export const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "settings"];
+export const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "create", "settings"];
+// Topics of a new repository: at most this many (kept in step with gh_cli.py)
+export const GITHUB_PANEL_MAX_TOPICS = 20;
 // Bounds of the items refresh interval, in minutes (kept in step with const.py)
 export const GITHUB_PANEL_MIN_REFRESH = 1;
 export const GITHUB_PANEL_MAX_REFRESH = 1440;
@@ -63,4 +68,9 @@ export const GITHUB_PANEL_KEYS = [
   "d_stars", "d_forks", "d_watchers", "d_issues", "d_pulls", "d_merged_pulls", "d_discussions", "d_downloads", "d_latest_release", "d_latest_tag", "d_latest_commit", "d_latest_issue", "d_latest_pull_request", "d_latest_discussion", "d_account", "d_followers", "d_following", "d_public_repos", "d_public_gists",
   // Issues and Pull requests: the links of the listed items copied to the clipboard
   "copy_links", "links_copied",
+  // New repository tab (GitHub CLI): the form, its result and its errors
+  "create", "c_name", "c_owner", "c_owner_hint", "c_description", "c_topics", "c_topics_hint", "c_visibility", "c_public", "c_private",
+  "c_submit", "c_creating", "c_created", "c_topics_failed", "c_gh_ready",
+  "c_err_invalid_name", "c_err_invalid_owner", "c_err_invalid_description", "c_err_invalid_topics", "c_err_invalid_visibility",
+  "c_err_gh_missing", "c_err_gh_not_authenticated", "c_err_gh_failed",
 ];

@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.19.0 - 2026-11-27
+
+### Features
+- Panel: a **New repository** tab, shown only when the GitHub CLI (`gh`) is installed on the Home Assistant host and
+  signed in (`gh auth status`). It creates a repository with `gh repo create` — name, owner (your account or an
+  organization), description and visibility — then sets its topics with `gh repo edit --add-topic`, and links to it.
+  Values are checked first and passed to `gh` as separate arguments, without a shell. New commands
+  `github_card/gh_status` and `github_card/create_repo` (administrators only).
+
 ## 2.18.4 - 2026-11-24
 
 ### Fixes

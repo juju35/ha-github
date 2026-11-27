@@ -11,6 +11,9 @@ Issues and Pull requests (open ones of the followed repositories) and Settings. 
   with the GitHub integration's token, cached for 5 minutes; ``refresh`` asks GitHub again);
 - ``github_card/mine``: the open pull requests authored by the token's user, in any repository (GitHub search,
   cached for 5 minutes; ``refresh`` asks GitHub again);
+- ``github_card/gh_status``: whether the GitHub CLI (``gh``) is installed on the Home Assistant host and signed in
+  (the panel's Create tab shows only then; ``refresh`` asks gh again);
+- ``github_card/create_repo``: creates a repository with gh (name, optional owner, description, topics, visibility);
 - ``github_card/settings`` / ``github_card/update_settings``: the settings (options of the entry), among them
   ``hide_toolbar`` (the panel's top bar hidden for nobody, everyone or non-administrators, the tabs kept), also given
   in the panel's registration.
@@ -47,6 +50,7 @@ from .const import (
     SIGNAL_ITEMS_UPDATED,
     VERSION,
 )
+from .gh_cli import MAX_DESCRIPTION, MAX_TOPICS, VISIBILITIES, async_create, async_status
 from .items import async_items, async_mine, current_items
 from .repositories import async_apply, async_overview
 
@@ -77,6 +81,8 @@ async def async_register_panel(hass: HomeAssistant) -> None:
         _ws_items,
         _ws_subscribe_items,
         _ws_mine,
+        _ws_gh_status,
+        _ws_create_repo,
         _ws_settings,
         _ws_update_settings,
     ):
@@ -175,6 +181,41 @@ async def _ws_mine(hass: HomeAssistant, connection: websocket_api.ActiveConnecti
     ``refresh`` (the panel's Refresh button) asks GitHub again."""
     mine = await async_mine(hass, refresh=msg["refresh"])
     connection.send_result(msg["id"], mine.as_dict())
+
+
+@websocket_api.websocket_command(
+    {vol.Required("type"): f"{DOMAIN}/gh_status", vol.Optional("refresh", default=False): bool}
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def _ws_gh_status(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Whether gh is installed and signed in: the panel shows its Create tab only then."""
+    connection.send_result(msg["id"], await async_status(hass, refresh=msg["refresh"]))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/create_repo",
+        vol.Required("name"): vol.All(str, vol.Length(min=1, max=100)),
+        vol.Optional("owner", default=""): vol.All(str, vol.Length(max=39)),
+        vol.Optional("description", default=""): vol.All(str, vol.Length(max=MAX_DESCRIPTION)),
+        vol.Optional("topics", default=list): vol.All([vol.All(str, vol.Length(max=50))], vol.Length(max=MAX_TOPICS)),
+        vol.Optional("visibility", default="public"): vol.In(VISIBILITIES),
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def _ws_create_repo(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Create a repository with gh: ``{"ok": True, "full_name", "url"}`` or ``{"ok": False, "error"}``."""
+    result = await async_create(
+        hass,
+        name=msg["name"],
+        owner=msg["owner"],
+        description=msg["description"],
+        topics=msg["topics"],
+        visibility=msg["visibility"],
+    )
+    connection.send_result(msg["id"], result)
 
 
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/settings"})

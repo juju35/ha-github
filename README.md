@@ -29,6 +29,7 @@ The panel opens on the card's desk across the page (as on the ENT ONE panel): Gi
 - **Repositories**: every repository of your GitHub account (and your starred ones, if you choose), followed or not by the GitHub integration. Each followed one shows its stars, open issues, open pull requests and latest release on its row, and unfolds the same details as the GitHub Card (counters, latest release, commit, pull request, issue…). The head gives the totals of the followed repositories, a **To handle** card the latest open pull requests and issues, and your GitHub account (followers, following, public repositories and gists) closes the list. **Follow** or **Stop following** one, tick several and **Follow selected**, or **Follow all** at once: the whole change reloads the GitHub integration a single time
 - **Issues** and **Pull requests**: the open ones of all the followed repositories, most recently updated first, with their repository, number, author, age, comments and labels, and the review state of pull requests (approved, changes requested, review required, draft). The Pull requests tab leaves out the ones **you** authored — they have their own **My pull requests** tab. Filter by repository — only the repositories with open items get a chip (the busiest five), the others are behind **+ N more** with a search; each opens on GitHub. **Copy the links** puts the links of the items listed (the repository filter applied) on the clipboard, one per line
 - **My pull requests**: the open pull requests you authored, in any repository — not only the followed ones — with their repository, number, age, review state and the state of their checks; each opens on GitHub
+- **New repository**: only when the [GitHub CLI](https://cli.github.com/) (`gh`) is installed on the Home Assistant host and signed in — create a repository with its name, owner (your account or an organization), description, topics and visibility
 - **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories, archived repositories ignored), a Home Assistant notification for each new issue, pull request or release, and **Hide the top bar** for everyone or only for non-admins (the desk banner goes, the tabs and the menu button stay)
 - Tabs in the address (`/github-config/issues`), so a link or a reload opens the same tab
 
@@ -107,6 +108,7 @@ The **GitHub** entry of the sidebar, for administrators only. It carries a count
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-issues.png" alt="Issues tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-issues-dark.png" alt="Issues tab dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-pulls.png" alt="Pull requests tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-pulls-dark.png" alt="Pull requests tab dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-mine.png" alt="My pull requests tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-mine-dark.png" alt="My pull requests tab dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-create.png" alt="New repository tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-create-dark.png" alt="New repository tab dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-settings.png" alt="Settings tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-settings-dark.png" alt="Settings tab dark" width="400"> |
 
 ### Repositories
@@ -124,6 +126,17 @@ The GitHub integration only has counts and the latest issue and pull request of 
 ### My pull requests
 
 Your own pull requests are often spread over many repositories you do not follow (upstream integrations, libraries, docs, forks), and adding them all as followed repositories is not practical. The **My pull requests** tab lists the open pull requests you authored in any repository, most recently updated first, with their repository, number, title, age, comments, labels, review state and the rolled-up state of their checks (passing, failing, running). It comes from a single GitHub search with the **access token of the GitHub integration** (`is:pr is:open author:@me`, sent to `api.github.com` only, never to the browser), cached for a few minutes: the list loads the first time the tab opens, and **Refresh** asks GitHub again right away.
+
+### New repository
+
+The **New repository** tab appears only when the GitHub CLI is on the `PATH` of Home Assistant and `gh auth status` succeeds on `github.com` (checked when the panel opens, then at most once a minute). Fill in the **Name**, optionally an **Owner** (empty: the account `gh` is signed in with; or an organization you belong to), a **Description**, **Topics** (separated by commas or spaces) and the **Visibility**, then **Create the repository**: the integration runs `gh repo create <name> --public|--private --description=…`, then `gh repo edit <owner>/<name> --add-topic …` for the topics, and shows the link to the new repository. The values are checked first (GitHub's rules for names and topics, at most 20 topics, a one-line description of up to 350 characters) and passed to `gh` as separate arguments, never through a shell. It uses the `gh` sign-in, not the GitHub integration's token.
+
+To make it available, install `gh` where Home Assistant runs (for example in a Home Assistant Container image you build) and sign it in as the user Home Assistant runs as:
+
+```sh
+gh auth login --hostname github.com
+gh auth status
+```
 
 ### Notifications
 

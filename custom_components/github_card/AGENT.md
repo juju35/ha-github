@@ -22,10 +22,12 @@ custom_components/github_card/
 │                    # any repository (a GitHub search, author:@me), cached in hass.data[DOMAIN]["mine"]
 ├── archived.py    # Which offered repositories are archived (GraphQL, 50 per query, cached 10 minutes), for the
 │                    # ignore_archived setting
+├── gh_cli.py        # The GitHub CLI on the HA host: gh auth status (cached 1 min) and gh repo create / edit --add-topic,
+│                    # run without a shell, values checked first (the panel's Create tab, shown only when gh is signed in)
 ├── notify.py        # Persistent notification when a github latest_issue / latest_pull_request number grows
 ├── translations/    # Config flow strings, 22 languages
 ├── brand/           # Integration icon
-└── frontend/        # github-card.js (cards), github-panel.js (panel, 5 tabs, 22 languages)
+└── frontend/        # github-card.js (cards), github-panel.js (panel, 6 tabs — Create only when gh is signed in, 22 languages)
 ```
 
 ## Rules

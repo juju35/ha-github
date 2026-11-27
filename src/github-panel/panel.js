@@ -1,5 +1,5 @@
 // ── End of the folded top bar ──
-import { GITHUB_PANEL_MAX_REFRESH, GITHUB_PANEL_MIN_REFRESH, GITHUB_PANEL_SORTS, GITHUB_PANEL_TABS } from "./core.js";
+import { GITHUB_PANEL_MAX_REFRESH, GITHUB_PANEL_MAX_TOPICS, GITHUB_PANEL_MIN_REFRESH, GITHUB_PANEL_SORTS, GITHUB_PANEL_TABS } from "./core.js";
 import { GITHUB_PANEL_ICONS, GITHUB_PANEL_LATEST, GITHUB_PANEL_REPO_STATS, GITHUB_PANEL_SCENE, GITHUB_PANEL_STRINGS, GITHUB_PANEL_USER_STATS, githubPanelEsc, githubPanelHideMode, githubPanelIcon, githubPanelKeepView, githubPanelSetHtml } from "./helpers.js";
 import { githubPanelFold } from "./fold.js";
 
@@ -299,6 +299,11 @@ export class GitHubPanel extends HTMLElement {
     .seg button[aria-pressed="true"] { background:var(--card-background-color, #fff); color:var(--gh-ink); box-shadow:0 1px 2px rgba(0,0,0,.14); }
     .seg button:focus-visible, .chip:focus-visible { outline:2px solid var(--gh-accent); outline-offset:1px; }
     .chips { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    /* New repository: the topics typed as chips (not buttons), the result next to the Create button */
+    .ctopics:empty { display:none; }
+    .ctopics .chip { cursor:default; min-height:26px; font-size:12px; background:var(--gh-sec); }
+    .cnote { display:flex; flex-direction:column; gap:2px; min-width:0; }
+    .cnote a { color:var(--gh-accent); font-weight:600; }
     .chip { display:inline-flex; align-items:center; gap:6px; min-height:34px; padding:0 12px; border-radius:17px; border:1px solid transparent; cursor:pointer;
             font:inherit; font-size:13px; font-weight:500; color:var(--primary-text-color); background:var(--gh-sec); }
     .chip em { font-style:normal; font-size:11.5px; opacity:.7; }
@@ -374,6 +379,10 @@ export class GitHubPanel extends HTMLElement {
     this._mine = null; // my open pull requests (any repository), loaded when the My pull requests tab opens
     this._mineBusy = false;
     this._sort = "followed"; // order of the Repositories tab
+    this._gh = null; // the GitHub CLI on the Home Assistant host: { installed, authenticated, login, error }
+    this._form = { name: "", owner: "", description: "", topics: "", visibility: "public" }; // New repository
+    this._creating = false;
+    this._created = null; // the last creation's result, or { ok: false, error }
     try {
       const saved = localStorage.getItem("github_card.repos_sort");
       if (GITHUB_PANEL_SORTS.includes(saved)) this._sort = saved;
@@ -385,7 +394,7 @@ export class GitHubPanel extends HTMLElement {
   // /github-config/<tab> opens that tab (Home Assistant sets the route; the base address is Repositories)
   set route(route) {
     const path = (route?.path || "").split("/").filter(Boolean)[0];
-    const tab = GITHUB_PANEL_TABS.includes(path) ? path : "repos";
+    const tab = GITHUB_PANEL_TABS.includes(path) && this._tabShown(path) ? path : "repos";
     if (tab !== this._tab) this._showTab(tab);
   }
 
@@ -478,7 +487,7 @@ export class GitHubPanel extends HTMLElement {
 
   async _reload() {
     this._loadFailed = false;
-    await Promise.all([this._loadSettings(), this._load()]);
+    await Promise.all([this._loadSettings(), this._load(), this._loadGh()]);
     // One retry for the lot, whichever failed
     this._retry(this._loadFailed);
   }
@@ -564,8 +573,18 @@ export class GitHubPanel extends HTMLElement {
 
   // ── Tabs ──
 
+  /** The New repository tab only when gh is signed in (until its status arrives, an address to it is kept). */
+  _tabShown(tab) {
+    return tab !== "create" || !this._gh || Boolean(this._gh.authenticated);
+  }
+
+  /** The tabs in the row: New repository only once gh is known to be signed in. */
+  _tabs() {
+    return GITHUB_PANEL_TABS.filter((tab) => tab !== "create" || Boolean(this._gh?.authenticated));
+  }
+
   _goTab(tab, focus) {
-    if (!GITHUB_PANEL_TABS.includes(tab)) return;
+    if (!GITHUB_PANEL_TABS.includes(tab) || !this._tabShown(tab)) return;
     this._showTab(tab, focus);
     const base = (this._panel?.url_path || "github-config").replace(/^\//, "");
     try {
@@ -601,7 +620,8 @@ export class GitHubPanel extends HTMLElement {
       const selected = tab === this._tab;
       const count = this._tabCount(tab);
       const badge = count ? `<span class="badge" aria-hidden="true">${count}</span>` : "";
-      return `<button class="tab${selected ? " active" : ""}" role="tab" id="tabbtn-${tab}" data-tab="${tab}" aria-selected="${selected}" aria-controls="tab-${tab}" tabindex="${selected ? 0 : -1}">${githubPanelEsc(this._t(tab))}${badge}</button>`;
+      const hidden = this._tabs().includes(tab) ? "" : " hidden";
+      return `<button class="tab${selected ? " active" : ""}" role="tab" id="tabbtn-${tab}" data-tab="${tab}" aria-selected="${selected}" aria-controls="tab-${tab}" tabindex="${selected ? 0 : -1}"${hidden}>${githubPanelEsc(this._t(tab))}${badge}</button>`;
     }).join("");
     root.innerHTML = `
       <style>${GitHubPanel.STYLE}</style>
@@ -614,6 +634,7 @@ export class GitHubPanel extends HTMLElement {
         <section id="tab-issues" role="tabpanel" aria-labelledby="tabbtn-issues"><div id="issues"></div></section>
         <section id="tab-pulls" role="tabpanel" aria-labelledby="tabbtn-pulls"><div id="pulls"></div></section>
         <section id="tab-mine" role="tabpanel" aria-labelledby="tabbtn-mine"><div id="mine"></div></section>
+        <section id="tab-create" role="tabpanel" aria-labelledby="tabbtn-create"><div id="create"></div></section>
         <section id="tab-settings" role="tabpanel" aria-labelledby="tabbtn-settings"><div id="settings"></div></section>
       </main>`;
     this._menu = root.querySelector(".topbar ha-menu-button");
@@ -631,8 +652,9 @@ export class GitHubPanel extends HTMLElement {
         const step = ev.key === "ArrowRight" ? 1 : ev.key === "ArrowLeft" ? -1 : 0;
         if (!step) return;
         ev.preventDefault();
-        const i = GITHUB_PANEL_TABS.indexOf(this._tab);
-        this._goTab(GITHUB_PANEL_TABS[(i + step + GITHUB_PANEL_TABS.length) % GITHUB_PANEL_TABS.length], true);
+        const tabs = this._tabs();
+        const i = tabs.indexOf(this._tab);
+        this._goTab(tabs[(i + step + tabs.length) % tabs.length], true);
       });
     }
     this._showTab(this._tab);
@@ -641,6 +663,7 @@ export class GitHubPanel extends HTMLElement {
     this._renderItems("pulls");
     this._renderHandle();
     this._renderMine();
+    this._renderCreate();
     this._renderSettings();
     this._attachFold();
   }
@@ -652,9 +675,9 @@ export class GitHubPanel extends HTMLElement {
     this._fold = githubPanelFold(this, {
       top: ".topbar",
       tabs: ".tabs",
-      tab: ".tab",
+      tab: ".tab:not([hidden])",
       key: (b) => b.dataset.tab,
-      icons: { repos: I.code, issues: I.issue, pulls: I.pr, mine: I.account, settings: I.cog },
+      icons: { repos: I.code, issues: I.issue, pulls: I.pr, mine: I.account, create: I.plus, settings: I.cog },
       badge: ".badge",
       name: ".topbar .bname",
       sub: ".topbar .bsub",
@@ -1401,6 +1424,133 @@ export class GitHubPanel extends HTMLElement {
         <div class="rows">${pulls.length ? pulls.map((i) => this._itemHtml(i, "pulls", true)).join("") : `<div class="note">${esc(this._t("no_mine"))}</div>`}</div>
       </div>`;
     host.querySelector("[data-action=refresh]")?.addEventListener("click", () => this._loadMine(true));
+  }
+
+  // ── New repository tab (GitHub CLI) ──
+
+  /** Whether gh is installed and signed in on the Home Assistant host: the New repository tab shows only then. */
+  async _loadGh(refresh = false) {
+    try {
+      this._gh = (await this._hass.callWS({ type: "github_card/gh_status", refresh })) || null;
+      if (!this._gh) throw new Error("no status");
+    } catch (_err) {
+      // An older integration, or the connection gone: no tab (it comes back with the next load)
+      this._gh = { installed: false, authenticated: false, login: null, error: null };
+    }
+    const button = this.shadowRoot?.getElementById?.("tabbtn-create");
+    if (button) button.hidden = !this._gh.authenticated;
+    if (this._tab === "create" && !this._gh.authenticated) this._goTab("repos");
+    this._renderCreate();
+  }
+
+  /** The topics typed: split on commas and spaces, lower case, each once. */
+  _topics() {
+    const seen = [];
+    for (const t of String(this._form.topics || "").toLowerCase().split(/[\s,;]+/)) if (t && !seen.includes(t)) seen.push(t);
+    return seen;
+  }
+
+  /** The first invalid value's error code (the integration checks again), or null. */
+  _formError() {
+    const f = this._form;
+    const name = f.name.trim();
+    if (!/^[A-Za-z0-9_][A-Za-z0-9._-]{0,99}$/.test(name)) return "invalid_name";
+    if (f.owner.trim() && !/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/.test(f.owner.trim())) return "invalid_owner";
+    if (f.description.trim().length > 350) return "invalid_description";
+    const topics = this._topics();
+    if (topics.length > GITHUB_PANEL_MAX_TOPICS || topics.some((t) => !/^[a-z0-9][a-z0-9-]{0,49}$/.test(t))) return "invalid_topics";
+    return null;
+  }
+
+  _renderCreate() {
+    const host = this.shadowRoot?.getElementById?.("create");
+    if (!host) return;
+    const esc = githubPanelEsc;
+    const login = this._gh?.login || "";
+    const top = (pill, sub) => this._banner("plus", this._t("create"), pill, sub);
+    if (!this._gh?.authenticated) {
+      host.innerHTML = `<div class="card top">${top(null, this._gh ? this._t("c_err_gh_not_authenticated") : this._t("loading"))}</div>`;
+      return;
+    }
+    const f = this._form;
+    const field = (key, label, hint, attrs = "") => `<label class="ctl"><span>${esc(this._t(label))}</span>
+        <div class="field"><input type="text" data-form="${key}" value="${esc(f[key])}" spellcheck="false" autocomplete="off"${attrs}></div>
+        ${hint ? `<small>${esc(hint)}</small>` : ""}</label>`;
+    const topics = this._topics();
+    const chips = topics.length ? `<div class="chips">${topics.map((t) => `<span class="chip">${esc(t)}</span>`).join("")}</div>` : "";
+    const vis = ["public", "private"]
+      .map((v) => `<button data-visibility="${v}" aria-pressed="${f.visibility === v}">${esc(this._t(`c_${v}`))}</button>`)
+      .join("");
+    const r = this._created;
+    let note = "";
+    if (this._creating) note = `<span class="note" role="status">${esc(this._t("c_creating"))}</span>`;
+    else if (r?.ok) {
+      const link = `<a class="link" href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.full_name)}</a>`;
+      note = `<span class="note good" role="status">${this._t("c_created", { repo: link })}</span>`;
+      if (r.topics_error) note += `<span class="note warn" role="status">${esc(this._t("c_topics_failed", { error: r.topics_error }))}</span>`;
+    } else if (r && !r.ok) note = `<span class="note bad" role="status">${esc(this._t(`c_err_${r.error}`, { error: r.message || r.error }))}</span>`;
+    const invalid = this._formError();
+    const disabled = this._creating || invalid ? " disabled" : "";
+    host.innerHTML = `
+      <div class="card list">
+        <div class="sethead">${top({ tone: "good", text: this._t("c_gh_ready") }, login ? `gh · ${login}` : "gh")}</div>
+        ${field("name", "c_name", "", ' required maxlength="100" placeholder="ha-my-card"')}
+        ${field("owner", "c_owner", this._t("c_owner_hint", { login: login || "—" }), ` maxlength="39" placeholder="${esc(login)}"`)}
+        ${field("description", "c_description", "", ' maxlength="350"')}
+        ${field("topics", "c_topics", this._t("c_topics_hint"), ' placeholder="home-assistant, lovelace"')}
+        <div class="ctopics">${chips}</div>
+        <div class="row toggle"><div class="who"><span class="n">${esc(this._t("c_visibility"))}</span></div>
+          <div class="seg" role="group" aria-label="${esc(this._t("c_visibility"))}">${vis}</div></div>
+      </div>
+      <div class="card savebar"><button class="act" data-action="create-repo"${disabled}>${githubPanelIcon("plus")}${esc(this._t("c_submit"))}</button>
+        <span class="cnote">${note || (f.name.trim() && invalid ? `<span class="note warn" role="status">${esc(this._t(`c_err_${invalid}`, { error: "" }))}</span>` : "")}</span></div>`;
+    for (const input of host.querySelectorAll("input[data-form]")) {
+      input.addEventListener("input", () => {
+        this._form[input.dataset.form] = input.value;
+        // Typing refreshes the topics, the button and the message only, so the field keeps its focus
+        const ct = host.querySelector(".ctopics");
+        if (ct && input.dataset.form === "topics") {
+          const list = this._topics();
+          ct.innerHTML = list.length ? `<div class="chips">${list.map((t) => `<span class="chip">${esc(t)}</span>`).join("")}</div>` : "";
+        }
+        const err = this._formError();
+        const button = host.querySelector("[data-action=create-repo]");
+        if (button) button.disabled = this._creating || Boolean(err);
+        const cnote = host.querySelector(".cnote");
+        if (cnote && !this._creating)
+          cnote.innerHTML = this._form.name.trim() && err ? `<span class="note warn" role="status">${esc(this._t(`c_err_${err}`, { error: "" }))}</span>` : "";
+      });
+    }
+    for (const button of host.querySelectorAll("[data-visibility]"))
+      button.addEventListener("click", () => {
+        this._form.visibility = button.dataset.visibility;
+        this._renderCreate();
+      });
+    host.querySelector("[data-action=create-repo]")?.addEventListener("click", () => this._createRepo());
+  }
+
+  async _createRepo() {
+    if (this._creating || this._formError()) return;
+    const f = this._form;
+    this._creating = true;
+    this._created = null;
+    this._renderCreate();
+    try {
+      this._created = await this._hass.callWS({
+        type: "github_card/create_repo",
+        name: f.name.trim(),
+        owner: f.owner.trim(),
+        description: f.description.trim(),
+        topics: this._topics(),
+        visibility: f.visibility,
+      });
+    } catch (err) {
+      this._created = { ok: false, error: "gh_failed", message: err?.message || String(err) };
+    }
+    this._creating = false;
+    // Created: the form is emptied for the next one (the visibility and owner kept)
+    if (this._created.ok) this._form = { ...this._form, name: "", description: "", topics: "" };
+    this._renderCreate();
   }
 
   // ── Settings tab ──

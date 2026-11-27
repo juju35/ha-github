@@ -459,3 +459,62 @@ test("a state update with nothing new leaves the markup alone (the page no longe
   assert.equal(writes, 2);
   assert.equal(githubPanelSetHtml(null, html), false);
 });
+
+test("New repository: the tab only once gh is signed in; an address to it waits for the status", async () => {
+  const p = panel();
+  assert.ok(!p._tabs().includes("create"));
+  assert.ok(p._tabShown("create")); // status unknown yet: /github-config/create kept
+  p._hass.callWS = async () => ({ installed: true, authenticated: false, login: null, error: "not logged in" });
+  await p._loadGh();
+  assert.ok(!p._tabs().includes("create"));
+  assert.ok(!p._tabShown("create"));
+  p._hass.callWS = async () => ({ installed: true, authenticated: true, login: "juju35", error: null });
+  await p._loadGh();
+  assert.deepEqual([...p._tabs()], ["repos", "issues", "pulls", "mine", "create", "settings"]);
+  // An older integration without the command: no tab
+  p._hass.callWS = async () => {
+    throw new Error("unknown_command");
+  };
+  await p._loadGh();
+  assert.ok(!p._tabs().includes("create"));
+});
+
+test("New repository: topics split, lower case and once; values checked; one create_repo command", async () => {
+  const calls = [];
+  const p = panel(calls);
+  p._gh = { installed: true, authenticated: true, login: "juju35" };
+  p._form = { name: "ha-test-card", owner: "", description: " A card ", topics: "Home-Assistant, lovelace  lovelace;hacs", visibility: "private" };
+  assert.deepEqual([...p._topics()], ["home-assistant", "lovelace", "hacs"]);
+  assert.equal(p._formError(), null);
+  p._hass.callWS = async (msg) => {
+    calls.push(msg);
+    return { ok: true, full_name: "juju35/ha-test-card", url: "https://github.com/juju35/ha-test-card", topics: msg.topics };
+  };
+  await p._createRepo();
+  const sent = calls.find((c) => c.type === "github_card/create_repo");
+  assert.deepEqual(JSON.parse(JSON.stringify(sent)), {
+    type: "github_card/create_repo",
+    name: "ha-test-card",
+    owner: "",
+    description: "A card",
+    topics: ["home-assistant", "lovelace", "hacs"],
+    visibility: "private",
+  });
+  assert.ok(p._created.ok);
+  assert.equal(p._form.name, "");
+  assert.equal(p._form.visibility, "private");
+  for (const [form, error] of [
+    [{ name: "-bad" }, "invalid_name"],
+    [{ name: "ok", owner: "a/b" }, "invalid_owner"],
+    [{ name: "ok", description: "x".repeat(351) }, "invalid_description"],
+    [{ name: "ok", topics: "Not_ok" }, "invalid_topics"],
+    [{ name: "ok", topics: Array.from({ length: 21 }, (_, i) => `t${i}`).join(",") }, "invalid_topics"],
+  ]) {
+    p._form = { name: "", owner: "", description: "", topics: "", visibility: "public", ...form };
+    assert.equal(p._formError(), error, JSON.stringify(form));
+  }
+  // An invalid form sends nothing
+  calls.length = 0;
+  await p._createRepo();
+  assert.equal(calls.length, 0);
+});
