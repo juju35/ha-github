@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.20.1 - 2026-11-27
+
+### Fixes
+- Startup: GitHub Card no longer waits for the GitHub integration to finish setting up — with many followed
+  repositories it takes minutes, and the panel, the cards and the actions were missing until then. It only reads the
+  GitHub integration's token and entities, which it picks up as they come.
+
 ## 2.20.0 - 2026-11-27
 
 ### Features
