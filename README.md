@@ -156,12 +156,23 @@ The defaults of the form — visibility, a **website template** (`{name}` and `{
 
 The values are checked first (GitHub's rules for names and topics, at most 20 topics, a one-line description of up to 350 characters, an http(s) website, `owner/repository` for the template) and passed to `gh` and `git` as separate arguments, never through a shell. It uses the `gh` sign-in, not the GitHub integration's token.
 
-To make it available, install `gh` where Home Assistant runs (for example in a Home Assistant Container image you build) and sign it in as the user Home Assistant runs as:
+To make it available, `gh` must be found **by Home Assistant itself**, and signed in there. It is looked for first in the configuration folder, `/config/.gh/bin/gh`, signed in with `/config/.gh/config` as its configuration folder (`GH_CONFIG_DIR`), then on the `PATH`. **Settings → GitHub CLI** says whether it is found and signed in, and why not.
+
+On **Home Assistant OS** (or a Supervised install), Home Assistant runs in its own container: a `gh` installed or signed in in the Terminal & SSH add-on, or on another computer, is not seen, and anything installed by hand in Home Assistant's container is lost at the next update. The configuration folder is shared by both and kept, so from the **Terminal & SSH** add-on (where it is `/config`, or `/homeassistant` in recent versions — the commands below use `/config`):
 
 ```sh
-gh auth login --hostname github.com
-gh auth status
+mkdir -p /config/.gh/bin /config/.gh/config
+ARCH=amd64   # or arm64, armv6… — the CPU of your Home Assistant
+V=$(wget -qO- https://api.github.com/repos/cli/cli/releases/latest | sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p')
+wget -qO- "https://github.com/cli/cli/releases/download/v$V/gh_${V}_linux_${ARCH}.tar.gz" | tar xz -C /tmp
+cp "/tmp/gh_${V}_linux_${ARCH}/bin/gh" /config/.gh/bin/gh
+GH_CONFIG_DIR=/config/.gh/config /config/.gh/bin/gh auth login --hostname github.com
+GH_CONFIG_DIR=/config/.gh/config /config/.gh/bin/gh auth status
 ```
+
+Then **Settings → GitHub CLI → Refresh**. With no system keyring there, `gh` keeps its token in `/config/.gh/config/hosts.yml`, which Home Assistant **backups** include: sign it in with a token limited to what you need. The initial empty commit also needs `git` in Home Assistant's container.
+
+On a **Container** or **Core** install, installing `gh` on the `PATH` of the user Home Assistant runs as and signing it in as that user (`gh auth login --hostname github.com`) works too.
 
 ### Notifications
 

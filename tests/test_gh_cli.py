@@ -65,19 +65,59 @@ class FakeGh:
 async def test_status_not_installed(hass):
     with _which(False), patch.object(gh_cli, "_run", AsyncMock()) as run:
         status = await gh_cli.async_status(hass)
-    assert status == {"installed": False, "authenticated": False, "login": None, "error": None}
+    assert status == {
+        "installed": False,
+        "authenticated": False,
+        "login": None,
+        "error": None,
+        "path": None,
+        "config_dir": None,
+    }
     run.assert_not_called()
 
 
 async def test_status_signed_in_then_cached(hass):
     with _which(True), patch.object(gh_cli, "_run", AsyncMock(return_value=SIGNED_IN)) as run:
         status = await gh_cli.async_status(hass)
-        assert status == {"installed": True, "authenticated": True, "login": "juju35", "error": None}
+        assert status == {
+            "installed": True,
+            "authenticated": True,
+            "login": "juju35",
+            "error": None,
+            "path": "/usr/bin/gh",
+            "config_dir": None,
+        }
         await gh_cli.async_status(hass)
         assert run.await_count == 1
         await gh_cli.async_status(hass, refresh=True)
         assert run.await_count == 2
     run.assert_awaited_with("auth", "status", "--hostname", "github.com")
+
+
+async def test_gh_in_the_configuration_folder(hass, tmp_path):
+    """Home Assistant OS: gh put in /config/.gh/bin, signed in with GH_CONFIG_DIR=/config/.gh/config."""
+    home = tmp_path / ".gh"
+    (home / "bin").mkdir(parents=True)
+    (home / "config").mkdir()
+    binary = home / "bin" / "gh"
+    binary.write_text("#!/bin/sh\n")
+    binary.chmod(0o755)
+    hass.config.config_dir = str(tmp_path)
+    run = AsyncMock(return_value=SIGNED_IN)
+    with _which(False), patch.object(gh_cli, "_run", run):
+        status = await gh_cli.async_status(hass, refresh=True)
+    assert status["installed"] and status["authenticated"]
+    assert status["path"] == str(binary) and status["config_dir"] == str(home / "config")
+    assert gh_cli._env()["GH_CONFIG_DIR"] == str(home / "config")
+    # Not executable: not used; no config folder: gh's own default
+    binary.chmod(0o644)
+    (home / "config").rmdir()
+    with _which(False), patch.object(gh_cli, "_run", run):
+        status = await gh_cli.async_status(hass, refresh=True)
+    assert not status["installed"] and status["config_dir"] is None
+    assert "GH_CONFIG_DIR" not in gh_cli._env() or gh_cli._env()["GH_CONFIG_DIR"] == __import__("os").environ.get(
+        "GH_CONFIG_DIR"
+    )
 
 
 async def test_status_old_gh_on_stderr_and_not_signed_in(hass):

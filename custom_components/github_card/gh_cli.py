@@ -43,6 +43,25 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 GH = "gh"
+# On Home Assistant OS, Home Assistant runs in its own container, where nothing installed by hand survives an
+# update: gh is also looked for in the configuration folder, shared with the Terminal & SSH add-on, with its sign-in
+# kept there too (GH_CONFIG_DIR) — /config/.gh/bin/gh and /config/.gh/config.
+GH_HOME = ".gh"
+# The gh found by the last status, and its configuration folder (None: gh's own default)
+_found: dict[str, str | None] = {"binary": None, "config": None}
+
+
+def _locate(config_dir: str) -> tuple[str | None, str | None]:
+    """The gh to run (the PATH, else the configuration folder's) and its GH_CONFIG_DIR, if any. Blocking."""
+    home = os.path.join(config_dir, GH_HOME)
+    own = os.path.join(home, "bin", GH)
+    conf = os.path.join(home, "config")
+    config = conf if os.path.isdir(conf) else None
+    if os.path.isfile(own) and os.access(own, os.X_OK):
+        return own, config
+    return shutil.which(GH), config
+
+
 # The status is asked again after this long (a sign-in made meanwhile shows up), or when the panel refreshes it
 STATUS_CACHE_SECONDS = 60
 STATUS_CACHE = "gh_status"
@@ -68,7 +87,7 @@ _URL_RE = re.compile(r"https://github\.com/([^/\s]+/[^/\s]+)")
 
 def _env() -> dict[str, str]:
     """No prompt, colour or update notice: gh runs unattended."""
-    return {
+    env = {
         **os.environ,
         "GH_PROMPT_DISABLED": "1",
         # git (the empty first commit) never waits for a password either
@@ -77,6 +96,9 @@ def _env() -> dict[str, str]:
         "NO_COLOR": "1",
         "CLICOLOR": "0",
     }
+    if _found["config"]:
+        env["GH_CONFIG_DIR"] = _found["config"]
+    return env
 
 
 async def _run(
@@ -85,7 +107,7 @@ async def _run(
     """Run gh (or ``program``) with these arguments: exit code, stdout, stderr (127 when it cannot be started)."""
     try:
         proc = await asyncio.create_subprocess_exec(
-            program or GH,
+            program or _found["binary"] or GH,
             *args,
             stdin=asyncio.subprocess.PIPE if stdin is not None else asyncio.subprocess.DEVNULL,
             cwd=cwd,
@@ -124,8 +146,18 @@ async def async_status(hass: HomeAssistant, refresh: bool = False) -> dict[str, 
     cached = data.get(STATUS_CACHE)
     if cached and not refresh and time.monotonic() - cached[0] < STATUS_CACHE_SECONDS:
         return cached[1]
-    status: dict[str, Any] = {"installed": False, "authenticated": False, "login": None, "error": None}
-    if await hass.async_add_executor_job(shutil.which, GH) is not None:
+    status: dict[str, Any] = {
+        "installed": False,
+        "authenticated": False,
+        "login": None,
+        "error": None,
+        "path": None,
+        "config_dir": None,
+    }
+    binary, config = await hass.async_add_executor_job(_locate, hass.config.config_dir)
+    _found["binary"], _found["config"] = binary, config
+    status["path"], status["config_dir"] = binary, config
+    if binary is not None:
         status["installed"] = True
         code, out, err = await _run("auth", "status", "--hostname", "github.com")
         if code == 0:
@@ -253,7 +285,7 @@ async def _empty_commit(hass: HomeAssistant, full_name: str) -> str | None:
     git = await hass.async_add_executor_job(shutil.which, "git")
     if git is None:
         return "git is not installed"
-    gh = await hass.async_add_executor_job(shutil.which, GH) or GH
+    gh = _found["binary"] or GH
     code, out, err = await _run("api", "user")
     if code != 0:
         return _error(out, err)
