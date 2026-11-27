@@ -1519,7 +1519,7 @@ export class GitHubPanel extends HTMLElement {
     const rows = this._branchRows();
     const shown = new Set(rows.map((b) => this._branchKey(b)));
     const selected = [...this._branchSel].filter((k) => shown.has(k));
-    const all = rows.length > 0 && selected.length === rows.length;
+    const all = rows.some((b) => !b.pr) && rows.every((b) => b.pr || this._branchSel.has(this._branchKey(b)));
     const notes = [];
     if (this._branches.error) notes.push(`<div class="note bad" role="status">${esc(this._t("items_error", { error: this._branches.error }))}</div>`);
     const r = this._branchResult;
@@ -1529,7 +1529,7 @@ export class GitHubPanel extends HTMLElement {
       if (ok) notes.push(`<div class="note good" role="status">${esc(this._t("b_deleted", { n: ok }))}</div>`);
       if (failed.length) {
         const why = (e) =>
-          e === "default_branch" ? this._t("b_default_branch") : e === "invalid" ? this._t("b_invalid") : /^gh_(missing|not_authenticated)$/.test(e) ? this._t(`c_err_${e}`) : e;
+          e === "default_branch" ? this._t("b_default_branch") : e === "invalid" || e === "not_listed" ? this._t("b_invalid") : /^gh_(missing|not_authenticated)$/.test(e) ? this._t(`c_err_${e}`) : e;
         notes.push(`<div class="note bad" role="status">${esc(this._t("b_failed", { n: failed.length }))}</div>`);
         notes.push(...failed.map((x) => `<div class="note bad">${esc(`${x.repo}/${x.branch} — ${why(x.error)}`)}</div>`));
       }
@@ -1571,7 +1571,8 @@ export class GitHubPanel extends HTMLElement {
         githubPanelKeepView(host, () => this._renderBranches());
       });
     host.querySelector("[data-action=branch-all]")?.addEventListener("change", (ev) => {
-      for (const b of rows) {
+      // Deleting the branch of an open pull request closes it: those are left for a tick of their own
+      for (const b of rows.filter((x) => !x.pr || !ev.target.checked)) {
         if (ev.target.checked) this._branchSel.add(this._branchKey(b));
         else this._branchSel.delete(this._branchKey(b));
       }

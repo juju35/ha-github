@@ -99,7 +99,17 @@ async def test_delete_branches_with_gh(hass, github, aioclient_mock: AiohttpClie
     aioclient_mock.post(
         br.GRAPHQL_URL,
         json=_page(
-            [_repo("ha-a", "main", [("feat/x", "2026-10-01T00:00:00Z", None), ("gone", "2026-10-01T00:00:00Z", None)])]
+            [
+                _repo(
+                    "ha-a",
+                    "main",
+                    [
+                        ("feat/x", "2026-10-01T00:00:00Z", None),
+                        ("gone", "2026-10-01T00:00:00Z", None),
+                        ("locked", "2026-10-01T00:00:00Z", None),
+                    ],
+                )
+            ]
         ),
     )
     await br.async_branches(hass)
@@ -123,6 +133,7 @@ async def test_delete_branches_with_gh(hass, github, aioclient_mock: AiohttpClie
                 {"repo": "juju35/ha-a", "branch": "feat/x"},
                 {"repo": "juju35/ha-a", "branch": "gone"},
                 {"repo": "juju35/ha-a", "branch": "locked"},
+                {"repo": "juju35/ha-z", "branch": "develop"},
                 {"repo": "juju35/ha-a", "branch": "main"},
                 {"repo": "juju35/ha-b", "branch": "master"},
                 {"repo": "juju35/ha-a", "branch": "../x"},
@@ -130,13 +141,14 @@ async def test_delete_branches_with_gh(hass, github, aioclient_mock: AiohttpClie
         )
     by = {r["branch"]: r for r in result["results"]}
     assert by["feat/x"]["ok"] and by["gone"]["ok"]
+    assert by["develop"]["error"] == "not_listed"
     assert by["locked"]["error"] == "gh: Resource not accessible (HTTP 403)"
     assert by["main"]["error"] == "default_branch" and by["master"]["error"] == "default_branch"
     assert by["../x"]["error"] == "invalid"
     assert ("--method", "DELETE", "repos/juju35/ha-a/git/refs/heads/feat/x") in [c.args for c in calls.await_args_list]
-    assert calls.await_count == 3  # never for the default or invalid branches
+    assert calls.await_count == 3  # never for the default, unlisted or invalid branches
     # The deleted ones leave the cached list
-    assert [b["branch"] for b in hass.data[DOMAIN][br.CACHE].branches] == []
+    assert [b["branch"] for b in hass.data[DOMAIN][br.CACHE].branches] == ["locked"]
 
 
 async def test_delete_needs_gh(hass, github):

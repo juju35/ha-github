@@ -62,7 +62,7 @@ VISIBILITIES = ("public", "private")
 FULL_NAME_RE = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})/[A-Za-z0-9_][A-Za-z0-9._-]{0,99}$")
 # Kept from a template repository's ruleset when it is copied (the rest is its id, links and dates)
 RULESET_KEYS = ("name", "target", "enforcement", "conditions", "rules", "bypass_actors")
-_LOGIN_RE = re.compile(r"(?:account|as)\s+([A-Za-z0-9-]+)")
+_LOGIN_RE = re.compile(r"\b(?:account|as)\s+([A-Za-z0-9-]+)")
 _URL_RE = re.compile(r"https://github\.com/([^/\s]+/[^/\s]+)")
 
 
@@ -71,6 +71,8 @@ def _env() -> dict[str, str]:
     return {
         **os.environ,
         "GH_PROMPT_DISABLED": "1",
+        # git (the empty first commit) never waits for a password either
+        "GIT_TERMINAL_PROMPT": "0",
         "GH_NO_UPDATE_NOTIFIER": "1",
         "NO_COLOR": "1",
         "CLICOLOR": "0",

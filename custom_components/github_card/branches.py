@@ -184,15 +184,18 @@ async def async_delete(hass: HomeAssistant, targets: list[dict[str, str]]) -> di
     if not status["authenticated"]:
         return {"ok": False, "error": "gh_not_authenticated"}
     cached: Branches | None = hass.data.get(DOMAIN, {}).get(CACHE)
-    defaults = {b["repo"]: b["default"] for b in (cached.branches if cached else [])}
+    # Only a branch of the last list is deleted: never a default branch, nor one the panel did not show
+    listed = {(b["repo"], b["branch"]) for b in (cached.branches if cached else []) if b["branch"] != b["default"]}
+    defaults = {b["default"] for b in (cached.branches if cached else []) if b["default"]}
     semaphore = asyncio.Semaphore(DELETE_PARALLEL)
 
     async def _one(target: dict[str, str]) -> dict[str, Any]:
         repo, branch = target["repo"], target["branch"]
         if not REPO_RE.match(repo) or not BRANCH_RE.match(branch):
             return {"repo": repo, "branch": branch, "ok": False, "error": "invalid"}
-        if (branch in ("main", "master") and defaults.get(repo) in (None, branch)) or defaults.get(repo) == branch:
-            return {"repo": repo, "branch": branch, "ok": False, "error": "default_branch"}
+        if (repo, branch) not in listed:
+            error = "default_branch" if branch in defaults or branch in ("main", "master") else "not_listed"
+            return {"repo": repo, "branch": branch, "ok": False, "error": error}
         async with semaphore:
             err = await _delete_one(repo, branch)
         if err:
