@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.20.2 - 2026-11-27
+
+### Fixes
+- Tiles have the 10 px corner radius shared by the ha-* cards.
+- Panel, Branches tab: the pull-request link only opens a github.com address.
+- The `create_repository` action has its icon (`icons.json`).
+
 ## 2.20.1 - 2026-11-27
 
 ### Fixes
