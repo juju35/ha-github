@@ -5,6 +5,7 @@ import { ICONS, textWidth } from "./core.js";
 import { esc, fireMoreInfo, fmtCount, fmtFull, fmtLang, inDialog, isUnknown, safeUrl, svgIcon, t, watchOutside } from "./helpers.js";
 import { REPO_LATEST, REPO_STATS, USER_STATS, discover, focusSelector, renderSignature, sameSignature } from "./discovery.js";
 import { BANNER_STYLE, BASE_STYLE, FULL_STYLE, GH_MERGE_MS, GH_STATE_COLOR, INTEGRATION_PATH, MINI_STYLE, ghIsNight, ghSceneSvg, navigate } from "./styles.js";
+import { rcMorph } from "./in-place-redraw.js";
 
 export let ghUid = 0;
 
@@ -188,7 +189,8 @@ export class GitHubBase extends HTMLElement {
       // Kept across the rewrite for the keyboard only (with the pointer it would draw the focus ring).
       const focused = this._byPointer ? null : focusSelector(this.shadowRoot.activeElement);
       this._html = html;
-      this.shadowRoot.innerHTML = html;
+      // In place (see rcMorph): the nodes stay, so the card keeps its height, its animations and its focus.
+      rcMorph(this.shadowRoot, html);
       this._fitPill();
       if (focused) this.shadowRoot.querySelector(focused)?.focus({ preventScroll: true });
     }

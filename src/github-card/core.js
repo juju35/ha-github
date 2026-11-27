@@ -8,7 +8,7 @@
  * entity registry (platform "github", translation key, device), whatever the language.
  */
 
-export const VERSION = "2.20.2";
+export const VERSION = "2.20.3";
 
 // Material Design Icons paths.
 // The width of an element's whole text in its own font, in fractional pixels (scrollWidth is rounded).

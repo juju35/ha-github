@@ -5,6 +5,7 @@ import "./core.js";
 import "./i18n/translations.js";
 import "./strings.js";
 import "./helpers.js";
+import "./in-place-redraw.js";
 import "./discovery.js";
 import "./styles.js";
 import "./cards.js";
