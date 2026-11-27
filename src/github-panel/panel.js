@@ -1814,6 +1814,27 @@ export class GitHubPanel extends HTMLElement {
     return { name: "", owner: "", description: "", homepage: null, topics: null, visibility: null, protect: null };
   }
 
+  /** Settings: whether the GitHub CLI is found and signed in on the Home Assistant host, and how to set it up. */
+  _ghSettingsHtml() {
+    const esc = githubPanelEsc;
+    const g = this._gh;
+    const [tone, text] = !g
+      ? ["", this._t("loading")]
+      : g.authenticated
+        ? ["good", this._t("s_gh_ok", { login: g.login || "gh" })]
+        : g.installed
+          ? ["warn", this._t("s_gh_signed_out", { error: g.error || "" })]
+          : ["warn", this._t("s_gh_missing")];
+    const where = [g?.path, g?.config_dir ? `GH_CONFIG_DIR=${g.config_dir}` : ""].filter(Boolean).join(" · ");
+    return `<div class="card list">
+        <div class="lhead"><h2 class="lname">${esc(this._t("s_group_gh"))}</h2>
+          <button class="act quiet" data-action="gh-check"${this._ghChecking ? " disabled" : ""}>${githubPanelIcon("refresh")}${esc(this._t("refresh"))}</button></div>
+        <div class="note ${tone}" role="status">${esc(text)}</div>
+        ${where ? `<small class="note">${esc(where)}</small>` : ""}
+        ${g?.authenticated ? "" : `<small class="note">${esc(this._t("s_gh_hint"))}</small>`}
+      </div>`;
+  }
+
   /** Settings: the defaults of the New repository tab (shown when gh is signed in). */
   _newRepoSettingsHtml() {
     if (!this._gh?.authenticated) return "";
@@ -1894,6 +1915,7 @@ export class GitHubPanel extends HTMLElement {
           <small class="note">${esc(this._t("s_refresh_hint"))}</small>
         </div>
       </div>
+      ${this._ghSettingsHtml()}
       <div class="card list">
         <div class="lhead"><h2 class="lname">${esc(this._t("s_group_branches"))}</h2></div>
         <label class="ctl"><span>${esc(this._t("s_branch_age"))}</span>
@@ -1956,6 +1978,13 @@ export class GitHubPanel extends HTMLElement {
         this._saved = false;
         this._renderSettings();
       });
+    host.querySelector("[data-action=gh-check]")?.addEventListener("click", async () => {
+      this._ghChecking = true;
+      this._renderSettings();
+      await this._loadGh(true);
+      this._ghChecking = false;
+      this._renderSettings();
+    });
     host.querySelector("[data-action=save]")?.addEventListener("click", () => this._save());
     host.querySelector("[data-action=revert]")?.addEventListener("click", () => {
       this._draft = {};

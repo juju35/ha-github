@@ -23,7 +23,7 @@
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
  */
 
-export const GITHUB_PANEL_VERSION = "2.19.0";
+export const GITHUB_PANEL_VERSION = "2.19.1";
 // No Activity tab since 2.3.0: the Repositories tab shows the same; /github-config/activity opens Repositories.
 export const GITHUB_PANEL_TABS = ["repos", "issues", "pulls", "mine", "branches", "create", "settings"];
 // Upper bound of the minimum age of the Branches tab, in days (kept in step with const.py)
@@ -98,4 +98,6 @@ export const GITHUB_PANEL_KEYS = [
   // Branches tab, and its minimum age in Settings
   "branches", "b_summary", "b_repos", "b_none", "b_select_all", "b_delete", "b_confirm", "b_deleted", "b_failed", "b_open_pr", "b_days",
   "b_default_branch", "b_invalid", "s_group_branches", "s_branch_age", "s_branch_age_hint",
+  // Settings: the GitHub CLI on the Home Assistant host
+  "s_group_gh", "s_gh_ok", "s_gh_missing", "s_gh_signed_out", "s_gh_hint",
 ];

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.19.1 - 2026-11-27
+
+### Fixes
+- GitHub CLI on Home Assistant OS: Home Assistant runs in its own container, so a `gh` installed or signed in elsewhere
+  (the Terminal & SSH add-on, another machine) was not seen, and the New repository tab and deleting branches never
+  showed. `gh` is now also looked for in the configuration folder, `/config/.gh/bin/gh`, with its sign-in in
+  `/config/.gh/config` (`GH_CONFIG_DIR`), which both containers share and which survives updates.
+- Settings: a **GitHub CLI** group says whether `gh` is found and signed in (its path, or why not), with how to set
+  it up and a button to check again.
+
 ## 2.19.0 - 2026-11-27
 
 ### Features
