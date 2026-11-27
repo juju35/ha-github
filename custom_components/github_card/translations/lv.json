@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card jau ir iestatīts."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Izveidot repozitoriju",
+      "description": "Izveido GitHub repozitoriju ar GitHub CLI (gh) un piemēro tā aizsardzības, kā paneļa cilne Jauns repozitorijs. Tikai administratoriem.",
+      "fields": {
+        "name": {
+          "name": "Nosaukums",
+          "description": "Repozitorija nosaukums."
+        },
+        "owner": {
+          "name": "Īpašnieks",
+          "description": "Konts vai organizācija; tukšs: konts, ar kuru pierakstījies gh."
+        },
+        "description": {
+          "name": "Apraksts",
+          "description": "Vienas rindas apraksts."
+        },
+        "homepage": {
+          "name": "Tīmekļa vietne",
+          "description": "Izlaista: vietnes veidne no Iestatījumiem."
+        },
+        "topics": {
+          "name": "Tēmas",
+          "description": "Izlaistas: tēmas no Iestatījumiem."
+        },
+        "visibility": {
+          "name": "Redzamība",
+          "description": "Izlaista: redzamība no Iestatījumiem."
+        },
+        "protect": {
+          "name": "Aizsardzības",
+          "description": "Iestatījumu atslēgas (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); trūkstošās: Iestatījumu vērtības."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Neizdevās izveidot repozitoriju {name}: {error}"
+    }
   }
 }

@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card уже настроен."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Создать репозиторий",
+      "description": "Создаёт репозиторий GitHub с помощью GitHub CLI (gh) и применяет его защиты, как вкладка «Новый репозиторий» панели. Только для администраторов.",
+      "fields": {
+        "name": {
+          "name": "Имя",
+          "description": "Имя репозитория."
+        },
+        "owner": {
+          "name": "Владелец",
+          "description": "Аккаунт или организация; пусто: аккаунт, под которым вошёл gh."
+        },
+        "description": {
+          "name": "Описание",
+          "description": "Описание в одну строку."
+        },
+        "homepage": {
+          "name": "Сайт",
+          "description": "Не указан: шаблон сайта из Настроек."
+        },
+        "topics": {
+          "name": "Темы",
+          "description": "Не указаны: темы из Настроек."
+        },
+        "visibility": {
+          "name": "Видимость",
+          "description": "Не указана: видимость из Настроек."
+        },
+        "protect": {
+          "name": "Защиты",
+          "description": "Ключи Настроек (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); отсутствующие: значения из Настроек."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Не удалось создать репозиторий {name}: {error}"
+    }
   }
 }

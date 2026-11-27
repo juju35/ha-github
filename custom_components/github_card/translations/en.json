@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card is already set up."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Create a repository",
+      "description": "Creates a GitHub repository with the GitHub CLI (gh) and applies its protections, as the panel's New repository tab. Administrators only.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "Name of the repository."
+        },
+        "owner": {
+          "name": "Owner",
+          "description": "Account or organization; empty: the account gh is signed in with."
+        },
+        "description": {
+          "name": "Description",
+          "description": "One-line description."
+        },
+        "homepage": {
+          "name": "Website",
+          "description": "Left out: the website template of Settings."
+        },
+        "topics": {
+          "name": "Topics",
+          "description": "Left out: the topics of Settings."
+        },
+        "visibility": {
+          "name": "Visibility",
+          "description": "Left out: the visibility of Settings."
+        },
+        "protect": {
+          "name": "Protections",
+          "description": "Settings keys (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); missing ones: the defaults of Settings."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Could not create the repository {name}: {error}"
+    }
   }
 }

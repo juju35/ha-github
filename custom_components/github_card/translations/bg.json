@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card вече е настроен."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Създаване на хранилище",
+      "description": "Създава хранилище в GitHub с GitHub CLI (gh) и прилага защитите му, както раздела „Ново хранилище“ на панела. Само за администратори.",
+      "fields": {
+        "name": {
+          "name": "Име",
+          "description": "Име на хранилището."
+        },
+        "owner": {
+          "name": "Собственик",
+          "description": "Акаунт или организация; празно: акаунтът, с който е влязъл gh."
+        },
+        "description": {
+          "name": "Описание",
+          "description": "Описание на един ред."
+        },
+        "homepage": {
+          "name": "Уебсайт",
+          "description": "Пропуснат: шаблонът за уебсайт от Настройки."
+        },
+        "topics": {
+          "name": "Теми",
+          "description": "Пропуснати: темите от Настройки."
+        },
+        "visibility": {
+          "name": "Видимост",
+          "description": "Пропусната: видимостта от Настройки."
+        },
+        "protect": {
+          "name": "Защити",
+          "description": "Ключове от Настройки (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); липсващите: стойностите от Настройки."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Хранилището {name} не можа да бъде създадено: {error}"
+    }
   }
 }

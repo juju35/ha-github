@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "A GitHub Card már be van állítva."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Tároló létrehozása",
+      "description": "Létrehoz egy GitHub-tárolót a GitHub CLI-vel (gh), és alkalmazza a védelmeit, mint a panel Új tároló lapja. Csak rendszergazdáknak.",
+      "fields": {
+        "name": {
+          "name": "Név",
+          "description": "A tároló neve."
+        },
+        "owner": {
+          "name": "Tulajdonos",
+          "description": "Fiók vagy szervezet; üres: a gh-ba bejelentkezett fiók."
+        },
+        "description": {
+          "name": "Leírás",
+          "description": "Egysoros leírás."
+        },
+        "homepage": {
+          "name": "Webhely",
+          "description": "Elhagyva: a Beállítások webhelysablonja."
+        },
+        "topics": {
+          "name": "Témák",
+          "description": "Elhagyva: a Beállítások témái."
+        },
+        "visibility": {
+          "name": "Láthatóság",
+          "description": "Elhagyva: a Beállítások láthatósága."
+        },
+        "protect": {
+          "name": "Védelmek",
+          "description": "A Beállítások kulcsai (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); a hiányzók: a Beállítások értékei."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "A(z) {name} tároló nem hozható létre: {error}"
+    }
   }
 }

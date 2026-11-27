@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card est déjà configuré."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Créer un dépôt",
+      "description": "Crée un dépôt GitHub avec le GitHub CLI (gh) et applique ses protections, comme l'onglet Nouveau dépôt du panneau. Administrateurs uniquement.",
+      "fields": {
+        "name": {
+          "name": "Nom",
+          "description": "Nom du dépôt."
+        },
+        "owner": {
+          "name": "Propriétaire",
+          "description": "Compte ou organisation ; vide : le compte connecté à gh."
+        },
+        "description": {
+          "name": "Description",
+          "description": "Description sur une ligne."
+        },
+        "homepage": {
+          "name": "Site web",
+          "description": "Absent : le modèle de site web des Réglages."
+        },
+        "topics": {
+          "name": "Topics",
+          "description": "Absents : les topics des Réglages."
+        },
+        "visibility": {
+          "name": "Visibilité",
+          "description": "Absente : la visibilité des Réglages."
+        },
+        "protect": {
+          "name": "Protections",
+          "description": "Clés des Réglages (repo_empty_commit, repo_protect_tags, repo_rulesets_from…) ; celles qui manquent : les valeurs des Réglages."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Impossible de créer le dépôt {name} : {error}"
+    }
   }
 }

@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card уже налаштовано."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Створити репозиторій",
+      "description": "Створює репозиторій GitHub за допомогою GitHub CLI (gh) і застосовує його захисти, як вкладка «Новий репозиторій» панелі. Лише для адміністраторів.",
+      "fields": {
+        "name": {
+          "name": "Назва",
+          "description": "Назва репозиторію."
+        },
+        "owner": {
+          "name": "Власник",
+          "description": "Обліковий запис або організація; порожньо: обліковий запис, під яким увійшов gh."
+        },
+        "description": {
+          "name": "Опис",
+          "description": "Опис в один рядок."
+        },
+        "homepage": {
+          "name": "Вебсайт",
+          "description": "Не вказано: шаблон вебсайту з Налаштувань."
+        },
+        "topics": {
+          "name": "Теми",
+          "description": "Не вказано: теми з Налаштувань."
+        },
+        "visibility": {
+          "name": "Видимість",
+          "description": "Не вказано: видимість з Налаштувань."
+        },
+        "protect": {
+          "name": "Захисти",
+          "description": "Ключі Налаштувань (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); відсутні: значення з Налаштувань."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Не вдалося створити репозиторій {name}: {error}"
+    }
   }
 }

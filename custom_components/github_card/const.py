@@ -1,7 +1,7 @@
 """Constants for the GitHub Card integration."""
 
 DOMAIN = "github_card"
-VERSION = "2.19.1"
+VERSION = "2.20.0"
 
 # The core GitHub integration, whose repositories the panel follows and unfollows
 GITHUB_DOMAIN = "github"

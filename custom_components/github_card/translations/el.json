@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "Το GitHub Card έχει ήδη ρυθμιστεί."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Δημιουργία αποθετηρίου",
+      "description": "Δημιουργεί ένα αποθετήριο GitHub με το GitHub CLI (gh) και εφαρμόζει τις προστασίες του, όπως η καρτέλα Νέο αποθετήριο του πίνακα. Μόνο για διαχειριστές.",
+      "fields": {
+        "name": {
+          "name": "Όνομα",
+          "description": "Όνομα του αποθετηρίου."
+        },
+        "owner": {
+          "name": "Κάτοχος",
+          "description": "Λογαριασμός ή οργανισμός· κενό: ο λογαριασμός με τον οποίο έχει συνδεθεί το gh."
+        },
+        "description": {
+          "name": "Περιγραφή",
+          "description": "Περιγραφή μίας γραμμής."
+        },
+        "homepage": {
+          "name": "Ιστότοπος",
+          "description": "Αν παραλειφθεί: το πρότυπο ιστότοπου των Ρυθμίσεων."
+        },
+        "topics": {
+          "name": "Θέματα",
+          "description": "Αν παραλειφθούν: τα θέματα των Ρυθμίσεων."
+        },
+        "visibility": {
+          "name": "Ορατότητα",
+          "description": "Αν παραλειφθεί: η ορατότητα των Ρυθμίσεων."
+        },
+        "protect": {
+          "name": "Προστασίες",
+          "description": "Κλειδιά των Ρυθμίσεων (repo_empty_commit, repo_protect_tags, repo_rulesets_from…)· όσα λείπουν: οι τιμές των Ρυθμίσεων."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Δεν ήταν δυνατή η δημιουργία του αποθετηρίου {name}: {error}"
+    }
   }
 }

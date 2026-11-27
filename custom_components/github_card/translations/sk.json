@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card je už nastavený."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Vytvoriť repozitár",
+      "description": "Vytvorí repozitár GitHub pomocou GitHub CLI (gh) a použije jeho ochrany, ako karta Nový repozitár panela. Len pre správcov.",
+      "fields": {
+        "name": {
+          "name": "Názov",
+          "description": "Názov repozitára."
+        },
+        "owner": {
+          "name": "Vlastník",
+          "description": "Účet alebo organizácia; prázdne: účet prihlásený v gh."
+        },
+        "description": {
+          "name": "Popis",
+          "description": "Jednoriadkový popis."
+        },
+        "homepage": {
+          "name": "Webová stránka",
+          "description": "Vynechaná: šablóna webovej stránky z Nastavení."
+        },
+        "topics": {
+          "name": "Témy",
+          "description": "Vynechané: témy z Nastavení."
+        },
+        "visibility": {
+          "name": "Viditeľnosť",
+          "description": "Vynechaná: viditeľnosť z Nastavení."
+        },
+        "protect": {
+          "name": "Ochrany",
+          "description": "Kľúče Nastavení (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); chýbajúce: hodnoty z Nastavení."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Repozitár {name} sa nepodarilo vytvoriť: {error}"
+    }
   }
 }
