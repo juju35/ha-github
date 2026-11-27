@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card je već podešen."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Napravi repozitorijum",
+      "description": "Pravi GitHub repozitorijum pomoću GitHub CLI (gh) i primenjuje njegove zaštite, kao kartica Novi repozitorijum na panelu. Samo za administratore.",
+      "fields": {
+        "name": {
+          "name": "Ime",
+          "description": "Ime repozitorijuma."
+        },
+        "owner": {
+          "name": "Vlasnik",
+          "description": "Nalog ili organizacija; prazno: nalog na koji je prijavljen gh."
+        },
+        "description": {
+          "name": "Opis",
+          "description": "Opis u jednom redu."
+        },
+        "homepage": {
+          "name": "Veb-sajt",
+          "description": "Izostavljeno: šablon veb-sajta iz Podešavanja."
+        },
+        "topics": {
+          "name": "Teme",
+          "description": "Izostavljeno: teme iz Podešavanja."
+        },
+        "visibility": {
+          "name": "Vidljivost",
+          "description": "Izostavljeno: vidljivost iz Podešavanja."
+        },
+        "protect": {
+          "name": "Zaštite",
+          "description": "Ključevi Podešavanja (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); oni koji nedostaju: vrednosti iz Podešavanja."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Nije moguće napraviti repozitorijum {name}: {error}"
+    }
   }
 }

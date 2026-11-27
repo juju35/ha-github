@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.20.0 - 2026-11-27
+
+### Features
+- Action **`github_card.create_repository`** (administrators only): creates a repository with the GitHub CLI as the
+  panel's New repository tab does — name, owner, description, website, topics, visibility and protections, each left
+  out taking the defaults of Settings → New repositories (the website template with `{name}` and `{owner}` filled in).
+  It returns the repository (`full_name`, `url`, `topics`) and the steps applied; a creation that fails raises an
+  error, a step that fails is listed in the response.
+
 ## 2.19.1 - 2026-11-27
 
 ### Fixes

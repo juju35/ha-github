@@ -30,7 +30,7 @@ The panel opens on the card's desk across the page (as on the ENT ONE panel): Gi
 - **Issues** and **Pull requests**: the open ones of all the followed repositories, most recently updated first, with their repository, number, author, age, comments and labels, and the review state of pull requests (approved, changes requested, review required, draft). The Pull requests tab leaves out the ones **you** authored — they have their own **My pull requests** tab. Filter by repository — only the repositories with open items get a chip (the busiest five), the others are behind **+ N more** with a search; each opens on GitHub. **Copy the links** puts the links of the items listed (the repository filter applied) on the clipboard, one per line
 - **My pull requests**: the open pull requests you authored, in any repository — not only the followed ones — with their repository, number, age, review state and the state of their checks; each opens on GitHub
 - **Branches**: the branches of your own repositories (archived ones left out), apart from their default branch, whose last commit is older than the age set in **Settings** (1 day by default), oldest first, with their open pull request; search, tick some or **Select all shown**, and **Delete** them after a confirmation — deleting shows only when the GitHub CLI (`gh`) is signed in on the host, as the New repository tab
-- **New repository**: only when the [GitHub CLI](https://cli.github.com/) (`gh`) is installed on the Home Assistant host and signed in — create a repository with its name, owner (your account or an organization), description, website, topics, visibility and protections (merge settings, rulesets…), whose defaults are set in **Settings**
+- **New repository**: only when the [GitHub CLI](https://cli.github.com/) (`gh`) is installed on the Home Assistant host and signed in — create a repository with its name, owner (your account or an organization), description, website, topics, visibility and protections (merge settings, rulesets…), whose defaults are set in **Settings**; also available as the `github_card.create_repository` action (administrators only)
 - **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories, archived repositories ignored), a Home Assistant notification for each new issue, pull request or release, and **Hide the top bar** for everyone or only for non-admins (the desk banner goes, the tabs and the menu button stay)
 - Tabs in the address (`/github-config/issues`), so a link or a reload opens the same tab
 
@@ -173,6 +173,33 @@ GH_CONFIG_DIR=/config/.gh/config /config/.gh/bin/gh auth status
 Then **Settings → GitHub CLI → Refresh**. With no system keyring there, `gh` keeps its token in `/config/.gh/config/hosts.yml`, which Home Assistant **backups** include: sign it in with a token limited to what you need. The initial empty commit also needs `git` in Home Assistant's container.
 
 On a **Container** or **Core** install, installing `gh` on the `PATH` of the user Home Assistant runs as and signing it in as that user (`gh auth login --hostname github.com`) works too.
+
+### Action: create a repository
+
+`github_card.create_repository` creates a repository from a script or an automation exactly as the **New repository** tab does. It is for **administrators only**: called by another user, it fails with *Unauthorized*. It needs the same signed-in `gh`.
+
+| Field | Default when left out |
+|---|---|
+| `name` | required |
+| `owner` | the account `gh` is signed in with |
+| `description` | none |
+| `homepage` | the website template of Settings, `{name}` and `{owner}` filled in |
+| `topics` | the topics of Settings (a list, or one text separated by commas or spaces) |
+| `visibility` | the visibility of Settings (`public` or `private`) |
+| `protect` | the protections of Settings; give only the keys to change: `repo_empty_commit`, `repo_squash_only`, `repo_squash_pr`, `repo_delete_branch`, `repo_auto_merge`, `repo_no_wiki`, `repo_protect_branch`, `repo_protect_tags` (`true`/`false`), `repo_rulesets_from` (`owner/repository`) |
+
+```yaml
+action: github_card.create_repository
+data:
+  name: ha-airing-card
+  description: Lovelace card telling when to air the rooms
+  topics: [home-assistant, lovelace]
+  protect:
+    repo_rulesets_from: juju35/ha-room-card
+response_variable: repo
+```
+
+The response gives `full_name`, `url`, `topics` and `steps` (each `{step, ok, error?}`): a step that fails is listed there, the repository stays created. A creation that fails (gh missing or signed out, an invalid value, `gh repo create` refused) raises an error with the reason.
 
 ### Notifications
 

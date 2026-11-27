@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card è già configurato."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Crea un repository",
+      "description": "Crea un repository GitHub con GitHub CLI (gh) e applica le sue protezioni, come la scheda Nuovo repository del pannello. Solo amministratori.",
+      "fields": {
+        "name": {
+          "name": "Nome",
+          "description": "Nome del repository."
+        },
+        "owner": {
+          "name": "Proprietario",
+          "description": "Account od organizzazione; vuoto: l'account con cui gh ha effettuato l'accesso."
+        },
+        "description": {
+          "name": "Descrizione",
+          "description": "Descrizione su una riga."
+        },
+        "homepage": {
+          "name": "Sito web",
+          "description": "Omesso: il modello di sito web delle Impostazioni."
+        },
+        "topics": {
+          "name": "Topic",
+          "description": "Omessi: i topic delle Impostazioni."
+        },
+        "visibility": {
+          "name": "Visibilità",
+          "description": "Omessa: la visibilità delle Impostazioni."
+        },
+        "protect": {
+          "name": "Protezioni",
+          "description": "Chiavi delle Impostazioni (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); quelle mancanti: i valori delle Impostazioni."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Impossibile creare il repository {name}: {error}"
+    }
   }
 }

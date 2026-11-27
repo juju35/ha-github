@@ -29,8 +29,11 @@ custom_components/github_card/
 │                    # steps (empty commit on main via git + gh auth git-credential, merge settings via gh api PATCH,
 │                    # topics, rulesets built-in or copied from a template) — no shell, values checked first; defaults
 │                    # are the repo_* settings (const.REPO_DEFAULTS), overridden per repository by the panel
+├── services.py      # Action github_card.create_repository (admin only, async_register_admin_service): gh_cli.async_create
+│                    # with the repo_* settings as defaults (website template, topics, visibility, protections);
+│                    # returns full_name / url / topics / steps, raises HomeAssistantError when the creation fails
 ├── notify.py        # Persistent notification when a github latest_issue / latest_pull_request number grows
-├── translations/    # Config flow strings, 22 languages
+├── translations/    # Config flow, action and error strings, 22 languages
 ├── brand/           # Integration icon
 └── frontend/        # github-card.js (cards), github-panel.js (panel, 7 tabs — Create only when gh is signed in, 22 languages)
 ```

@@ -1,0 +1,35 @@
+create_repository:
+  fields:
+    name:
+      required: true
+      example: ha-airing-card
+      selector:
+        text:
+    owner:
+      example: my-org
+      selector:
+        text:
+    description:
+      example: Lovelace card telling when to air the rooms
+      selector:
+        text:
+    homepage:
+      example: https://example.org/projects/ha-airing-card/
+      selector:
+        text:
+          type: url
+    topics:
+      example: home-assistant, lovelace
+      selector:
+        text:
+          multiple: true
+    visibility:
+      selector:
+        select:
+          options:
+            - public
+            - private
+    protect:
+      example: '{"repo_protect_tags": false, "repo_rulesets_from": "juju35/ha-room-card"}'
+      selector:
+        object:

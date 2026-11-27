@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card je že nastavljen."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Ustvari repozitorij",
+      "description": "Ustvari repozitorij GitHub z GitHub CLI (gh) in uveljavi njegove zaščite, kot zavihek Nov repozitorij na plošči. Samo za skrbnike.",
+      "fields": {
+        "name": {
+          "name": "Ime",
+          "description": "Ime repozitorija."
+        },
+        "owner": {
+          "name": "Lastnik",
+          "description": "Račun ali organizacija; prazno: račun, s katerim je prijavljen gh."
+        },
+        "description": {
+          "name": "Opis",
+          "description": "Opis v eni vrstici."
+        },
+        "homepage": {
+          "name": "Spletno mesto",
+          "description": "Izpuščeno: predloga spletnega mesta iz Nastavitev."
+        },
+        "topics": {
+          "name": "Teme",
+          "description": "Izpuščene: teme iz Nastavitev."
+        },
+        "visibility": {
+          "name": "Vidnost",
+          "description": "Izpuščena: vidnost iz Nastavitev."
+        },
+        "protect": {
+          "name": "Zaščite",
+          "description": "Ključi Nastavitev (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); manjkajoči: vrednosti iz Nastavitev."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Repozitorija {name} ni bilo mogoče ustvariti: {error}"
+    }
   }
 }

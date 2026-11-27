@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card jest już skonfigurowany."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Utwórz repozytorium",
+      "description": "Tworzy repozytorium GitHub za pomocą GitHub CLI (gh) i stosuje jego zabezpieczenia, jak karta Nowe repozytorium w panelu. Tylko administratorzy.",
+      "fields": {
+        "name": {
+          "name": "Nazwa",
+          "description": "Nazwa repozytorium."
+        },
+        "owner": {
+          "name": "Właściciel",
+          "description": "Konto lub organizacja; puste: konto zalogowane w gh."
+        },
+        "description": {
+          "name": "Opis",
+          "description": "Opis w jednej linii."
+        },
+        "homepage": {
+          "name": "Strona WWW",
+          "description": "Pominięta: szablon strony z Ustawień."
+        },
+        "topics": {
+          "name": "Tematy",
+          "description": "Pominięte: tematy z Ustawień."
+        },
+        "visibility": {
+          "name": "Widoczność",
+          "description": "Pominięta: widoczność z Ustawień."
+        },
+        "protect": {
+          "name": "Zabezpieczenia",
+          "description": "Klucze Ustawień (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); brakujące: wartości z Ustawień."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Nie udało się utworzyć repozytorium {name}: {error}"
+    }
   }
 }

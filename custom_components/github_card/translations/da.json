@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card er allerede sat op."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Opret et repository",
+      "description": "Opretter et GitHub-repository med GitHub CLI (gh) og anvender dets beskyttelser, som panelets fane Nyt repository. Kun administratorer.",
+      "fields": {
+        "name": {
+          "name": "Navn",
+          "description": "Repositoryets navn."
+        },
+        "owner": {
+          "name": "Ejer",
+          "description": "Konto eller organisation; tom: kontoen gh er logget ind med."
+        },
+        "description": {
+          "name": "Beskrivelse",
+          "description": "Beskrivelse på én linje."
+        },
+        "homepage": {
+          "name": "Websted",
+          "description": "Udeladt: webstedsskabelonen fra Indstillinger."
+        },
+        "topics": {
+          "name": "Emner",
+          "description": "Udeladt: emnerne fra Indstillinger."
+        },
+        "visibility": {
+          "name": "Synlighed",
+          "description": "Udeladt: synligheden fra Indstillinger."
+        },
+        "protect": {
+          "name": "Beskyttelser",
+          "description": "Nøgler fra Indstillinger (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); manglende: værdierne fra Indstillinger."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Kunne ikke oprette repositoryet {name}: {error}"
+    }
   }
 }

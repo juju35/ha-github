@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card är redan konfigurerat."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Skapa ett repository",
+      "description": "Skapar ett GitHub-repository med GitHub CLI (gh) och tillämpar dess skydd, som panelens flik Nytt repository. Endast administratörer.",
+      "fields": {
+        "name": {
+          "name": "Namn",
+          "description": "Repositoryts namn."
+        },
+        "owner": {
+          "name": "Ägare",
+          "description": "Konto eller organisation; tomt: kontot gh är inloggat med."
+        },
+        "description": {
+          "name": "Beskrivning",
+          "description": "Beskrivning på en rad."
+        },
+        "homepage": {
+          "name": "Webbplats",
+          "description": "Utelämnad: webbplatsmallen i Inställningar."
+        },
+        "topics": {
+          "name": "Ämnen",
+          "description": "Utelämnade: ämnena i Inställningar."
+        },
+        "visibility": {
+          "name": "Synlighet",
+          "description": "Utelämnad: synligheten i Inställningar."
+        },
+        "protect": {
+          "name": "Skydd",
+          "description": "Nycklar i Inställningar (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); saknade: värdena i Inställningar."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Kunde inte skapa repositoryt {name}: {error}"
+    }
   }
 }

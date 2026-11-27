@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card ist bereits eingerichtet."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Repository erstellen",
+      "description": "Erstellt ein GitHub-Repository mit der GitHub CLI (gh) und wendet seine Schutzregeln an, wie der Tab „Neues Repository“ des Panels. Nur für Administratoren.",
+      "fields": {
+        "name": {
+          "name": "Name",
+          "description": "Name des Repositorys."
+        },
+        "owner": {
+          "name": "Eigentümer",
+          "description": "Konto oder Organisation; leer: das bei gh angemeldete Konto."
+        },
+        "description": {
+          "name": "Beschreibung",
+          "description": "Einzeilige Beschreibung."
+        },
+        "homepage": {
+          "name": "Website",
+          "description": "Weggelassen: die Website-Vorlage der Einstellungen."
+        },
+        "topics": {
+          "name": "Topics",
+          "description": "Weggelassen: die Topics der Einstellungen."
+        },
+        "visibility": {
+          "name": "Sichtbarkeit",
+          "description": "Weggelassen: die Sichtbarkeit der Einstellungen."
+        },
+        "protect": {
+          "name": "Schutzregeln",
+          "description": "Schlüssel der Einstellungen (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); fehlende: die Standardwerte der Einstellungen."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Das Repository {name} konnte nicht erstellt werden: {error}"
+    }
   }
 }

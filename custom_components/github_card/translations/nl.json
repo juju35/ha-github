@@ -9,5 +9,46 @@
     "abort": {
       "single_instance_allowed": "GitHub Card is al ingesteld."
     }
+  },
+  "services": {
+    "create_repository": {
+      "name": "Repository aanmaken",
+      "description": "Maakt een GitHub-repository aan met de GitHub CLI (gh) en past de beveiligingen toe, zoals het tabblad Nieuwe repository van het paneel. Alleen beheerders.",
+      "fields": {
+        "name": {
+          "name": "Naam",
+          "description": "Naam van de repository."
+        },
+        "owner": {
+          "name": "Eigenaar",
+          "description": "Account of organisatie; leeg: het account waarmee gh is aangemeld."
+        },
+        "description": {
+          "name": "Beschrijving",
+          "description": "Beschrijving van één regel."
+        },
+        "homepage": {
+          "name": "Website",
+          "description": "Weggelaten: het websitesjabloon van Instellingen."
+        },
+        "topics": {
+          "name": "Topics",
+          "description": "Weggelaten: de topics van Instellingen."
+        },
+        "visibility": {
+          "name": "Zichtbaarheid",
+          "description": "Weggelaten: de zichtbaarheid van Instellingen."
+        },
+        "protect": {
+          "name": "Beveiligingen",
+          "description": "Sleutels van Instellingen (repo_empty_commit, repo_protect_tags, repo_rulesets_from…); ontbrekende: de standaardwaarden van Instellingen."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "create_repository_failed": {
+      "message": "Kan de repository {name} niet aanmaken: {error}"
+    }
   }
 }

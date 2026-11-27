@@ -19,6 +19,7 @@ from .const import BADGE_URL, CARD_URL, DEFAULTS, DOMAIN, LEGACY_CARD_PATH, PANE
 from .items import ItemsPoller
 from .notify import NewItemNotifier
 from .panel import async_register_panel
+from .services import async_register_services
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ BADGE_LOADED = f"{DOMAIN}_badge_loaded"
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Serve the card and the panel files."""
+    """Serve the card and the panel files, and register the actions."""
     base = Path(__file__).parent / "frontend"
     await hass.http.async_register_static_paths(
         [
@@ -39,6 +40,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             StaticPathConfig(BADGE_URL, str(base / "github-badge.js"), True),
         ]
     )
+    async_register_services(hass)
     return True
 
 
