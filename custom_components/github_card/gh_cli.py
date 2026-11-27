@@ -2,8 +2,8 @@
 
 The panel's Create tab only shows when ``gh`` is on the PATH of Home Assistant and ``gh auth status`` succeeds
 (the CLI signed in on github.com). The repository is created with ``gh repo create`` (name, visibility,
-description), then its topics are set with ``gh repo edit --add-topic``. Every argument goes to the process as is
-(no shell); the values are checked first, so none can be read as an option.
+description, homepage), then its topics are set with ``gh repo edit --add-topic``. Every argument goes to the
+process as is (no shell); the values are checked first, so none can be read as an option.
 """
 
 from __future__ import annotations
@@ -36,6 +36,8 @@ OWNER_RE = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$")
 TOPIC_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,49}$")
 MAX_TOPICS = 20
 MAX_DESCRIPTION = 350
+MAX_HOMEPAGE = 255
+HOMEPAGE_RE = re.compile(r"^https?://[^\s/$.?#][^\s]*$", re.IGNORECASE)
 VISIBILITIES = ("public", "private")
 _LOGIN_RE = re.compile(r"(?:account|as)\s+([A-Za-z0-9-]+)")
 _URL_RE = re.compile(r"https://github\.com/([^/\s]+/[^/\s]+)")
@@ -111,7 +113,7 @@ def clean_topics(topics: list[str]) -> list[str]:
     return seen
 
 
-def validate(name: str, owner: str, description: str, topics: list[str]) -> str | None:
+def validate(name: str, owner: str, description: str, topics: list[str], homepage: str = "") -> str | None:
     """The first invalid value's error key, or None."""
     if not NAME_RE.match(name) or name in (".", ".."):
         return "invalid_name"
@@ -119,6 +121,8 @@ def validate(name: str, owner: str, description: str, topics: list[str]) -> str 
         return "invalid_owner"
     if len(description) > MAX_DESCRIPTION or any(c in description for c in "\r\n"):
         return "invalid_description"
+    if homepage and (len(homepage) > MAX_HOMEPAGE or not HOMEPAGE_RE.match(homepage)):
+        return "invalid_homepage"
     if len(topics) > MAX_TOPICS or not all(TOPIC_RE.match(t) for t in topics):
         return "invalid_topics"
     return None
@@ -130,6 +134,7 @@ async def async_create(
     name: str,
     owner: str = "",
     description: str = "",
+    homepage: str = "",
     topics: list[str] | None = None,
     visibility: str = "public",
 ) -> dict[str, Any]:
@@ -139,9 +144,9 @@ async def async_create(
         return {"ok": False, "error": "gh_missing"}
     if not status["authenticated"]:
         return {"ok": False, "error": "gh_not_authenticated"}
-    name, owner, description = name.strip(), owner.strip(), description.strip()
+    name, owner, description, homepage = name.strip(), owner.strip(), description.strip(), homepage.strip()
     topics = clean_topics(topics or [])
-    if (invalid := validate(name, owner, description, topics)) is not None:
+    if (invalid := validate(name, owner, description, topics, homepage)) is not None:
         return {"ok": False, "error": invalid}
     if visibility not in VISIBILITIES:
         return {"ok": False, "error": "invalid_visibility"}
@@ -150,6 +155,8 @@ async def async_create(
     if description:
         # With '=', a description starting with '-' stays the option's value
         args.append(f"--description={description}")
+    if homepage:
+        args.append(f"--homepage={homepage}")
     code, out, err = await _run(*args)
     if code != 0:
         _LOGGER.warning("gh repo create %s failed: %s", target, _error(out, err))

@@ -380,7 +380,7 @@ export class GitHubPanel extends HTMLElement {
     this._mineBusy = false;
     this._sort = "followed"; // order of the Repositories tab
     this._gh = null; // the GitHub CLI on the Home Assistant host: { installed, authenticated, login, error }
-    this._form = { name: "", owner: "", description: "", topics: "", visibility: "public" }; // New repository
+    this._form = { name: "", owner: "", description: "", homepage: "", topics: "", visibility: "public" }; // New repository
     this._creating = false;
     this._created = null; // the last creation's result, or { ok: false, error }
     try {
@@ -1457,6 +1457,8 @@ export class GitHubPanel extends HTMLElement {
     if (!/^[A-Za-z0-9_][A-Za-z0-9._-]{0,99}$/.test(name)) return "invalid_name";
     if (f.owner.trim() && !/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/.test(f.owner.trim())) return "invalid_owner";
     if (f.description.trim().length > 350) return "invalid_description";
+    const homepage = (f.homepage || "").trim();
+    if (homepage && (homepage.length > 255 || !/^https?:\/\/[^\s/$.?#]\S*$/i.test(homepage))) return "invalid_homepage";
     const topics = this._topics();
     if (topics.length > GITHUB_PANEL_MAX_TOPICS || topics.some((t) => !/^[a-z0-9][a-z0-9-]{0,49}$/.test(t))) return "invalid_topics";
     return null;
@@ -1497,6 +1499,7 @@ export class GitHubPanel extends HTMLElement {
         ${field("name", "c_name", "", ' required maxlength="100" placeholder="ha-my-card"')}
         ${field("owner", "c_owner", this._t("c_owner_hint", { login: login || "—" }), ` maxlength="39" placeholder="${esc(login)}"`)}
         ${field("description", "c_description", "", ' maxlength="350"')}
+        ${field("homepage", "c_homepage", this._t("c_homepage_hint"), ' inputmode="url" maxlength="255" placeholder="https://"')}
         ${field("topics", "c_topics", this._t("c_topics_hint"), ' placeholder="home-assistant, lovelace"')}
         <div class="ctopics">${chips}</div>
         <div class="row toggle"><div class="who"><span class="n">${esc(this._t("c_visibility"))}</span></div>
@@ -1541,6 +1544,7 @@ export class GitHubPanel extends HTMLElement {
         name: f.name.trim(),
         owner: f.owner.trim(),
         description: f.description.trim(),
+        homepage: (f.homepage || "").trim(),
         topics: this._topics(),
         visibility: f.visibility,
       });
@@ -1549,7 +1553,7 @@ export class GitHubPanel extends HTMLElement {
     }
     this._creating = false;
     // Created: the form is emptied for the next one (the visibility and owner kept)
-    if (this._created.ok) this._form = { ...this._form, name: "", description: "", topics: "" };
+    if (this._created.ok) this._form = { ...this._form, name: "", description: "", homepage: "", topics: "" };
     this._renderCreate();
   }
 

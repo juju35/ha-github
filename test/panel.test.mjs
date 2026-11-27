@@ -483,7 +483,7 @@ test("New repository: topics split, lower case and once; values checked; one cre
   const calls = [];
   const p = panel(calls);
   p._gh = { installed: true, authenticated: true, login: "juju35" };
-  p._form = { name: "ha-test-card", owner: "", description: " A card ", topics: "Home-Assistant, lovelace  lovelace;hacs", visibility: "private" };
+  p._form = { name: "ha-test-card", owner: "", description: " A card ", homepage: " https://example.org/x ", topics: "Home-Assistant, lovelace  lovelace;hacs", visibility: "private" };
   assert.deepEqual([...p._topics()], ["home-assistant", "lovelace", "hacs"]);
   assert.equal(p._formError(), null);
   p._hass.callWS = async (msg) => {
@@ -497,6 +497,7 @@ test("New repository: topics split, lower case and once; values checked; one cre
     name: "ha-test-card",
     owner: "",
     description: "A card",
+    homepage: "https://example.org/x",
     topics: ["home-assistant", "lovelace", "hacs"],
     visibility: "private",
   });
@@ -508,9 +509,10 @@ test("New repository: topics split, lower case and once; values checked; one cre
     [{ name: "ok", owner: "a/b" }, "invalid_owner"],
     [{ name: "ok", description: "x".repeat(351) }, "invalid_description"],
     [{ name: "ok", topics: "Not_ok" }, "invalid_topics"],
+    [{ name: "ok", homepage: "ftp://x" }, "invalid_homepage"],
     [{ name: "ok", topics: Array.from({ length: 21 }, (_, i) => `t${i}`).join(",") }, "invalid_topics"],
   ]) {
-    p._form = { name: "", owner: "", description: "", topics: "", visibility: "public", ...form };
+    p._form = { name: "", owner: "", description: "", homepage: "", topics: "", visibility: "public", ...form };
     assert.equal(p._formError(), error, JSON.stringify(form));
   }
   // An invalid form sends nothing

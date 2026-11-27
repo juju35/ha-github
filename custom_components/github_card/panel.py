@@ -13,7 +13,8 @@ Issues and Pull requests (open ones of the followed repositories) and Settings. 
   cached for 5 minutes; ``refresh`` asks GitHub again);
 - ``github_card/gh_status``: whether the GitHub CLI (``gh``) is installed on the Home Assistant host and signed in
   (the panel's Create tab shows only then; ``refresh`` asks gh again);
-- ``github_card/create_repo``: creates a repository with gh (name, optional owner, description, topics, visibility);
+- ``github_card/create_repo``: creates a repository with gh (name, optional owner, description, homepage,
+  topics, visibility);
 - ``github_card/settings`` / ``github_card/update_settings``: the settings (options of the entry), among them
   ``hide_toolbar`` (the panel's top bar hidden for nobody, everyone or non-administrators, the tabs kept), also given
   in the panel's registration.
@@ -50,7 +51,7 @@ from .const import (
     SIGNAL_ITEMS_UPDATED,
     VERSION,
 )
-from .gh_cli import MAX_DESCRIPTION, MAX_TOPICS, VISIBILITIES, async_create, async_status
+from .gh_cli import MAX_DESCRIPTION, MAX_HOMEPAGE, MAX_TOPICS, VISIBILITIES, async_create, async_status
 from .items import async_items, async_mine, current_items
 from .repositories import async_apply, async_overview
 
@@ -199,6 +200,7 @@ async def _ws_gh_status(hass: HomeAssistant, connection: websocket_api.ActiveCon
         vol.Required("name"): vol.All(str, vol.Length(min=1, max=100)),
         vol.Optional("owner", default=""): vol.All(str, vol.Length(max=39)),
         vol.Optional("description", default=""): vol.All(str, vol.Length(max=MAX_DESCRIPTION)),
+        vol.Optional("homepage", default=""): vol.All(str, vol.Length(max=MAX_HOMEPAGE)),
         vol.Optional("topics", default=list): vol.All([vol.All(str, vol.Length(max=50))], vol.Length(max=MAX_TOPICS)),
         vol.Optional("visibility", default="public"): vol.In(VISIBILITIES),
     }
@@ -212,6 +214,7 @@ async def _ws_create_repo(hass: HomeAssistant, connection: websocket_api.ActiveC
         name=msg["name"],
         owner=msg["owner"],
         description=msg["description"],
+        homepage=msg["homepage"],
         topics=msg["topics"],
         visibility=msg["visibility"],
     )

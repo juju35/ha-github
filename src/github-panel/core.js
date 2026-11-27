@@ -14,7 +14,7 @@
  * - My pull requests: the open pull requests you authored, in any repository (not only the followed ones), from a
  *   GitHub search (github_card/mine, cached 5 minutes; loaded when the tab opens, Refresh asks GitHub again);
  * - New repository: shown only when the GitHub CLI (gh) is installed on the Home Assistant host and signed in
- *   (github_card/gh_status); creates a repository with gh — name, owner, description, topics, visibility
+ *   (github_card/gh_status); creates a repository with gh — name, owner, description, website, topics, visibility
  *   (github_card/create_repo);
  * - Settings: which repositories are offered (name patterns, starred ones, archived ones ignored), the new issue / pull request
  *   notifications, and the title bar hidden (the tabs and the menu button stay).
@@ -73,4 +73,6 @@ export const GITHUB_PANEL_KEYS = [
   "c_submit", "c_creating", "c_created", "c_topics_failed", "c_gh_ready",
   "c_err_invalid_name", "c_err_invalid_owner", "c_err_invalid_description", "c_err_invalid_topics", "c_err_invalid_visibility",
   "c_err_gh_missing", "c_err_gh_not_authenticated", "c_err_gh_failed",
+  // New repository: its website (gh repo create --homepage)
+  "c_homepage", "c_homepage_hint", "c_err_invalid_homepage",
 ];

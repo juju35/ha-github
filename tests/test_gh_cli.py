@@ -60,6 +60,7 @@ async def test_create_with_topics(hass):
             hass,
             name="ha-test-card",
             description="-A card",
+            homepage="https://juju35.github.io/homeassistant-projects/projects/ha-test-card/",
             topics=["Lovelace", "hacs", "lovelace"],
             visibility="private",
         )
@@ -69,7 +70,14 @@ async def test_create_with_topics(hass):
         "url": "https://github.com/juju35/ha-test-card",
         "topics": ["lovelace", "hacs"],
     }
-    assert run.await_args_list[1].args == ("repo", "create", "ha-test-card", "--private", "--description=-A card")
+    assert run.await_args_list[1].args == (
+        "repo",
+        "create",
+        "ha-test-card",
+        "--private",
+        "--description=-A card",
+        "--homepage=https://juju35.github.io/homeassistant-projects/projects/ha-test-card/",
+    )
     assert run.await_args_list[2].args == (
         "repo",
         "edit",
@@ -108,6 +116,9 @@ async def test_create_topics_failed_still_created(hass):
         ({"name": "x", "topics": ["no_way"]}, "invalid_topics"),
         ({"name": "x", "topics": [f"t{i}" for i in range(21)]}, "invalid_topics"),
         ({"name": "x", "visibility": "internal"}, "invalid_visibility"),
+        ({"name": "x", "homepage": "javascript:alert(1)"}, "invalid_homepage"),
+        ({"name": "x", "homepage": "--web"}, "invalid_homepage"),
+        ({"name": "x", "homepage": "https://a b"}, "invalid_homepage"),
     ],
 )
 async def test_create_rejects_invalid_values(hass, kwargs, error):
