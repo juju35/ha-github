@@ -29,6 +29,8 @@ The panel opens on the card's desk across the page (as on the ENT ONE panel): Gi
 - **Repositories**: every repository of your GitHub account (and your starred ones, if you choose), followed or not by the GitHub integration. Each followed one shows its stars, open issues, open pull requests and latest release on its row, and unfolds the same details as the GitHub Card (counters, latest release, commit, pull request, issue…). The head gives the totals of the followed repositories, a **To handle** card the latest open pull requests and issues, and your GitHub account (followers, following, public repositories and gists) closes the list. **Follow** or **Stop following** one, tick several and **Follow selected**, or **Follow all** at once: the whole change reloads the GitHub integration a single time
 - **Issues** and **Pull requests**: the open ones of all the followed repositories, most recently updated first, with their repository, number, author, age, comments and labels, and the review state of pull requests (approved, changes requested, review required, draft). The Pull requests tab leaves out the ones **you** authored — they have their own **My pull requests** tab. Filter by repository — only the repositories with open items get a chip (the busiest five), the others are behind **+ N more** with a search; each opens on GitHub. **Copy the links** puts the links of the items listed (the repository filter applied) on the clipboard, one per line
 - **My pull requests**: the open pull requests you authored, in any repository — not only the followed ones — with their repository, number, age, review state and the state of their checks; each opens on GitHub
+- **Branches**: the branches of your own repositories (archived ones left out), apart from their default branch, whose last commit is older than the age set in **Settings** (1 day by default), oldest first, with their open pull request; search, tick some or **Select all shown**, and **Delete** them after a confirmation — deleting shows only when the GitHub CLI (`gh`) is signed in on the host, as the New repository tab
+- **New repository**: only when the [GitHub CLI](https://cli.github.com/) (`gh`) is installed on the Home Assistant host and signed in — create a repository with its name, owner (your account or an organization), description, website, topics, visibility and protections (merge settings, rulesets…), whose defaults are set in **Settings**
 - **Settings**: the repositories offered (name patterns such as `juju35/ha-*`, starred repositories, archived repositories ignored), a Home Assistant notification for each new issue, pull request or release, and **Hide the top bar** for everyone or only for non-admins (the desk banner goes, the tabs and the menu button stay)
 - Tabs in the address (`/github-config/issues`), so a link or a reload opens the same tab
 
@@ -107,6 +109,8 @@ The **GitHub** entry of the sidebar, for administrators only. It carries a count
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-issues.png" alt="Issues tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-issues-dark.png" alt="Issues tab dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-pulls.png" alt="Pull requests tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-pulls-dark.png" alt="Pull requests tab dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-mine.png" alt="My pull requests tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-mine-dark.png" alt="My pull requests tab dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-branches.png" alt="Branches tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-branches-dark.png" alt="Branches tab dark" width="400"> |
+| <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-create.png" alt="New repository tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-create-dark.png" alt="New repository tab dark" width="400"> |
 | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-settings.png" alt="Settings tab" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-github/main/screenshots/panel-settings-dark.png" alt="Settings tab dark" width="400"> |
 
 ### Repositories
@@ -124,6 +128,40 @@ The GitHub integration only has counts and the latest issue and pull request of 
 ### My pull requests
 
 Your own pull requests are often spread over many repositories you do not follow (upstream integrations, libraries, docs, forks), and adding them all as followed repositories is not practical. The **My pull requests** tab lists the open pull requests you authored in any repository, most recently updated first, with their repository, number, title, age, comments, labels, review state and the rolled-up state of their checks (passing, failing, running). It comes from a single GitHub search with the **access token of the GitHub integration** (`is:pr is:open author:@me`, sent to `api.github.com` only, never to the browser), cached for a few minutes: the list loads the first time the tab opens, and **Refresh** asks GitHub again right away.
+
+### Branches
+
+The **Branches** tab lists the branches of the repositories you own (the account of the GitHub integration's token, archived repositories left out), apart from each repository's default branch, whose last commit is older than **Minimum age of the branches (days)** in **Settings** (default 1; 0 lists them all). Each row shows the branch, its repository, the date and age of its last commit, its open pull request if any (a link), and a link to the branch on GitHub. They come from one paginated GitHub GraphQL query with the **access token of the GitHub integration** (50 repositories and 100 branches per repository per page), cached for a few minutes: the list loads the first time the tab opens, and **Refresh** asks GitHub again.
+
+Tick branches (or **Select all shown**, the search applied — it leaves out the branches with an open pull request, which deleting would close) and **Delete**: after a confirmation, each one is deleted with the **GitHub CLI** signed in on the host (`gh api --method DELETE repos/{owner}/{repo}/git/refs/heads/{branch}`), since the GitHub integration's token may not delete branches: the boxes and **Delete** show on the same condition as the **New repository** tab (`gh` installed and signed in); otherwise the tab only lists the branches. Only a branch of the last list is deleted — never a repository's default branch — and the branches that could not be deleted are listed with GitHub's message.
+
+### New repository
+
+The **New repository** tab appears only when the GitHub CLI is on the `PATH` of Home Assistant and `gh auth status` succeeds on `github.com` (checked when the panel opens, then at most once a minute). Fill in the **Name**, optionally an **Owner** (empty: the account `gh` is signed in with; or an organization you belong to), a **Description**, a **Website**, **Topics** (separated by commas or spaces) and the **Visibility**, choose the **Protections**, then **Create the repository**. The integration runs `gh repo create <name> --public|--private --description=… --homepage=…`, then applies, in this order:
+
+| Protection | What is done | Default |
+|---|---|---|
+| Initial empty commit on main | an empty `chore: initial commit` pushed to `main` with git, signed in through `gh auth git-credential` (needs `git` on the host), so the branch exists before it is protected | on |
+| Squash merges only | `allow_squash_merge` on, merge commits and rebase merges off | on |
+| Squash commit: pull request title and description | `squash_merge_commit_title=PR_TITLE`, `squash_merge_commit_message=PR_BODY` | on |
+| Delete branches once merged | `delete_branch_on_merge` | on |
+| Allow auto-merge | `allow_auto_merge` | off |
+| No wiki and no projects | `has_wiki` and `has_projects` off | on |
+| Topics | `gh repo edit --add-topic …` | — |
+| Protect the default branch | ruleset `main` on `~DEFAULT_BRANCH`: pull requests only, no force push, no deletion; with squash merges only, squash as the only merge method and a linear history | on |
+| Protect the v\* tags | ruleset `tags v*` on `refs/tags/v*`: no deletion, no move (creating them stays allowed, for the release workflow) | on |
+| Copy the rulesets of | `owner/repository`: its rulesets (name, target, enforcement, conditions, rules, bypass actors) are copied **instead of** the two rulesets above | empty |
+
+The defaults of the form — visibility, a **website template** (`{name}` and `{owner}` replaced, e.g. `https://example.org/projects/{name}/`), topics and every protection — are set in **Settings → New repositories**; each one can still be changed in the tab for the repository being created. The repository stays created when a step fails (rulesets need a public repository or a paid plan, for example): the panel lists the steps that failed with GitHub's message.
+
+The values are checked first (GitHub's rules for names and topics, at most 20 topics, a one-line description of up to 350 characters, an http(s) website, `owner/repository` for the template) and passed to `gh` and `git` as separate arguments, never through a shell. It uses the `gh` sign-in, not the GitHub integration's token.
+
+To make it available, install `gh` where Home Assistant runs (for example in a Home Assistant Container image you build) and sign it in as the user Home Assistant runs as:
+
+```sh
+gh auth login --hostname github.com
+gh auth status
+```
 
 ### Notifications
 

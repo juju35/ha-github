@@ -11,6 +11,12 @@ Issues and Pull requests (open ones of the followed repositories) and Settings. 
   with the GitHub integration's token, cached for 5 minutes; ``refresh`` asks GitHub again);
 - ``github_card/mine``: the open pull requests authored by the token's user, in any repository (GitHub search,
   cached for 5 minutes; ``refresh`` asks GitHub again);
+- ``github_card/gh_status``: whether the GitHub CLI (``gh``) is installed on the Home Assistant host and signed in
+  (the panel's Create tab shows only then; ``refresh`` asks gh again);
+- ``github_card/create_repo``: creates a repository with gh (name, optional owner, description, homepage,
+  topics, visibility, protections — the defaults of Settings unless given);
+- ``github_card/branches``: the branches of the token user's own repositories (default ones left out), cached 5
+  minutes, ``refresh`` asks GitHub again; ``github_card/delete_branches`` deletes the chosen ones;
 - ``github_card/settings`` / ``github_card/update_settings``: the settings (options of the entry), among them
   ``hide_toolbar`` (the panel's top bar hidden for nobody, everyone or non-administrators, the tabs kept), also given
   in the panel's registration.
@@ -26,7 +32,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect, async_dispatcher_send
 
+from .branches import MAX_DELETE, async_branches, async_delete
 from .const import (
+    CONF_BRANCH_AGE_DAYS,
     CONF_FILTER,
     CONF_HIDE_TOOLBAR,
     CONF_IGNORE_ARCHIVED,
@@ -35,18 +43,25 @@ from .const import (
     CONF_NOTIFY_PULLS,
     CONF_NOTIFY_RELEASES,
     CONF_REFRESH_MINUTES,
+    CONF_REPO_HOMEPAGE,
+    CONF_REPO_RULESETS_FROM,
+    CONF_REPO_TOPICS,
+    CONF_REPO_VISIBILITY,
     DEFAULTS,
     DOMAIN,
     HIDE_TOOLBAR_CHOICES,
     HIDE_TOOLBAR_OFF,
+    MAX_BRANCH_AGE_DAYS,
     MAX_FILTER_LENGTH,
     MAX_REFRESH_MINUTES,
     MIN_REFRESH_MINUTES,
     PANEL_PATH,
     PANEL_URL,
+    REPO_PROTECTIONS,
     SIGNAL_ITEMS_UPDATED,
     VERSION,
 )
+from .gh_cli import MAX_DESCRIPTION, MAX_HOMEPAGE, MAX_TOPICS, VISIBILITIES, async_create, async_status
 from .items import async_items, async_mine, current_items
 from .repositories import async_apply, async_overview
 
@@ -77,6 +92,10 @@ async def async_register_panel(hass: HomeAssistant) -> None:
         _ws_items,
         _ws_subscribe_items,
         _ws_mine,
+        _ws_branches,
+        _ws_delete_branches,
+        _ws_gh_status,
+        _ws_create_repo,
         _ws_settings,
         _ws_update_settings,
     ):
@@ -109,6 +128,14 @@ async def _ws_repositories(hass: HomeAssistant, connection: websocket_api.Active
     overview = await async_overview(hass, settings(_entry(hass)))
     connection.send_result(msg["id"], overview.as_dict())
 
+
+# owner/repo, or empty: the template repository whose rulesets a new repository gets
+_RULESETS_FROM = vol.All(
+    str, vol.Length(max=140), vol.Match(r"^$|^[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9_][A-Za-z0-9._-]*$")
+)
+_PROTECT = vol.Schema(
+    {**{vol.Optional(key): bool for key in REPO_PROTECTIONS}, vol.Optional(CONF_REPO_RULESETS_FROM): _RULESETS_FROM}
+)
 
 _NAMES = vol.All(
     [vol.All(str, vol.Length(min=3, max=200), vol.Match(r"^[^/\s]+/[^/\s]+$"))], vol.Length(max=MAX_REPOSITORIES)
@@ -177,6 +204,82 @@ async def _ws_mine(hass: HomeAssistant, connection: websocket_api.ActiveConnecti
     connection.send_result(msg["id"], mine.as_dict())
 
 
+@websocket_api.websocket_command(
+    {vol.Required("type"): f"{DOMAIN}/branches", vol.Optional("refresh", default=False): bool}
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def _ws_branches(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """The branches of the token user's repositories (the panel keeps those older than the age of Settings)."""
+    connection.send_result(msg["id"], (await async_branches(hass, refresh=msg["refresh"])).as_dict())
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/delete_branches",
+        vol.Required("branches"): vol.All(
+            [
+                vol.Schema(
+                    {
+                        vol.Required("repo"): vol.All(str, vol.Length(min=3, max=200)),
+                        vol.Required("branch"): vol.All(str, vol.Length(min=1, max=250)),
+                    }
+                )
+            ],
+            vol.Length(min=1, max=MAX_DELETE),
+        ),
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def _ws_delete_branches(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Delete the chosen branches: ``{"ok": True, "results": [{"repo", "branch", "ok", "error"?}]}``."""
+    connection.send_result(msg["id"], await async_delete(hass, msg["branches"]))
+
+
+@websocket_api.websocket_command(
+    {vol.Required("type"): f"{DOMAIN}/gh_status", vol.Optional("refresh", default=False): bool}
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def _ws_gh_status(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Whether gh is installed and signed in: the panel shows its Create tab only then."""
+    connection.send_result(msg["id"], await async_status(hass, refresh=msg["refresh"]))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): f"{DOMAIN}/create_repo",
+        vol.Required("name"): vol.All(str, vol.Length(min=1, max=100)),
+        vol.Optional("owner", default=""): vol.All(str, vol.Length(max=39)),
+        vol.Optional("description", default=""): vol.All(str, vol.Length(max=MAX_DESCRIPTION)),
+        vol.Optional("homepage", default=""): vol.All(str, vol.Length(max=MAX_HOMEPAGE)),
+        vol.Optional("topics", default=list): vol.All([vol.All(str, vol.Length(max=50))], vol.Length(max=MAX_TOPICS)),
+        vol.Optional("visibility", default="public"): vol.In(VISIBILITIES),
+        # The protections of this repository; missing ones: the defaults of Settings
+        vol.Optional("protect", default=dict): _PROTECT,
+    }
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def _ws_create_repo(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict) -> None:
+    """Create a repository with gh, then protect it: ``{"ok": True, "full_name", "url", "steps"}`` or
+    ``{"ok": False, "error"}``."""
+    current = settings(_entry(hass))
+    protect = {key: current[key] for key in (*REPO_PROTECTIONS, CONF_REPO_RULESETS_FROM)} | msg["protect"]
+    result = await async_create(
+        hass,
+        name=msg["name"],
+        owner=msg["owner"],
+        description=msg["description"],
+        homepage=msg["homepage"],
+        topics=msg["topics"],
+        visibility=msg["visibility"],
+        protect=protect,
+    )
+    connection.send_result(msg["id"], result)
+
+
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/settings"})
 @websocket_api.require_admin
 @websocket_api.async_response
@@ -197,6 +300,13 @@ async def _ws_settings(hass: HomeAssistant, connection: websocket_api.ActiveConn
         vol.Optional(CONF_REFRESH_MINUTES): vol.All(
             vol.Coerce(int), vol.Range(min=MIN_REFRESH_MINUTES, max=MAX_REFRESH_MINUTES)
         ),
+        vol.Optional(CONF_BRANCH_AGE_DAYS): vol.All(vol.Coerce(int), vol.Range(min=0, max=MAX_BRANCH_AGE_DAYS)),
+        # Defaults of the New repository tab
+        vol.Optional(CONF_REPO_VISIBILITY): vol.In(VISIBILITIES),
+        vol.Optional(CONF_REPO_HOMEPAGE): vol.All(str, vol.Length(max=MAX_HOMEPAGE)),
+        vol.Optional(CONF_REPO_TOPICS): vol.All(str, vol.Length(max=MAX_FILTER_LENGTH)),
+        vol.Optional(CONF_REPO_RULESETS_FROM): _RULESETS_FROM,
+        **{vol.Optional(key): bool for key in REPO_PROTECTIONS},
     }
 )
 @websocket_api.require_admin

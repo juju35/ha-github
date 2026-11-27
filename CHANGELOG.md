@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.19.0 - 2026-11-27
+
+### Features
+- Panel: a **Branches** tab — the branches of your own repositories (archived ones left out), apart from their
+  default branch, whose last commit is older than the age set in Settings (**Minimum age of the branches**, 1 day by
+  default), oldest first, with their open pull request. Tick them (or select all shown) and delete them after a
+  confirmation, with the GitHub CLI (`gh`) — the GitHub integration's token may not delete branches, so deleting
+  shows only when `gh` is signed in, as the New repository tab; the default branch is never deleted. New commands `github_card/branches` and `github_card/delete_branches` (administrators only).
+- Panel: a **New repository** tab, shown only when the GitHub CLI (`gh`) is installed on the Home Assistant host and
+  signed in (`gh auth status`). It creates a repository with `gh repo create` — name, owner (your account or an
+  organization), description, website (`--homepage`) and visibility — then applies its protections: an empty first
+  commit on `main`, squash merges only with the pull request title and description, branches deleted once merged,
+  auto-merge, no wiki or projects, the topics, and the rulesets of the default branch and of the `v*` tags (or those
+  copied from a template repository). The steps that fail are listed; the repository stays created.
+- Settings: a **New repositories** group with the defaults of the tab (visibility, website template with `{name}` and
+  `{owner}`, topics, every protection, the template repository of the rulesets); each can be changed in the tab.
+- Values are checked first and passed to `gh` / `git` as separate arguments, without a shell. New commands
+  `github_card/gh_status` and `github_card/create_repo` (administrators only).
+
 ## 2.18.4 - 2026-11-24
 
 ### Fixes

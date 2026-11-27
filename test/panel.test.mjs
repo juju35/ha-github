@@ -459,3 +459,169 @@ test("a state update with nothing new leaves the markup alone (the page no longe
   assert.equal(writes, 2);
   assert.equal(githubPanelSetHtml(null, html), false);
 });
+
+test("New repository: the tab only once gh is signed in; an address to it waits for the status", async () => {
+  const p = panel();
+  assert.ok(!p._tabs().includes("create"));
+  assert.ok(p._tabShown("create")); // status unknown yet: /github-config/create kept
+  p._hass.callWS = async () => ({ installed: true, authenticated: false, login: null, error: "not logged in" });
+  await p._loadGh();
+  assert.ok(!p._tabs().includes("create"));
+  assert.ok(!p._tabShown("create"));
+  p._hass.callWS = async () => ({ installed: true, authenticated: true, login: "juju35", error: null });
+  await p._loadGh();
+  assert.deepEqual([...p._tabs()], ["repos", "issues", "pulls", "mine", "branches", "create", "settings"]);
+  // An older integration without the command: no tab
+  p._hass.callWS = async () => {
+    throw new Error("unknown_command");
+  };
+  await p._loadGh();
+  assert.ok(!p._tabs().includes("create"));
+});
+
+test("New repository: topics split, lower case and once; values checked; one create_repo command", async () => {
+  const calls = [];
+  const p = panel(calls);
+  p._gh = { installed: true, authenticated: true, login: "juju35" };
+  p._form = { ...lib.GitHubPanel.emptyForm(), name: "ha-test-card", description: " A card ", homepage: " https://example.org/x ", topics: "Home-Assistant, lovelace  lovelace;hacs", visibility: "private" };
+  assert.deepEqual([...p._topics()], ["home-assistant", "lovelace", "hacs"]);
+  assert.equal(p._formError(), null);
+  p._hass.callWS = async (msg) => {
+    calls.push(msg);
+    return { ok: true, full_name: "juju35/ha-test-card", url: "https://github.com/juju35/ha-test-card", topics: msg.topics, steps: [] };
+  };
+  await p._createRepo();
+  const sent = calls.find((c) => c.type === "github_card/create_repo");
+  assert.deepEqual(JSON.parse(JSON.stringify(sent)), {
+    type: "github_card/create_repo",
+    name: "ha-test-card",
+    owner: "",
+    description: "A card",
+    homepage: "https://example.org/x",
+    topics: ["home-assistant", "lovelace", "hacs"],
+    visibility: "private",
+    protect: {
+      repo_empty_commit: true, repo_squash_only: true, repo_squash_pr: true, repo_delete_branch: true, repo_auto_merge: false,
+      repo_no_wiki: true, repo_protect_branch: true, repo_protect_tags: true, repo_rulesets_from: "",
+    },
+  });
+  assert.ok(p._created.ok);
+  // The form starts again from the defaults
+  assert.deepEqual(JSON.parse(JSON.stringify(p._form)), JSON.parse(JSON.stringify(lib.GitHubPanel.emptyForm())));
+  for (const [form, error] of [
+    [{ name: "-bad" }, "invalid_name"],
+    [{ name: "ok", owner: "a/b" }, "invalid_owner"],
+    [{ name: "ok", description: "x".repeat(351) }, "invalid_description"],
+    [{ name: "ok", topics: "Not_ok" }, "invalid_topics"],
+    [{ name: "ok", homepage: "ftp://x" }, "invalid_homepage"],
+    [{ name: "ok", topics: Array.from({ length: 21 }, (_, i) => `t${i}`).join(",") }, "invalid_topics"],
+    [{ name: "ok", protect: { repo_rulesets_from: "nope" } }, "invalid_rulesets_from"],
+  ]) {
+    p._form = { ...lib.GitHubPanel.emptyForm(), ...form };
+    assert.equal(p._formError(), error, JSON.stringify(form));
+  }
+  // An invalid form sends nothing
+  calls.length = 0;
+  await p._createRepo();
+  assert.equal(calls.length, 0);
+});
+
+test("New repository: the defaults of Settings, the website template, and this repository's own protections", async () => {
+  const calls = [];
+  const p = panel(calls);
+  p._gh = { installed: true, authenticated: true, login: "juju35" };
+  p._settings = {
+    repo_visibility: "private", repo_homepage: "https://juju35.github.io/homeassistant-projects/projects/{name}/", repo_topics: "home-assistant hacs",
+    repo_empty_commit: false, repo_squash_only: true, repo_squash_pr: true, repo_delete_branch: true, repo_auto_merge: false,
+    repo_no_wiki: true, repo_protect_branch: true, repo_protect_tags: false, repo_rulesets_from: "juju35/ha-room-card",
+  };
+  p._form = { ...lib.GitHubPanel.emptyForm(), name: "ha-new-card" };
+  assert.equal(p._formValue("visibility"), "private");
+  assert.equal(p._formValue("homepage"), "https://juju35.github.io/homeassistant-projects/projects/ha-new-card/");
+  assert.deepEqual([...p._topics()], ["home-assistant", "hacs"]);
+  // Changed for this repository only
+  p._form.protect = { repo_protect_tags: true, repo_rulesets_from: "" };
+  p._form.homepage = "";
+  p._hass.callWS = async (msg) => {
+    calls.push(msg);
+    return { ok: true, full_name: "juju35/ha-new-card", url: "https://github.com/juju35/ha-new-card", steps: [{ step: "ruleset:main", ok: false, error: "HTTP 403" }] };
+  };
+  await p._createRepo();
+  const sent = calls.find((c) => c.type === "github_card/create_repo");
+  assert.equal(sent.homepage, "");
+  assert.equal(sent.visibility, "private");
+  assert.equal(sent.protect.repo_empty_commit, false);
+  assert.equal(sent.protect.repo_protect_tags, true);
+  assert.equal(sent.protect.repo_rulesets_from, "");
+  // The step that failed is said, the repository created all the same
+  assert.match(p._createNoteHtml(), /Ruleset · main : HTTP 403/);
+  assert.equal(p._settings.repo_protect_tags, false);
+});
+
+test("Branches: loaded when the tab opens, the age of Settings applied, oldest first, searched", async () => {
+  const calls = [];
+  const p = panel(calls);
+  const day = 86400000;
+  const iso = (daysAgo) => new Date(Date.now() - daysAgo * day).toISOString();
+  p._hass.callWS = async (msg) => {
+    calls.push(msg);
+    return {
+      branches: [
+        { repo: "juju35/ha-a", branch: "old", date: iso(40), default: "main", pr: null },
+        { repo: "juju35/ha-b", branch: "feat/x", date: iso(10), default: "main", pr: { number: 3, url: "https://github.com/juju35/ha-b/pull/3" } },
+        { repo: "juju35/ha-a", branch: "fresh", date: iso(0.2), default: "main", pr: null },
+      ],
+      repositories: 2,
+      fetched_at: Date.now() / 1000,
+      error: null,
+    };
+  };
+  p._showTab("branches");
+  await new Promise((r) => setImmediate(r));
+  assert.ok(calls.some((c) => c.type === "github_card/branches" && c.refresh === false));
+  // Default age: 1 day
+  assert.deepEqual([...p._branchRows().map((b) => b.branch)], ["old", "feat/x"]);
+  p._settings = { branch_age_days: 30 };
+  assert.deepEqual([...p._branchRows().map((b) => b.branch)], ["old"]);
+  p._settings = { branch_age_days: 0 };
+  assert.equal(p._branchRows().length, 3);
+  p._branchQuery = "HA-B";
+  assert.deepEqual([...p._branchRows().map((b) => b.branch)], ["feat/x"]);
+  assert.match(p._branchHtml(p._branchRows()[0]), /tree\/feat\/x/);
+  assert.match(p._branchHtml(p._branchRows()[0]), /#3/);
+  // The boxes (deleting) only with gh signed in, as the New repository tab
+  assert.doesNotMatch(p._branchHtml(p._branchRows()[0]), /data-branch=/);
+  p._gh = { installed: true, authenticated: true, login: "juju35" };
+  assert.match(p._branchHtml(p._branchRows()[0]), /data-branch=/);
+});
+
+test("Branches: only the ticked branches shown are deleted, then leave the list", async () => {
+  const calls = [];
+  const p = panel(calls);
+  const iso = new Date(Date.now() - 5 * 86400000).toISOString();
+  p._settings = { branch_age_days: 1 };
+  p._branches = {
+    branches: [
+      { repo: "juju35/ha-a", branch: "a", date: iso, default: "main", pr: null },
+      { repo: "juju35/ha-a", branch: "b", date: iso, default: "main", pr: null },
+      { repo: "juju35/ha-c", branch: "c", date: iso, default: "main", pr: null },
+    ],
+  };
+  p._branchSel = new Set(["juju35/ha-a\na", "juju35/ha-a\nb", "juju35/ha-c\nc"]);
+  p._branchQuery = "ha-a"; // c is ticked but not shown: kept
+  // Without gh signed in, nothing is sent
+  p._gh = { installed: true, authenticated: false };
+  await p._deleteBranches();
+  assert.equal(calls.length, 0);
+  p._gh = { installed: true, authenticated: true, login: "juju35" };
+  p._hass.callWS = async (msg) => {
+    calls.push(msg);
+    return { ok: true, results: [{ repo: "juju35/ha-a", branch: "a", ok: true }, { repo: "juju35/ha-a", branch: "b", ok: false, error: "HTTP 403" }] };
+  };
+  await p._deleteBranches();
+  const sent = calls.find((c) => c.type === "github_card/delete_branches");
+  assert.deepEqual(JSON.parse(JSON.stringify(sent.branches)), [{ repo: "juju35/ha-a", branch: "a" }, { repo: "juju35/ha-a", branch: "b" }]);
+  assert.deepEqual([...p._branches.branches.map((b) => b.branch)], ["b", "c"]);
+  assert.deepEqual([...p._branchSel].sort(), ["juju35/ha-a\nb", "juju35/ha-c\nc"]);
+  assert.equal(p._branchResult.results.filter((r) => !r.ok).length, 1);
+});
