@@ -301,7 +301,11 @@ async def test_create_gh_errors(hass):
 
 
 async def test_run_gh_not_found(hass):
-    with patch.object(gh_cli, "GH", "gh-does-not-exist-anywhere"):
+    # The gh found by an earlier status is forgotten (CI runners have a real gh)
+    with (
+        patch.object(gh_cli, "GH", "gh-does-not-exist-anywhere"),
+        patch.dict(gh_cli._found, {"binary": None, "config": None}),
+    ):
         code, _out, err = await gh_cli._run("--version")
     assert code == 127 and err
 
